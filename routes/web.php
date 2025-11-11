@@ -33,7 +33,7 @@ Route::prefix('admin')->group(function(){
     });
 
     Route::get('/', function(){
-        return view('dashboard');
+        return view('cms.dashboard');
     });
 
 });
