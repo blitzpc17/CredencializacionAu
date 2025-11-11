@@ -38,6 +38,10 @@
             overflow-x: hidden;
         }
 
+        .dashboard-content {
+            padding: 20px;
+        }
+
         /* Layout principal con flexbox */
         .dashboard-container {
             display: flex;
@@ -232,10 +236,12 @@
             margin-left: var(--sidebar-width);
             transition: var(--transition);
             min-height: 100vh;
+            width: calc(100% - var(--sidebar-width));
         }
 
         .sidebar.collapsed ~ .main-content {
             margin-left: var(--sidebar-collapsed);
+            width: calc(100% - var(--sidebar-collapsed));
         }
 
         /* Header estilo AdminLTE */
@@ -291,8 +297,8 @@
 
         .notification-badge {
             position: absolute;
-            top: -5px;
-            right: -5px;
+            top: 1px;
+            left: 1px;
             background-color: var(--danger);
             color: white;
             border-radius: 50%;
@@ -368,11 +374,28 @@
             margin: 5px 0;
         }
 
+        /* Overlay para móviles */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
         /* Responsive */
         @media (max-width: 992px) {
             .sidebar {
                 transform: translateX(-100%);
                 width: var(--sidebar-width);
+                z-index: 1000;
             }
 
             .sidebar.show {
@@ -381,10 +404,16 @@
 
             .sidebar.collapsed {
                 transform: translateX(-100%);
+                width: var(--sidebar-width);
+            }
+
+            .sidebar.collapsed.show {
+                transform: translateX(0);
             }
 
             .main-content {
                 margin-left: 0 !important;
+                width: 100% !important;
             }
 
             .nav-toggle {
@@ -393,6 +422,16 @@
 
             .search-bar {
                 width: 200px;
+            }
+
+            /* Prevenir scroll horizontal */
+            body {
+                overflow-x: hidden;
+            }
+            
+            .dashboard-content {
+                width: 100%;
+                overflow-x: hidden;
             }
         }
 
@@ -426,6 +465,10 @@
             .search-bar {
                 display: none;
             }
+            
+            .sidebar {
+                width: 280px;
+            }
         }
     </style>
     
@@ -433,12 +476,15 @@
 </head>
 <body>
     <div class="dashboard-container">
+        <!-- Overlay para móviles -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="logo-container">
                 <div class="logo">
-                    <div class="logo-img">DP</div>
-                    <span class="logo-text">DashboardPro</span>
+                    <div class="logo-img">DA</div>
+                    <span class="logo-text">Dashboard Au</span>
                 </div>
                 <button class="toggle-btn" id="toggleSidebar">
                     <i class="fas fa-bars"></i>
@@ -448,15 +494,15 @@
             <ul class="sidebar-menu">
                 <li class="menu-header">Navegación Principal</li>
                 <li class="menu-item">
-                    <a href="#" class="menu-link active">
+                    <a href="{{route('cms.dash')}}" class="menu-link active">
                         <i class="fas fa-home menu-icon"></i>
-                        <span class="menu-text">Dashboard</span>
+                        <span class="menu-text">Inicio</span>
                     </a>
                 </li>
                 <li class="menu-item">
-                    <a href="#" class="menu-link">
+                    <a href="{{route('cms.controles')}}" class="menu-link">
                         <i class="fas fa-chart-bar menu-icon"></i>
-                        <span class="menu-text">Analytics</span>
+                        <span class="menu-text">Controles</span>
                     </a>
                 </li>
                 
@@ -576,23 +622,55 @@
             const sidebar = document.querySelector('.sidebar');
             const toggleBtn = document.getElementById('toggleSidebar');
             const navToggle = document.getElementById('navToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
             
             // Toggle sidebar desde el botón interno
             toggleBtn.addEventListener('click', function() {
-                sidebar.classList.toggle('collapsed');
+                if (window.innerWidth <= 992) {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                } else {
+                    sidebar.classList.toggle('collapsed');
+                }
             });
             
             // Toggle sidebar desde el botón del header (para móviles)
             navToggle.addEventListener('click', function() {
                 sidebar.classList.toggle('show');
+                sidebarOverlay.classList.toggle('show');
+                
+                // Prevenir scroll del body cuando el sidebar está abierto
+                if (sidebar.classList.contains('show')) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
             });
             
-            // Cerrar sidebar al hacer clic fuera en móviles
-            document.addEventListener('click', function(e) {
-                if (window.innerWidth <= 992) {
-                    if (!e.target.closest('.sidebar') && !e.target.closest('#navToggle')) {
+            // Cerrar sidebar al hacer clic en el overlay
+            sidebarOverlay.addEventListener('click', function() {
+                sidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+                document.body.style.overflow = '';
+            });
+            
+            // Cerrar sidebar al hacer clic en un enlace (en móviles)
+            document.querySelectorAll('.menu-link').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 992) {
                         sidebar.classList.remove('show');
+                        sidebarOverlay.classList.remove('show');
+                        document.body.style.overflow = '';
                     }
+                });
+            });
+            
+            // Cerrar sidebar al redimensionar la ventana
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 992) {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                    document.body.style.overflow = '';
                 }
             });
             

@@ -34,6 +34,10 @@ Route::prefix('admin')->group(function(){
 
     Route::get('/', function(){
         return view('cms.dashboard');
-    });
+    })->name('cms.dash');
+
+    Route::get('controles', function(){
+        return view('cms.controles');
+    })->name('cms.controles');
 
 });

@@ -3,10 +3,6 @@
 @push('css')
 <style>
     /* Contenido del dashboard */
-    .dashboard-content {
-        padding: 20px;
-    }
-
     .page-title {
         margin-bottom: 20px;
         font-size: 1.8rem;
