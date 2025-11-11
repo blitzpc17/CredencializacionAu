@@ -19,11 +19,11 @@ Route::prefix('/')->group(function(){
 
     Route::get('/home', function () {
         return view('client.home');
-    });
+    })->name('client.home');
 
     Route::get('/solicitud', function () {
         return view('client.solicitud');
-    });
+    })->name('client.solicitud');
 });
 
 Route::prefix('admin')->group(function(){

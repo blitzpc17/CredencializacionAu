@@ -155,7 +155,7 @@
             z-index: 1000;
             box-shadow: var(--shadow);
             transition: var(--transition);
-            height:80px;
+            height: 80px;
         }
 
         header.hidden {
@@ -166,12 +166,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            height: 100%;
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-shrink: 0;
         }
 
         .logo i {
@@ -181,6 +183,7 @@
 
         .logo h1 {
             font-size: 1.5rem;
+            white-space: nowrap;
         }
 
         /* Menú Hamburguesa */
@@ -189,6 +192,8 @@
             flex-direction: column;
             cursor: pointer;
             z-index: 1001;
+            padding: 5px;
+            margin-left: auto;
         }
 
         .menu-toggle span {
@@ -212,9 +217,16 @@
             transform: rotate(45deg) translate(-5px, -6px);
         }
 
+        nav {
+            display: flex;
+            align-items: center;
+        }
+
         nav ul {
             display: flex;
             list-style: none;
+            margin: 0;
+            padding: 0;
         }
 
         nav ul li {
@@ -228,6 +240,7 @@
             transition: var(--transition);
             padding: 0.5rem 0;
             position: relative;
+            white-space: nowrap;
         }
 
         nav ul li a:hover {
@@ -422,7 +435,7 @@
             z-index: 999;
             transition: var(--transition);
             animation: pulse 2s infinite;
-            text-decoration:none;
+            text-decoration: none;
         }
 
         .whatsapp-tooltip {
@@ -514,6 +527,10 @@
 
         /* Responsive */
         @media (max-width: 992px) {
+            .header-content {
+                position: relative;
+            }
+
             .menu-toggle {
                 display: flex;
             }
@@ -532,6 +549,7 @@
                 transition: var(--transition);
                 z-index: 1000;
                 box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+                padding: 2rem 0;
             }
 
             nav ul.active {
@@ -539,28 +557,81 @@
             }
 
             nav ul li {
-                margin: 1.5rem 0;
+                margin: 1rem 0;
+                width: 100%;
+                text-align: center;
+            }
+
+            nav ul li a {
+                display: block;
+                padding: 1rem;
+                width: 100%;
+            }
+
+            nav ul li a:hover {
+                background-color: rgba(255, 255, 255, 0.1);
             }
         }
 
         @media (max-width: 768px) {
             .header-content {
-                flex-direction: column;
-                text-align: center;
+                flex-wrap: nowrap;
+                justify-content: space-between;
             }
 
             .logo {
-                margin-bottom: 1rem;
+                flex: 1;
+            }
+
+            .logo h1 {
+                font-size: 1.3rem;
+            }
+
+            .menu-toggle {
+                margin-left: 1rem;
             }
 
             .whatsapp-btn {
-                bottom: 80px;
+                bottom:10px;
+                right:10px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .logo h1 {
+                font-size: 1.1rem;
+            }
+
+            .logo i {
+                font-size: 1.5rem;
+            }
+
+            .menu-toggle {
+                margin-left: 0.5rem;
             }
         }
 
         @media (max-width: 480px) {
             .container {
                 width: 95%;
+            }
+
+            .logo h1 {
+                font-size: 1rem;
+            }
+
+            header {
+                padding: 0.8rem 0;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .logo h1 {
+                font-size: 0.9rem;
+            }
+
+            .logo i {
+                font-size: 1.3rem;
             }
         }
     </style>
@@ -595,10 +666,9 @@
             </div>
             <nav>
                 <ul id="navMenu">
-                    <li><a href="index.html">Inicio</a></li>
-                    <li><a href="calendarizacion.html">Calendarización</a></li>
-                    <li><a href="requisitos.html">Requisitos</a></li>
-                    <li><a href="contacto.html">Contacto</a></li>
+                    <li><a href="{{route('client.home')}}">Inicio</a></li>
+                    <li><a href="#">Calendarización</a></li>
+                    <li><a href="#">Requisitos</a></li>
                 </ul>
             </nav>
         </div>
@@ -689,6 +759,13 @@
         menuToggle.addEventListener('click', function() {
             menuToggle.classList.toggle('active');
             navMenu.classList.toggle('active');
+            
+            // Prevenir scroll del body cuando el menú está abierto
+            if (navMenu.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = 'auto';
+            }
         });
 
         // Cerrar menú al hacer clic en un enlace
@@ -697,7 +774,17 @@
             link.addEventListener('click', () => {
                 menuToggle.classList.remove('active');
                 navMenu.classList.remove('active');
+                document.body.style.overflow = 'auto';
             });
+        });
+
+        // Cerrar menú al hacer clic fuera de él
+        document.addEventListener('click', (e) => {
+            if (!header.contains(e.target) && navMenu.classList.contains('active')) {
+                menuToggle.classList.remove('active');
+                navMenu.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
         });
 
         // Ocultar/mostrar header al hacer scroll

@@ -76,13 +76,20 @@
 
     /* Sección Principal: Calendario y Cards */
     .main-section {
-        display: flex;
+        display: grid;
+        grid-template-columns: 1fr 1.2fr;
         gap: 2rem;
         margin: 3rem 0;
+        align-items: start;
+    }
+
+    .left-column {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
     }
 
     .calendar-section {
-        flex: 1;
         background-color: white;
         border-radius: 10px;
         padding: 1.5rem;
@@ -108,11 +115,59 @@
         width: 100%;
     }
 
+    /* Sección flotante de folio - ahora en columna izquierda */
+    .folio-section {
+        background-color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        max-width: 100%;
+        animation: slideInRight 0.5s ease;
+        transition: var(--transition);
+    }
+
+    .folio-section h3 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+    }
+
+    .folio-form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .folio-form input {
+        padding: 0.8rem;
+        margin-bottom: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+
+    .folio-form button {
+        background-color: var(--secondary-color);
+        color: white;
+        border: none;
+        padding: 0.8rem;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: var(--transition);
+    }
+
+    .folio-form button:hover {
+        background-color: #2980b9;
+    }
+
+    /* Cards Section - ahora en columna derecha */
     .cards-section {
-        flex: 1;
-        max-height: 500px;
+        background-color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow);
+        max-height: 600px;
         overflow-y: auto;
-        padding-right: 10px;
     }
 
     .cards-section::-webkit-scrollbar {
@@ -177,6 +232,7 @@
         color: #666;
         margin-bottom: 1rem;
         font-size: 0.9rem;
+        line-height: 1.4;
     }
 
     .card-btn {
@@ -192,63 +248,6 @@
     }
 
     .card-btn:hover {
-        background-color: #2980b9;
-    }
-
-    /* Sección flotante de folio */
-    .folio-section {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background-color: white;
-        padding: 1.5rem;
-        border-radius: 8px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        z-index: 999;
-        max-width: 350px;
-        animation: slideInRight 0.5s ease;
-        transition: var(--transition);
-    }
-
-    .folio-section.static {
-        position: relative;
-        bottom: auto;
-        right: auto;
-        max-width: 100%;
-        margin: 2rem 0;
-    }
-
-    .folio-section h3 {
-        color: var(--primary-color);
-        margin-bottom: 1rem;
-        font-size: 1.2rem;
-    }
-
-    .folio-form {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .folio-form input {
-        padding: 0.8rem;
-        margin-bottom: 1rem;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        font-size: 1rem;
-    }
-
-    .folio-form button {
-        background-color: var(--secondary-color);
-        color: white;
-        border: none;
-        padding: 0.8rem;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: var(--transition);
-    }
-
-    .folio-form button:hover {
         background-color: #2980b9;
     }
 
@@ -270,7 +269,12 @@
         }
 
         .main-section {
-            flex-direction: column;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .left-column {
+            gap: 1.5rem;
         }
 
         .cards-section {
@@ -303,14 +307,6 @@
         .card-img {
             width: 100%;
             height: 200px;
-        }
-
-        .folio-section {
-            position: relative;
-            bottom: auto;
-            right: auto;
-            max-width: 100%;
-            margin: 2rem 0;
         }
 
         .cards-section {
@@ -379,6 +375,41 @@
         .slide-content p {
             font-size: 0.9rem;
         }
+
+        .calendar-section,
+        .folio-section,
+        .cards-section {
+            padding: 1rem;
+        }
+    }
+
+    /* Espaciado mejorado */
+    .section-spacing {
+        margin: 2rem 0;
+    }
+
+    /* Mejoras visuales */
+    .calendar-section,
+    .folio-section,
+    .cards-section {
+        border: 1px solid #e9ecef;
+    }
+
+    .calendar-header h2,
+    .folio-section h3 {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .calendar-header h2::before {
+        content: "📅";
+        font-size: 1.5rem;
+    }
+
+    .folio-section h3::before {
+        content: "📋";
+        font-size: 1.5rem;
     }
 </style>
 @endpush
@@ -390,14 +421,14 @@
             <div class="slide">
                 <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" alt="Autobuses">
                 <div class="slide-content">
-                    <h2>Proceso de Credencialización 2025</h2>
+                    <h2>Proceso de Credencialización 2023</h2>
                     <p>Conoce las fechas disponibles para el trámite de credencialización</p>
                 </div>
             </div>
             <div class="slide">
                 <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" alt="Transporte">
                 <div class="slide-content">
-                    <h2>Nuevos Requisitos 2025</h2>
+                    <h2>Nuevos Requisitos 2023</h2>
                     <p>Actualizamos nuestros requisitos para agilizar el proceso</p>
                 </div>
             </div>
@@ -416,17 +447,35 @@
         </div>
     </section>
 
+    <!-- Espaciado después del slider -->
+    <div class="section-spacing"></div>
+
     <!-- Sección Principal: Calendario y Cards -->
     <section class="container main-section">
-        <div class="calendar-section">
-            <div class="calendar-header">
-                <h2>Selecciona una fecha</h2>
+        <!-- Columna Izquierda: Calendario y Folio -->
+        <div class="left-column">
+            <!-- Sección de Calendario -->
+            <div class="calendar-section">
+                <div class="calendar-header">
+                    <h2>Selecciona una fecha</h2>
+                </div>
+                <div class="calendar-container">
+                    <input type="text" id="calendar" placeholder="Selecciona una fecha para tu cita">
+                </div>
             </div>
-            <div class="calendar-container">
-                <input type="text" id="calendar" placeholder="Selecciona una fecha para tu cita">
+
+            <!-- Sección de Folio -->
+            <div class="folio-section">
+                <h3>Consulta tu folio</h3>
+                <p>Si ya cuentas con un folio de solicitud, ingrésalo para ver el estado de tu trámite.</p>
+                <form class="folio-form" id="folioForm">
+                    <input type="text" placeholder="Ingresa tu folio" id="folioInput" required>
+                    <button type="submit">Consultar Estado</button>
+                </form>
             </div>
         </div>
 
+        <!-- Columna Derecha: Cards -->
         <div class="cards-section">
             <div class="card">
                 <div class="card-img">
@@ -513,15 +562,8 @@
         </div>
     </section>
 
-    <!-- Sección flotante de folio -->
-    <div class="folio-section" id="folioSection">
-        <h3>Consulta tu folio</h3>
-        <p>Si ya cuentas con un folio de solicitud, ingrésalo para ver el estado de tu trámite.</p>
-        <form class="folio-form" id="folioForm">
-            <input type="text" placeholder="Ingresa tu folio" id="folioInput" required>
-            <button type="submit">Consultar Estado</button>
-        </form>
-    </div>
+    <!-- Espaciado antes del footer -->
+    <div class="section-spacing"></div>
 @endsection
 
 @push('js')
@@ -530,21 +572,21 @@
     const foliosData = {
         "ABC123": {
             solicitante: "Transportes del Norte S.A. de C.V.",
-            fecha: "15/08/2025",
+            fecha: "15/08/2023",
             estado: "En proceso",
             estadoClass: "status-pending",
-            proximo: "Revisión de documentación (Fecha estimada: 25/08/2025)"
+            proximo: "Revisión de documentación (Fecha estimada: 25/08/2023)"
         },
         "DEF456": {
             solicitante: "Autobuses Sureños",
-            fecha: "10/08/2025",
+            fecha: "10/08/2023",
             estado: "Aprobado",
             estadoClass: "status-approved",
-            proximo: "Entrega de credenciales (Fecha estimada: 30/08/2025)"
+            proximo: "Entrega de credenciales (Fecha estimada: 30/08/2023)"
         },
         "GHI789": {
             solicitante: "Líneas Unidas del Pacífico",
-            fecha: "05/08/2025",
+            fecha: "05/08/2023",
             estado: "Completado",
             estadoClass: "status-completed",
             proximo: "Proceso finalizado"
@@ -559,7 +601,6 @@
     const modalFecha = document.getElementById('modalFecha');
     const modalEstado = document.getElementById('modalEstado');
     const modalProximo = document.getElementById('modalProximo');
-    const folioSection = document.getElementById('folioSection');
 
     // Slider
     const slides = document.querySelector('.slides');
@@ -652,20 +693,5 @@
         // Limpiar el campo de entrada
         folioInput.value = '';
     }
-
-    // Controlar la posición de la sección de folio
-    window.addEventListener('scroll', function() {
-        const folioRect = folioSection.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-        
-        if (folioRect.top <= 0) {
-            folioSection.classList.remove('static');
-        } else {
-            folioSection.classList.add('static');
-        }
-    });
-
-    // Inicializar la posición de la sección de folio
-    window.dispatchEvent(new Event('scroll'));
 </script>
 @endpush
