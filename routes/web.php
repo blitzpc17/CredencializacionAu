@@ -29,7 +29,7 @@ Route::prefix('/')->group(function(){
 Route::prefix('admin')->group(function(){
 
     Route::get('login', function(){
-        return view('login');
+        return view('cms.login');
     });
 
     Route::get('/', function(){
