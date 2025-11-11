@@ -667,8 +667,8 @@
             <nav>
                 <ul id="navMenu">
                     <li><a href="{{route('client.home')}}">Inicio</a></li>
-                    <li><a href="#">Calendarización</a></li>
                     <li><a href="#">Requisitos</a></li>
+                    <li><a href="{{route('client.solicitud')}}">Realizar solicitud</a></li>
                 </ul>
             </nav>
         </div>

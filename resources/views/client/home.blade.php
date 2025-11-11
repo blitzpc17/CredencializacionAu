@@ -111,8 +111,21 @@
         position: relative;
     }
 
-    #calendar {
+    .month-select {
         width: 100%;
+        padding: 0.8rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+        background-color: white;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .month-select:focus {
+        outline: none;
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
     }
 
     /* Sección flotante de folio - ahora en columna izquierda */
@@ -166,17 +179,75 @@
         border-radius: 10px;
         padding: 1.5rem;
         box-shadow: var(--shadow);
-        max-height: 600px;
-        overflow-y: auto;
+        height: 600px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
     }
 
-    .cards-section::-webkit-scrollbar {
+    .cards-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .cards-header h3 {
+        color: var(--primary-color);
+        margin: 0;
+        font-size: 1.3rem;
+    }
+
+    .cards-content {
+        flex: 1;
+        overflow-y: auto;
+        position: relative;
+    }
+
+    .cards-content::-webkit-scrollbar {
         width: 6px;
     }
 
-    .cards-section::-webkit-scrollbar-thumb {
+    .cards-content::-webkit-scrollbar-thumb {
         background-color: #ccc;
         border-radius: 10px;
+    }
+
+    /* Loader para cards */
+    .cards-loader {
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        z-index: 10;
+    }
+
+    .cards-loader.active {
+        display: block;
+    }
+
+    .cards-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid var(--secondary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+
+    .cards-loader p {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 
     /* Cards estilo Flutter */
@@ -189,6 +260,9 @@
         box-shadow: var(--shadow);
         transition: var(--transition);
         border-left: 5px solid var(--secondary-color);
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.5s ease forwards;
     }
 
     .card:hover {
@@ -235,6 +309,21 @@
         line-height: 1.4;
     }
 
+    .card-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+        font-size: 0.8rem;
+        color: #888;
+    }
+
+    .card-date {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
     .card-btn {
         align-self: flex-start;
         background-color: var(--secondary-color);
@@ -249,6 +338,23 @@
 
     .card-btn:hover {
         background-color: #2980b9;
+    }
+
+    .card-btn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+
+    .no-cards {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+    }
+
+    .no-cards i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #ddd;
     }
 
     /* Contenedor de cards para móviles */
@@ -278,8 +384,7 @@
         }
 
         .cards-section {
-            max-height: none;
-            overflow-y: visible;
+            height: 500px;
         }
     }
 
@@ -310,11 +415,12 @@
         }
 
         .cards-section {
-            display: none;
+            display: flex;
+            height: 500px;
         }
 
         .cards-container-mobile {
-            display: block;
+            display: none;
         }
 
         .card-mobile {
@@ -381,6 +487,10 @@
         .cards-section {
             padding: 1rem;
         }
+
+        .cards-section {
+            height: 450px;
+        }
     }
 
     /* Espaciado mejorado */
@@ -396,7 +506,8 @@
     }
 
     .calendar-header h2,
-    .folio-section h3 {
+    .folio-section h3,
+    .cards-header h3 {
         display: flex;
         align-items: center;
         gap: 0.5rem;
@@ -409,6 +520,11 @@
 
     .folio-section h3::before {
         content: "📋";
+        font-size: 1.5rem;
+    }
+
+    .cards-header h3::before {
+        content: "🚍";
         font-size: 1.5rem;
     }
 </style>
@@ -457,10 +573,24 @@
             <!-- Sección de Calendario -->
             <div class="calendar-section">
                 <div class="calendar-header">
-                    <h2>Selecciona una fecha</h2>
+                    <h2>Selecciona un mes</h2>
                 </div>
                 <div class="calendar-container">
-                    <input type="text" id="calendar" placeholder="Selecciona una fecha para tu cita">
+                    <select id="monthSelect" class="month-select">
+                        <option value="">Selecciona un mes</option>
+                        <option value="01">Enero 2024</option>
+                        <option value="02">Febrero 2024</option>
+                        <option value="03">Marzo 2024</option>
+                        <option value="04">Abril 2024</option>
+                        <option value="05">Mayo 2024</option>
+                        <option value="06">Junio 2024</option>
+                        <option value="07">Julio 2024</option>
+                        <option value="08">Agosto 2024</option>
+                        <option value="09">Septiembre 2024</option>
+                        <option value="10">Octubre 2024</option>
+                        <option value="11">Noviembre 2024</option>
+                        <option value="12">Diciembre 2024</option>
+                    </select>
                 </div>
             </div>
 
@@ -477,88 +607,31 @@
 
         <!-- Columna Derecha: Cards -->
         <div class="cards-section">
-            <div class="card">
-                <div class="card-img">
-                    <img src="https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Terminal Norte">
-                </div>
-                <div class="card-content">
-                    <h3>Terminal Norte</h3>
-                    <p>Ubicada en la zona norte de la ciudad, con amplio estacionamiento y facilidades para autobuses de larga distancia.</p>
-                    <button class="card-btn">Realizar Solicitud</button>
-                </div>
+            <div class="cards-header">
+                <h3>Disponibilidad de Citas</h3>
             </div>
-            
-            <div class="card">
-                <div class="card-img">
-                    <img src="https://images.unsplash.com/photo-1570125909517-53cb21c89ff2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Terminal Sur">
+            <div class="cards-content" id="cardsContent">
+                <!-- Loader para cards -->
+                <div class="cards-loader" id="cardsLoader">
+                    <div class="cards-spinner"></div>
+                    <p>Cargando disponibilidad...</p>
                 </div>
-                <div class="card-content">
-                    <h3>Terminal Sur</h3>
-                    <p>Modernas instalaciones con tecnología de punta para agilizar el proceso de credencialización.</p>
-                    <button class="card-btn">Realizar Solicitud</button>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-img">
-                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Centro de Verificación">
-                </div>
-                <div class="card-content">
-                    <h3>Centro de Verificación</h3>
-                    <p>Especializado en la revisión técnica de autobuses para garantizar el cumplimiento de normas.</p>
-                    <button class="card-btn">Realizar Solicitud</button>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-img">
-                    <img src="https://images.unsplash.com/photo-1511919884226-fd3cad34687c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Oficina Central">
-                </div>
-                <div class="card-content">
-                    <h3>Oficina Central</h3>
-                    <p>Sede principal con atención personalizada y trámites especializados para flotas de autobuses.</p>
-                    <button class="card-btn">Realizar Solicitud</button>
+
+                <!-- Cards se cargarán aquí dinámicamente -->
+                <div id="cardsContainer"></div>
+
+                <!-- Estado cuando no hay cards -->
+                <div class="no-cards" id="noCards" style="display: none;">
+                    <i class="fas fa-calendar-times"></i>
+                    <h4>No hay citas disponibles</h4>
+                    <p>Selecciona otro mes para ver la disponibilidad</p>
                 </div>
             </div>
         </div>
 
-        <!-- Cards para móviles -->
+        <!-- Cards para móviles (oculto en desktop) -->
         <div class="cards-container-mobile">
-            <div class="card-mobile">
-                <div class="card-mobile-img">
-                    <img src="https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Terminal Norte">
-                </div>
-                <h3>Terminal Norte</h3>
-                <p>Ubicada en la zona norte de la ciudad, con amplio estacionamiento y facilidades para autobuses de larga distancia.</p>
-                <button class="card-btn">Realizar Solicitud</button>
-            </div>
-            
-            <div class="card-mobile">
-                <div class="card-mobile-img">
-                    <img src="https://images.unsplash.com/photo-1570125909517-53cb21c89ff2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Terminal Sur">
-                </div>
-                <h3>Terminal Sur</h3>
-                <p>Modernas instalaciones con tecnología de punta para agilizar el proceso de credencialización.</p>
-                <button class="card-btn">Realizar Solicitud</button>
-            </div>
-            
-            <div class="card-mobile">
-                <div class="card-mobile-img">
-                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Centro de Verificación">
-                </div>
-                <h3>Centro de Verificación</h3>
-                <p>Especializado en la revisión técnica de autobuses para garantizar el cumplimiento de normas.</p>
-                <button class="card-btn">Realizar Solicitud</button>
-            </div>
-            
-            <div class="card-mobile">
-                <div class="card-mobile-img">
-                    <img src="https://images.unsplash.com/photo-1511919884226-fd3cad34687c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Oficina Central">
-                </div>
-                <h3>Oficina Central</h3>
-                <p>Sede principal con atención personalizada y trámites especializados para flotas de autobuses.</p>
-                <button class="card-btn">Realizar Solicitud</button>
-            </div>
+            <!-- Contenido móvil se cargará dinámicamente -->
         </div>
     </section>
 
@@ -593,7 +666,58 @@
         }
     };
 
-    // Elementos del DOM específicos de home
+    // Datos de ejemplo para las citas por mes
+    const citasPorMes = {
+        "01": [
+            {
+                id: 1,
+                titulo: "Terminal Norte",
+                descripcion: "Ubicada en la zona norte de la ciudad, con amplio estacionamiento y facilidades para autobuses de larga distancia.",
+                imagen: "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80",
+                fecha: "15/01/2024",
+                disponibles: 5
+            },
+            {
+                id: 2,
+                titulo: "Terminal Sur",
+                descripcion: "Modernas instalaciones con tecnología de punta para agilizar el proceso de credencialización.",
+                imagen: "https://images.unsplash.com/photo-1570125909517-53cb21c89ff2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80",
+                fecha: "20/01/2024",
+                disponibles: 3
+            }
+        ],
+        "02": [
+            {
+                id: 3,
+                titulo: "Centro de Verificación",
+                descripcion: "Especializado en la revisión técnica de autobuses para garantizar el cumplimiento de normas.",
+                imagen: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80",
+                fecha: "10/02/2024",
+                disponibles: 8
+            }
+        ],
+        "03": [],
+        "04": [
+            {
+                id: 4,
+                titulo: "Oficina Central",
+                descripcion: "Sede principal con atención personalizada y trámites especializados para flotas de autobuses.",
+                imagen: "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80",
+                fecha: "05/04/2024",
+                disponibles: 2
+            },
+            {
+                id: 5,
+                titulo: "Terminal Norte",
+                descripcion: "Ubicada en la zona norte de la ciudad, con amplio estacionamiento y facilidades para autobuses de larga distancia.",
+                imagen: "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80",
+                fecha: "15/04/2024",
+                disponibles: 6
+            }
+        ]
+    };
+
+    // Elementos del DOM
     const folioForm = document.getElementById('folioForm');
     const folioInput = document.getElementById('folioInput');
     const modalFolio = document.getElementById('modalFolio');
@@ -601,31 +725,16 @@
     const modalFecha = document.getElementById('modalFecha');
     const modalEstado = document.getElementById('modalEstado');
     const modalProximo = document.getElementById('modalProximo');
+    const monthSelect = document.getElementById('monthSelect');
+    const cardsLoader = document.getElementById('cardsLoader');
+    const cardsContainer = document.getElementById('cardsContainer');
+    const noCards = document.getElementById('noCards');
 
     // Slider
     const slides = document.querySelector('.slides');
     const dots = document.querySelectorAll('.slider-dot');
     let currentSlide = 0;
     let slideInterval;
-
-    // Calendario
-    const calendar = flatpickr("#calendar", {
-        locale: "es",
-        minDate: "today",
-        dateFormat: "d/m/Y",
-        disable: [
-            function(date) {
-                // Deshabilitar fines de semana
-                return (date.getDay() === 0 || date.getDay() === 6);
-            }
-        ],
-        onChange: function(selectedDates, dateStr, instance) {
-            if (selectedDates.length > 0) {
-                // Aquí podrías mostrar disponibilidad para la fecha seleccionada
-                console.log("Fecha seleccionada:", dateStr);
-            }
-        }
-    });
 
     // Funcionalidad del slider
     function showSlide(n) {
@@ -661,6 +770,109 @@
 
     startSlideInterval();
 
+    // Manejar cambio de mes
+    monthSelect.addEventListener('change', function() {
+        const mesSeleccionado = this.value;
+        if (mesSeleccionado) {
+            cargarCitasPorMes(mesSeleccionado);
+        } else {
+            limpiarCards();
+        }
+    });
+
+    // Función para cargar citas por mes
+    async function cargarCitasPorMes(mes) {
+        // Mostrar loader
+        cardsLoader.classList.add('active');
+        cardsContainer.innerHTML = '';
+        noCards.style.display = 'none';
+
+        // Simular delay de red
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        try {
+            // Simular fetch a API
+            const citas = citasPorMes[mes] || [];
+
+            if (citas.length === 0) {
+                // Mostrar estado de no hay citas
+                noCards.style.display = 'block';
+            } else {
+                // Generar cards
+                citas.forEach((cita, index) => {
+                    const card = crearCard(cita, index);
+                    cardsContainer.appendChild(card);
+                });
+            }
+        } catch (error) {
+            console.error('Error al cargar citas:', error);
+            cardsContainer.innerHTML = `
+                <div class="no-cards">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h4>Error al cargar</h4>
+                    <p>Intenta nuevamente más tarde</p>
+                </div>
+            `;
+        } finally {
+            // Ocultar loader
+            cardsLoader.classList.remove('active');
+        }
+    }
+
+    // Función para crear card
+    function crearCard(cita, index) {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.animationDelay = `${index * 0.1}s`;
+
+        card.innerHTML = `
+            <div class="card-img">
+                <img src="${cita.imagen}" alt="${cita.titulo}">
+            </div>
+            <div class="card-content">
+                <h3>${cita.titulo}</h3>
+                <p>${cita.descripcion}</p>
+                <div class="card-meta">
+                    <div class="card-date">
+                        <i class="far fa-calendar"></i>
+                        ${cita.fecha}
+                    </div>
+                    <span>${cita.disponibles} cupos</span>
+                </div>
+                <button class="card-btn" ${cita.disponibles === 0 ? 'disabled' : ''}>
+                    ${cita.disponibles === 0 ? 'Agotado' : 'Realizar Solicitud'}
+                </button>
+            </div>
+        `;
+
+        // Agregar evento al botón
+        const btn = card.querySelector('.card-btn');
+        if (!btn.disabled) {
+            btn.addEventListener('click', () => {
+                solicitarCita(cita);
+            });
+        }
+
+        return card;
+    }
+
+    // Función para solicitar cita
+    function solicitarCita(cita) {
+        // Aquí puedes redirigir al formulario de solicitud o mostrar un modal
+        alert(`Solicitando cita para: ${cita.titulo}\nFecha: ${cita.fecha}`);
+        
+        // Simular reducción de cupos
+        cita.disponibles--;
+        const mesActual = monthSelect.value;
+        cargarCitasPorMes(mesActual);
+    }
+
+    // Función para limpiar cards
+    function limpiarCards() {
+        cardsContainer.innerHTML = '';
+        noCards.style.display = 'none';
+    }
+
     // Manejar el envío del formulario de folio
     folioForm.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -693,5 +905,13 @@
         // Limpiar el campo de entrada
         folioInput.value = '';
     }
+
+    // Cargar citas del mes actual al iniciar
+    document.addEventListener('DOMContentLoaded', function() {
+        const mesActual = new Date().getMonth() + 1;
+        const mesActualStr = mesActual.toString().padStart(2, '0');
+        monthSelect.value = mesActualStr;
+        cargarCitasPorMes(mesActualStr);
+    });
 </script>
 @endpush
