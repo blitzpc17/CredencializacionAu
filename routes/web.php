@@ -13,6 +13,27 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/home', function () {
-    return view('welcome');
+
+
+Route::prefix('/')->group(function(){
+
+    Route::get('/home', function () {
+        return view('client.home');
+    });
+
+    Route::get('/solicitud', function () {
+        return view('client.solicitud');
+    });
+});
+
+Route::prefix('admin')->group(function(){
+
+    Route::get('login', function(){
+        return view('login');
+    });
+
+    Route::get('/', function(){
+        return view('dashboard');
+    });
+
 });
