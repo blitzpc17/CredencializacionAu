@@ -8,6 +8,7 @@ use App\Http\Controllers\FolioController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\HorarioCredencializacionController;
 use App\Http\Controllers\SolicitudEstadoController;
+use App\Http\Controllers\SolicitudController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +31,9 @@ Route::apiResource('horarios-credencializacion', HorarioCredencializacionControl
 Route::apiResource('terminales', TerminalController::class);
 Route::apiResource('folios', FolioController::class);
 Route::apiResource('solicitudes-estados', SolicitudEstadoController::class);
+
+Route::post('solicitudes', [SolicitudController::class, 'store']);
+Route::get('solicitudes/{folio}', [SolicitudController::class, 'consultarPorFolio']);
 
 
 

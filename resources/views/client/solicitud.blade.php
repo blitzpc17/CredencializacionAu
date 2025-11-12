@@ -331,58 +331,141 @@
 
     <!-- Formulario -->
     <section class="container">
-        <form id="registroForm" class="form-container">
+        <form id="registroForm" class="form-container" enctype="multipart/form-data">
             <!-- Información Personal -->
             <div class="form-section">
                 <h3><i class="fas fa-user"></i> Información Personal</h3>
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="nombre">Nombre(s)</label>
-                        <input type="text" id="nombre" class="form-control" required>
+                        <label for="nombres">NOMBRE(S): *</label>
+                        <input type="text" id="nombres" class="form-control" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="apellidos">Apellidos</label>
+                        <label for="apellidos">APELLIDOS: *</label>
                         <input type="text" id="apellidos" class="form-control" required>
                     </div>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="fechaNacimiento">Fecha de Nacimiento</label>
-                        <input type="text" id="fechaNacimiento" class="form-control" placeholder="Seleccione una fecha" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="genero">Género</label>
-                        <select id="genero" class="form-control form-select" required>
+                        <label for="perfil_academico">PERFIL ACADÉMICO: *</label>
+                         <select id="perfil_academico" class="form-control form-select" required>
                             <option value="">Seleccione una opción</option>
-                            <option value="masculino">Masculino</option>
-                            <option value="femenino">Femenino</option>
-                            <option value="otro">Otro</option>
-                            <option value="prefiero-no-decir">Prefiero no decir</option>
+                            <option value="1">ESTUDIANTE</option>
+                            <option value="2">DOCENTE</option>
+                           
                         </select>
-                    </div>
+                    </div>                    
+                 
                 </div>
-                
+
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="telefono">Teléfono</label>
+                        <label for="escuela_procedencia">NOMBRE DE LA ESCUELA DE PROCEDENCIA: ESPECIFICAR EL NOMBRE COMPLETO DE LA INSTITUCION EDUCATIVA EN LA QUE PERTENECES: *</label>
+                        <input type="text" id="escuela_procedencia" class="form-control" placeholder="Ej. INSTITUTO TECNOLOGICO DE TEHUACAN" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="lugar_residencia">LUGAR DE RESIDENCIA: ESPECIFICA EL LUGAR DE RESIDENCIA DE LOCALIDAD: *</label>
+                        <input type="text" id="lugar_residencia" class="form-control" placeholder="Ej. TEHUACAN, PUEBLA" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="lugar_origen">LUGAR DE ORIGEN: *</label>
+                        <input type="text" id="lugar_origen" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="telefono">NUMERO TELEFONICO, EJEMPLO: A 10 DIGITOS *</label>
                         <input type="tel" id="telefono" class="form-control" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="email">Correo Electrónico</label>
-                        <input type="email" id="email" class="form-control" required>
+                        <label for="correo">CORREO ELECTRÓNICO:</label>
+                        <input type="email" id="correo" class="form-control" required>
                     </div>
                 </div>
+
+               
+                
+
+
+
             </div>
 
-            <!-- Información del Autobús -->
+            <!-- Información de viajes -->
             <div class="form-section">
-                <h3><i class="fas fa-bus"></i> Información del Autobús</h3>
+                <h3><i class="fas fa-bus"></i> Información de viaje</h3>
+
+                 <div class="form-row">
+                    <div class="form-group">
+                        <label for="lugar_viaja_frecuente">LUGAR AL QUE VIAJA FRECUENTEMENTE: *</label>
+                        <input type="text" id="lugar_viaja_frecuente" class="form-control"  required>
+                    </div>
+                </div>
+
+
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="terminalesId">TERMINAL DE AUTOBUSES AU MAS CERCANA. NOTA: PARA RECOGER SU CREDENCIAL *</label>
+                         <select id="terminalesId" class="form-control form-select" required>
+                            <option value="">Seleccione una opción</option>
+                            <option value="1">ESTUDIANTE</option>
+                            <option value="2">DOCENTE</option>                           
+                        </select>
+                    </div>   
+                </div>
                 
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="veces_semana">¿CUANTAS VECES ESTIMA VIAJAR POR SEMANA?</label>
+                        <input type="text" id="veces_semana" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dia_semana_viaja">¿QUE DIAS DE LA SEMANA VIAJA?</label>
+                        <select id="dia_semana_viaja" class="form-control form-select" required>
+                            <option value="">Seleccione una opción</option>
+                            <option value="1">LUENES</option>
+                            <option value="2">MARTES</option>                           
+                            <option value="3">MIÉRCOLES</option>
+                            <option value="4">JUEVES</option>
+                            <option value="5">VIERNES</option>
+                            <option value="6">SÁBADO</option>
+                            <option value="7">DOMINGO</option>
+                        </select>
+                    </div>
+                </div>
+
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="veces_semana">¿CUANTAS VECES ESTIMA VIAJAR POR SEMANA?</label>
+                        <input type="text" id="veces_semana" class="form-control" required>
+                    </div>
+                    
+                <div class="form-group">
+                        <label for="FormaPAgo">FORMA DE PAGO:</label>
+                        <select id="formaPago" class="form-control form-select" required>
+                            <option value="">Seleccione una opción</option>
+                            <option value="1">TRANSFERENCIA</option>
+                            <option value="2">PAGO EN TAQUILLA</option>
+                            <option value="3">TARJETA CRÉDITO/DÉBITO</option>
+                            <option value="4">EFECTIVO</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="marca">Marca</label>
@@ -432,11 +515,14 @@
                         </select>
                     </div>
                 </div>
+                -->
+
             </div>
 
             <!-- Preguntas de Opción Múltiple -->
+             <!--
             <div class="form-section">
-                <h3><i class="fas fa-question-circle"></i> Preguntas de Seguridad</h3>
+                <h3><i class="fas fa-question-circle"></i> Documentación</h3>
                 
                 <div class="form-group">
                     <label>¿Cuántos años de experiencia tiene manejando autobuses?</label>
@@ -496,23 +582,14 @@
                 </div>
             </div>
 
+            -->
+
             <!-- Subida de Archivos -->
             <div class="form-section">
                 <h3><i class="fas fa-file-upload"></i> Documentación Requerida</h3>
-                
+
                 <div class="form-group">
-                    <label>Fotografía del Solicitante</label>
-                    <div class="file-upload">
-                        <div class="file-upload-btn">
-                            <i class="fas fa-camera"></i> Seleccionar Imagen
-                        </div>
-                        <input type="file" id="fotoSolicitante" accept="image/*" required>
-                    </div>
-                    <div class="file-preview" id="fotoPreview"></div>
-                </div>
-                
-                <div class="form-group">
-                    <label>Licencia de Conducir</label>
+                    <label>ADJUNTE CURP. LA CURP DEBE SER ACTUALIZADA</label>
                     <div class="file-upload">
                         <div class="file-upload-btn">
                             <i class="fas fa-file-pdf"></i> Subir PDF o Imagen
@@ -521,9 +598,9 @@
                     </div>
                     <div class="file-preview" id="licenciaPreview"></div>
                 </div>
-                
-                <div class="form-group">
-                    <label>Tarjeta de Circulación</label>
+
+                 <div class="form-group">
+                    <label>ADJUNTE CREDENCIAL VIGENTE Y/O KARDEX VIGENTE, EN CASO DE SER MAESTRO ADJUNTE CREDENCIAL DE SEP VIGENTE O ULTIMO RECIBO DE PAGO Y/O CARTA DE ASIGNACION.</label>
                     <div class="file-upload">
                         <div class="file-upload-btn">
                             <i class="fas fa-file-pdf"></i> Subir PDF o Imagen
@@ -532,20 +609,23 @@
                     </div>
                     <div class="file-preview" id="tarjetaPreview"></div>
                 </div>
+
                 
                 <div class="form-group">
-                    <label>Seguro del Autobús (Opcional)</label>
+                    <label>12.- ADJUNTE FOTOGRAFIA TAMAÑO INFANTIL A COLOR, CON FONDO BLANCO:</label>
                     <div class="file-upload">
                         <div class="file-upload-btn">
-                            <i class="fas fa-file-pdf"></i> Subir PDF o Imagen
+                            <i class="fas fa-camera"></i> Seleccionar Imagen
                         </div>
-                        <input type="file" id="seguro" accept=".pdf,.jpg,.jpeg,.png">
+                        <input type="file" id="fotoSolicitante" accept="image/*" required>
                     </div>
-                    <div class="file-preview" id="seguroPreview"></div>
-                </div>
+                    <div class="file-preview" id="fotoPreview"></div>
+                </div>                         
+               
             </div>
 
             <!-- Términos y Condiciones -->
+             <!-- 
             <div class="form-section">
                 <h3><i class="fas fa-file-contract"></i> Términos y Condiciones</h3>
                 
@@ -563,6 +643,7 @@
                     </div>
                 </div>
             </div>
+-->
 
             <!-- Botones de Acción -->
             <div class="form-actions">
@@ -578,9 +659,10 @@
 @endsection
 
 @push('js')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     // Inicializar datepicker para fecha de nacimiento
-    flatpickr("#fechaNacimiento", {
+    /*flatpickr("#fechaNacimiento", {
         locale: "es",
         dateFormat: "d/m/Y",
         maxDate: "today",
@@ -590,9 +672,10 @@
                 return date > new Date();
             }
         ]
-    });
+    });*/
 
     // Manejar la vista previa de archivos
+    /*
     function setupFilePreview(inputId, previewId) {
         const input = document.getElementById(inputId);
         const preview = document.getElementById(previewId);
@@ -689,6 +772,227 @@
     }, observerOptions);
 
     // Observar todas las secciones del formulario
+    document.querySelectorAll('.form-section').forEach(section => {
+        observer.observe(section);
+    });*/
+
+
+    // Función mejorada con estado de carga
+    async function cargarTerminales() {
+        const select = document.getElementById('terminalesId');
+        
+        // Mostrar estado de carga
+        select.innerHTML = '<option value="">Cargando terminales...</option>';
+        select.disabled = true;
+
+        try {
+            const response = await fetch('/api/terminales', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+
+            if (result.success && Array.isArray(result.data)) {
+                llenarSelectTerminales(result.data);
+                select.disabled = false;
+            } else {
+                throw new Error(result.message || 'Formato de respuesta inválido');
+            }
+        } catch (error) {
+            console.error('Error cargando terminales:', error);
+            select.innerHTML = '<option value="">Error al cargar terminales</option>';
+            mostrarErrorTerminales('No se pudieron cargar las terminales. Por favor, recargue la página.');
+        }
+    }
+
+    // Función para llenar el select
+    function llenarSelectTerminales(terminales) {
+        const select = document.getElementById('terminalesId');
+        
+        select.innerHTML = '<option value="">Seleccione una terminal</option>';
+        
+        terminales.forEach(terminal => {
+            const option = document.createElement('option');
+            option.value = terminal.id;
+            // Ajusta estos campos según tu modelo Terminal
+            option.textContent = terminal.nombre || terminal.descripcion || `Terminal ${terminal.id}`;
+            option.setAttribute('data-terminal', JSON.stringify(terminal));
+            select.appendChild(option);
+        });
+    }
+
+    // Cargar al iniciar
+    document.addEventListener('DOMContentLoaded', cargarTerminales);
+
+    // También puedes recargar si hay un error
+    function recargarTerminales() {
+        const select = document.getElementById('terminalesId');
+        const errorDiv = select.parentNode.querySelector('.alert-danger');
+        
+        if (errorDiv) {
+            errorDiv.remove();
+        }
+        
+        cargarTerminales();
+    }
+
+     function setupFilePreview(inputId, previewId) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        
+        input.addEventListener('change', function(e) {
+            preview.innerHTML = '';
+            
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'file-preview-item';
+                    
+                    if (file.type.startsWith('image/')) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        previewItem.appendChild(img);
+                    } else {
+                        const icon = document.createElement('div');
+                        icon.style.width = '100%';
+                        icon.style.height = '100%';
+                        icon.style.display = 'flex';
+                        icon.style.justifyContent = 'center';
+                        icon.style.alignItems = 'center';
+                        icon.style.backgroundColor = '#f8f9fa';
+                        icon.innerHTML = `<i class="fas fa-file-pdf" style="font-size: 2rem; color: #e74c3c;"></i>`;
+                        previewItem.appendChild(icon);
+                    }
+                    
+                    const fileInfo = document.createElement('div');
+                    fileInfo.className = 'file-info';
+                    fileInfo.textContent = file.name;
+                    previewItem.appendChild(fileInfo);
+                    
+                    const removeBtn = document.createElement('div');
+                    removeBtn.className = 'remove-file';
+                    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    removeBtn.addEventListener('click', function() {
+                        previewItem.remove();
+                        input.value = '';
+                    });
+                    previewItem.appendChild(removeBtn);
+                    
+                    preview.appendChild(previewItem);
+                }
+                
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Configurar vista previa para todos los campos de archivo
+    setupFilePreview('fotoSolicitante', 'fotoPreview');
+    setupFilePreview('licencia', 'licenciaPreview');
+    setupFilePreview('tarjetaCirculacion', 'tarjetaPreview');
+
+    // Manejar el envío del formulario
+    document.getElementById('registroForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Mostrar loader (debes agregar un elemento loader en tu HTML)
+        // document.getElementById('loader').classList.remove('hidden');
+        
+        // Crear FormData para enviar archivos
+        const formData = new FormData();
+        
+        // Agregar datos del formulario
+        formData.append('nombres', document.getElementById('nombres').value);
+        formData.append('apellidos', document.getElementById('apellidos').value);
+        formData.append('perfil_academico', document.getElementById('perfil_academico').value);
+        formData.append('escuela_procedencia', document.getElementById('escuela_procedencia').value);
+        formData.append('lugar_residencia', document.getElementById('lugar_residencia').value);
+        formData.append('lugar_origen', document.getElementById('lugar_origen').value);
+        formData.append('lugar_viaja_frecuente', document.getElementById('lugar_viaja_frecuente').value);
+        formData.append('terminalesId', document.getElementById('terminalesId').value);
+        formData.append('veces_semana', document.getElementById('veces_semana').value);
+        formData.append('dia_semana_viaja', document.getElementById('dia_semana_viaja').value);
+        formData.append('correo', document.getElementById('correo').value);
+        formData.append('telefono', document.getElementById('telefono').value);
+        formData.append('formaPago', document.getElementById('formaPago').value);
+        
+        // Agregar archivos
+        formData.append('curp', document.getElementById('licencia').files[0]);
+        formData.append('credencial', document.getElementById('tarjetaCirculacion').files[0]);
+        formData.append('fotografia', document.getElementById('fotoSolicitante').files[0]);
+
+        // Enviar datos via AJAX
+        fetch('/api/solicitudes', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.message || 'Error del servidor');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Mostrar folio generado
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Solicitud enviada!',
+                    html: `Su solicitud ha sido registrada exitosamente.<br><strong>Folio: ${data.folio}</strong>`,
+                    confirmButtonText: 'Aceptar'
+                });
+                
+                // Limpiar formulario
+                document.getElementById('registroForm').reset();
+                document.querySelectorAll('.file-preview').forEach(preview => {
+                    preview.innerHTML = '';
+                });
+            } else {
+                throw new Error(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message || 'Error al enviar la solicitud. Por favor, intente nuevamente.',
+                confirmButtonText: 'Aceptar'
+            });
+        });
+    });
+
+    // Animación para las secciones del formulario al hacer scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animation = 'slideInRight 0.5s ease forwards';
+            }
+        });
+    }, observerOptions);
+
     document.querySelectorAll('.form-section').forEach(section => {
         observer.observe(section);
     });

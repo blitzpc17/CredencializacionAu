@@ -608,7 +608,7 @@
         <!-- Columna Derecha: Cards -->
         <div class="cards-section">
             <div class="cards-header">
-                <h3>Disponibilidad de Citas</h3>
+                <h3>Calendario de credencialización</h3>
             </div>
             <div class="cards-content" id="cardsContent">
                 <!-- Loader para cards -->
@@ -640,82 +640,375 @@
 @endsection
 
 @push('js')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     // Datos de ejemplo para simular la consulta de folios
-    const foliosData = {
-        "ABC123": {
-            solicitante: "Transportes del Norte S.A. de C.V.",
-            fecha: "15/08/2023",
-            estado: "En proceso",
-            estadoClass: "status-pending",
-            proximo: "Revisión de documentación (Fecha estimada: 25/08/2023)"
-        },
-        "DEF456": {
-            solicitante: "Autobuses Sureños",
-            fecha: "10/08/2023",
-            estado: "Aprobado",
-            estadoClass: "status-approved",
-            proximo: "Entrega de credenciales (Fecha estimada: 30/08/2023)"
-        },
-        "GHI789": {
-            solicitante: "Líneas Unidas del Pacífico",
-            fecha: "05/08/2023",
-            estado: "Completado",
-            estadoClass: "status-completed",
-            proximo: "Proceso finalizado"
-        }
-    };
+    // Función para consultar el folio via API
+async function consultarFolio(folio) {
+    try {
+        // Mostrar loading
+        mostrarLoadingFolio(true);
+        
+        const response = await fetch(`/api/solicitudes/${folio}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        });
 
-    // Datos de ejemplo para las citas por mes
-    const citasPorMes = {
-        "01": [
-            {
-                id: 1,
-                titulo: "Terminal Norte",
-                descripcion: "Ubicada en la zona norte de la ciudad, con amplio estacionamiento y facilidades para autobuses de larga distancia.",
-                imagen: "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80",
-                fecha: "15/01/2024",
-                disponibles: 5
-            },
-            {
-                id: 2,
-                titulo: "Terminal Sur",
-                descripcion: "Modernas instalaciones con tecnología de punta para agilizar el proceso de credencialización.",
-                imagen: "https://images.unsplash.com/photo-1570125909517-53cb21c89ff2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80",
-                fecha: "20/01/2024",
-                disponibles: 3
-            }
-        ],
-        "02": [
-            {
-                id: 3,
-                titulo: "Centro de Verificación",
-                descripcion: "Especializado en la revisión técnica de autobuses para garantizar el cumplimiento de normas.",
-                imagen: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80",
-                fecha: "10/02/2024",
-                disponibles: 8
-            }
-        ],
-        "03": [],
-        "04": [
-            {
-                id: 4,
-                titulo: "Oficina Central",
-                descripcion: "Sede principal con atención personalizada y trámites especializados para flotas de autobuses.",
-                imagen: "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80",
-                fecha: "05/04/2024",
-                disponibles: 2
-            },
-            {
-                id: 5,
-                titulo: "Terminal Norte",
-                descripcion: "Ubicada en la zona norte de la ciudad, con amplio estacionamiento y facilidades para autobuses de larga distancia.",
-                imagen: "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80",
-                fecha: "15/04/2024",
-                disponibles: 6
-            }
-        ]
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || 'Error en la consulta');
+        }
+
+        if (result.success) {
+            mostrarResultadoFolio(result.data);
+        } else {
+            throw new Error(result.message);
+        }
+
+    } catch (error) {
+        console.error('Error consultando folio:', error);
+        mostrarErrorFolio(error.message);
+    } finally {
+        mostrarLoadingFolio(false);
+    }
+}
+
+// Función para mostrar el resultado de la consulta
+function mostrarResultadoFolio(solicitud) {
+    // Crear o actualizar el modal de resultados
+    let modal = document.getElementById('folioResultModal');
+    
+    if (!modal) {
+        crearModalResultados();
+        modal = document.getElementById('folioResultModal');
+    }
+
+    // Llenar el modal con los datos
+    document.getElementById('modalFolio').textContent = solicitud.folio;
+    document.getElementById('modalSolicitante').textContent = `${solicitud.nombres} ${solicitud.apellidos}`;
+    document.getElementById('modalFecha').textContent = new Date(solicitud.created_at).toLocaleDateString('es-MX');
+    document.getElementById('modalEstado').textContent = solicitud.estado?.nombre || 'Pendiente';
+    document.getElementById('modalProximo').textContent = obtenerProximoPaso(solicitud.solicitudes_estadosId);
+    
+    // Aplicar clase de estado
+    const estadoElement = document.getElementById('modalEstado');
+    estadoElement.className = 'status-badge ' + obtenerClaseEstado(solicitud.solicitudes_estadosId);
+
+    // Mostrar información adicional
+    document.getElementById('modalEscuela').textContent = solicitud.escuela_procedencia;
+    document.getElementById('modalCorreo').textContent = solicitud.correo;
+    document.getElementById('modalTelefono').textContent = solicitud.telefono;
+    document.getElementById('modalTerminal').textContent = solicitud.terminal?.nombre || 'No asignada';
+
+    // Mostrar el modal
+    modal.style.display = 'flex';
+}
+
+// Función para crear el modal de resultados (si no existe)
+function crearModalResultados() {
+    const modalHTML = `
+        <div id="folioResultModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Estado de tu Solicitud</h3>
+                    <span class="close-modal" onclick="cerrarModalFolio()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="folio-info-grid">
+                        <div class="info-item">
+                            <label>Folio:</label>
+                            <span id="modalFolio" class="folio-number"></span>
+                        </div>
+                        <div class="info-item">
+                            <label>Solicitante:</label>
+                            <span id="modalSolicitante"></span>
+                        </div>
+                        <div class="info-item">
+                            <label>Fecha de solicitud:</label>
+                            <span id="modalFecha"></span>
+                        </div>
+                        <div class="info-item">
+                            <label>Estado:</label>
+                            <span id="modalEstado" class="status-badge"></span>
+                        </div>
+                        <div class="info-item">
+                            <label>Escuela:</label>
+                            <span id="modalEscuela"></span>
+                        </div>
+                        <div class="info-item">
+                            <label>Correo:</label>
+                            <span id="modalCorreo"></span>
+                        </div>
+                        <div class="info-item">
+                            <label>Teléfono:</label>
+                            <span id="modalTelefono"></span>
+                        </div>
+                        <div class="info-item">
+                            <label>Terminal asignada:</label>
+                            <span id="modalTerminal"></span>
+                        </div>
+                    </div>
+                    <div class="proximo-paso">
+                        <h4>Próximo paso:</h4>
+                        <p id="modalProximo"></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="cerrarModalFolio()">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Agregar CSS para el modal
+    agregarCSSModal();
+}
+
+// Función auxiliar para obtener la clase del estado
+function obtenerClaseEstado(estadoId) {
+    const clases = {
+        1: 'status-pending',     // Pendiente
+        2: 'status-processing',  // En proceso
+        3: 'status-approved',    // Aprobado
+        4: 'status-completed',   // Completado
+        5: 'status-rejected'     // Rechazado
     };
+    return clases[estadoId] || 'status-pending';
+}
+
+// Función auxiliar para obtener el próximo paso
+function obtenerProximoPaso(estadoId) {
+    const pasos = {
+        1: 'Revisión inicial de documentación (2-3 días hábiles)',
+        2: 'Verificación de requisitos académicos (3-5 días hábiles)',
+        3: 'Generación de credencial (5-7 días hábiles)',
+        4: 'Recolección en terminal asignada',
+        5: 'Proceso finalizado'
+    };
+    return pasos[estadoId] || 'Proceso en revisión';
+}
+
+// Función para mostrar/ocultar loading
+function mostrarLoadingFolio(mostrar) {
+    const button = document.querySelector('#folioForm button[type="submit"]');
+    
+    if (mostrar) {
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Consultando...';
+        button.disabled = true;
+    } else {
+        button.innerHTML = 'Consultar Estado';
+        button.disabled = false;
+    }
+}
+
+// Función para mostrar error
+function mostrarErrorFolio(mensaje) {
+    // Puedes usar SweetAlert o un modal de error
+    Swal.fire({
+        icon: 'error',
+        title: 'Folio no encontrado',
+        text: mensaje,
+        confirmButtonText: 'Aceptar'
+    });
+    
+    // O usar alert simple:
+    // alert('Error: ' + mensaje);
+}
+
+// Función para cerrar el modal
+function cerrarModalFolio() {
+    const modal = document.getElementById('folioResultModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Cerrar modal al hacer click fuera
+window.addEventListener('click', function(event) {
+    const modal = document.getElementById('folioResultModal');
+    if (modal && event.target === modal) {
+        cerrarModalFolio();
+    }
+});
+
+// Manejar el envío del formulario de folio
+document.getElementById('folioForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const folio = document.getElementById('folioInput').value.trim().toUpperCase();
+    
+    if (folio) {
+        consultarFolio(folio);
+    } else {
+        mostrarErrorFolio('Por favor, ingresa un folio válido');
+    }
+});
+
+// CSS para el modal de resultados
+function agregarCSSModal() {
+    const css = `
+        <style>
+            .modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            }
+
+            .modal-content {
+                background: white;
+                border-radius: 10px;
+                width: 90%;
+                max-width: 600px;
+                max-height: 90vh;
+                overflow-y: auto;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            }
+
+            .modal-header {
+                padding: 1.5rem;
+                border-bottom: 1px solid #eee;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background: var(--primary-color);
+                color: white;
+                border-radius: 10px 10px 0 0;
+            }
+
+            .modal-header h3 {
+                margin: 0;
+                font-size: 1.3rem;
+            }
+
+            .close-modal {
+                font-size: 1.5rem;
+                cursor: pointer;
+                background: rgba(255,255,255,0.2);
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: var(--transition);
+            }
+
+            .close-modal:hover {
+                background: rgba(255,255,255,0.3);
+            }
+
+            .modal-body {
+                padding: 1.5rem;
+            }
+
+            .folio-info-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .info-item {
+                display: flex;
+                flex-direction: column;
+                gap: 0.3rem;
+            }
+
+            .info-item label {
+                font-weight: 600;
+                color: var(--primary-color);
+                font-size: 0.9rem;
+            }
+
+            .folio-number {
+                font-weight: bold;
+                color: var(--secondary-color);
+                font-size: 1.1rem;
+            }
+
+            .status-badge {
+                padding: 0.3rem 0.8rem;
+                border-radius: 20px;
+                font-size: 0.8rem;
+                font-weight: 600;
+                display: inline-block;
+            }
+
+            .status-pending {
+                background-color: #fff3cd;
+                color: #856404;
+            }
+
+            .status-processing {
+                background-color: #cce7ff;
+                color: #004085;
+            }
+
+            .status-approved {
+                background-color: #d4edda;
+                color: #155724;
+            }
+
+            .status-completed {
+                background-color: #d1ecf1;
+                color: #0c5460;
+            }
+
+            .status-rejected {
+                background-color: #f8d7da;
+                color: #721c24;
+            }
+
+            .proximo-paso {
+                background: #f8f9fa;
+                padding: 1rem;
+                border-radius: 5px;
+                border-left: 4px solid var(--secondary-color);
+            }
+
+            .proximo-paso h4 {
+                margin: 0 0 0.5rem 0;
+                color: var(--primary-color);
+            }
+
+            .proximo-paso p {
+                margin: 0;
+                color: #666;
+            }
+
+            .modal-footer {
+                padding: 1rem 1.5rem;
+                border-top: 1px solid #eee;
+                text-align: right;
+            }
+
+            @media (max-width: 768px) {
+                .folio-info-grid {
+                    grid-template-columns: 1fr;
+                }
+                
+                .modal-content {
+                    width: 95%;
+                    margin: 1rem;
+                }
+            }
+        </style>
+    `;
+
+    document.head.insertAdjacentHTML('beforeend', css);
+}  
 
     // Elementos del DOM
     const folioForm = document.getElementById('folioForm');
@@ -870,7 +1163,7 @@ function filtrarCitasPorMes(citas, mes) {
                 <p>${cita.descripcion??""}</p>
                 <div class="card-meta">
                     <div class="card-date">
-                        <i class="far fa-calendar"></i>
+                        <i class="fas fa-calendar"></i>
                         ${cita.fecha}
                     </div>
                     <span>Horario: ${cita.horario}</span>
@@ -919,28 +1212,6 @@ function filtrarCitasPorMes(citas, mes) {
         }
     });
 
-    // Función para consultar el folio
-    function consultarFolio(folio) {
-        if (foliosData[folio]) {
-            // Mostrar información del folio en el modal
-            const data = foliosData[folio];
-            modalFolio.textContent = folio;
-            modalSolicitante.textContent = data.solicitante;
-            modalFecha.textContent = data.fecha;
-            modalEstado.textContent = data.estado;
-            modalEstado.className = 'status-badge ' + data.estadoClass;
-            modalProximo.textContent = data.proximo;
-            
-            // Mostrar el modal
-            document.getElementById('folioModal').style.display = 'flex';
-        } else {
-            // Folio no encontrado
-            alert('Folio no encontrado. Por favor, verifica el número e intenta nuevamente.');
-        }
-        
-        // Limpiar el campo de entrada
-        folioInput.value = '';
-    }
 
     // Cargar citas del mes actual al iniciar
     document.addEventListener('DOMContentLoaded', function() {
