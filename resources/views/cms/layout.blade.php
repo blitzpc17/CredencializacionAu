@@ -537,35 +537,50 @@
                 <li class="menu-item dropdown">
                     <a href="#" class="menu-link dropdown-toggle">
                         <i class="fas fa-shopping-cart menu-icon"></i>
-                        <span class="menu-text">Tienda</span>
+                        <span class="menu-text">Seguimiento</span>
                         <i class="fas fa-angle-left dropdown-arrow"></i>
                     </a>
                     <ul class="dropdown-menu">
                         <li class="menu-item">
                             <a href="#" class="menu-link">
-                                <span class="menu-text">Productos</span>
+                                <span class="menu-text">Solicitudes</span>
                             </a>
                         </li>
                         <li class="menu-item">
                             <a href="#" class="menu-link">
-                                <span class="menu-text">Pedidos</span>
+                                <span class="menu-text">Item 1</span>
                             </a>
                         </li>
                         <li class="menu-item">
                             <a href="#" class="menu-link">
-                                <span class="menu-text">Clientes</span>
+                                <span class="menu-text">Item 2</span>
                             </a>
                         </li>
                     </ul>
                 </li>
-                
+                <li class="menu-item dropdown">
+                    <a href="#" class="menu-link dropdown-toggle">
+                        <i class="fas fa-shopping-cart menu-icon"></i>
+                        <span class="menu-text">Cátalogos</span>
+                        <i class="fas fa-angle-left dropdown-arrow"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li class="menu-item">
+                            <a href="{{route('cms.solicitudes-estados.index')}}" class="menu-link">
+                                <span class="menu-text">Edos. Solicitudes</span>
+                            </a>
+                        </li>
+                     
+                    </ul>
+                </li>
+                <!--
                 <li class="menu-item">
                     <a href="#" class="menu-link">
                         <i class="fas fa-envelope menu-icon"></i>
                         <span class="menu-text">Mensajes</span>
                         <span class="notification-badge">5</span>
                     </a>
-                </li>
+                </li>-->
 
                  <li class="menu-item">
                     <a href="{{route('cms.horarios-credencializacion.index')}}" class="menu-link">
@@ -594,13 +609,13 @@
                             </a>
                         </li>
                         <li class="menu-item">
-                            <a href="#" class="menu-link">
-                                <span class="menu-text">Seguridad</span>
+                            <a href="{{route('cms.terminales.index')}}" class="menu-link">
+                                <span class="menu-text">Terminales</span>
                             </a>
                         </li>
                         <li class="menu-item">
-                            <a href="#" class="menu-link">
-                                <span class="menu-text">Notificaciones</span>
+                            <a href="{{route('cms.folios.index')}}" class="menu-link">
+                                <span class="menu-text">Folios</span>
                             </a>
                         </li>
                     </ul>

@@ -730,6 +730,8 @@
     const cardsContainer = document.getElementById('cardsContainer');
     const noCards = document.getElementById('noCards');
 
+     const IMAGE_BASE_URL = "{{ route('tools.getimagen', ['path' => '']) }}";
+
     // Slider
     const slides = document.querySelector('.slides');
     const dots = document.querySelectorAll('.slider-dot');
@@ -782,42 +784,76 @@
 
     // Función para cargar citas por mes
     async function cargarCitasPorMes(mes) {
-        // Mostrar loader
-        cardsLoader.classList.add('active');
-        cardsContainer.innerHTML = '';
-        noCards.style.display = 'none';
+    // Mostrar loader
+    cardsLoader.classList.add('active');
+    cardsContainer.innerHTML = '';
+    noCards.style.display = 'none';
 
-        // Simular delay de red
-        await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+        // Consumir API real en lugar de datos simulados
+        const response = await fetch('/api/horarios-credencializacion');
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
 
-        try {
-            // Simular fetch a API
-            const citas = citasPorMes[mes] || [];
+        if (data.success) {
+            const citas = data.data || [];
 
-            if (citas.length === 0) {
+            // Filtrar citas por mes si es necesario
+            // (asumiendo que la fecha está en formato que permite filtrar por mes)
+            const citasFiltradas = filtrarCitasPorMes(citas, mes);
+
+            if (citasFiltradas.length === 0) {
                 // Mostrar estado de no hay citas
                 noCards.style.display = 'block';
             } else {
                 // Generar cards
-                citas.forEach((cita, index) => {
+                citasFiltradas.forEach((cita, index) => {
                     const card = crearCard(cita, index);
                     cardsContainer.appendChild(card);
                 });
             }
-        } catch (error) {
-            console.error('Error al cargar citas:', error);
-            cardsContainer.innerHTML = `
-                <div class="no-cards">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <h4>Error al cargar</h4>
-                    <p>Intenta nuevamente más tarde</p>
-                </div>
-            `;
-        } finally {
-            // Ocultar loader
-            cardsLoader.classList.remove('active');
+        } else {
+            throw new Error(data.message || 'Error en la respuesta del servidor');
         }
+    } catch (error) {
+        console.error('Error al cargar citas:', error);
+        cardsContainer.innerHTML = `
+            <div class="no-cards">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h4>Error al cargar</h4>
+                <p>${error.message || 'Intenta nuevamente más tarde'}</p>
+                <button class="btn primary mt-2" onclick="cargarCitasPorMes('${mes}')">
+                    <i class="fas fa-redo"></i> Reintentar
+                </button>
+            </div>
+        `;
+    } finally {
+        // Ocultar loader
+        cardsLoader.classList.remove('active');
     }
+}
+
+// Función auxiliar para filtrar citas por mes
+function filtrarCitasPorMes(citas, mes) {
+    if (!mes || mes === 'todos') {
+        return citas;
+    }
+
+    return citas.filter(cita => {
+        if (!cita.fecha) return false;
+        
+        // Convertir el mes a número (asumiendo que 'mes' es un string como "01", "02", etc.)
+        const mesNumero = parseInt(mes);
+        const fechaCita = new Date(cita.fecha);
+        
+        // +1 porque getMonth() retorna 0-11
+        return fechaCita.getMonth() + 1 === mesNumero;
+    });
+}
 
     // Función para crear card
     function crearCard(cita, index) {
@@ -827,17 +863,17 @@
 
         card.innerHTML = `
             <div class="card-img">
-                <img src="${cita.imagen}" alt="${cita.titulo}">
+                <img src="${IMAGE_BASE_URL}/${cita.imagen}" alt="${cita.lugar}">
             </div>
             <div class="card-content">
-                <h3>${cita.titulo}</h3>
-                <p>${cita.descripcion}</p>
+                <h3>${cita.lugar}</h3>
+                <p>${cita.descripcion??""}</p>
                 <div class="card-meta">
                     <div class="card-date">
                         <i class="far fa-calendar"></i>
                         ${cita.fecha}
                     </div>
-                    <span>${cita.disponibles} cupos</span>
+                    <span>Horario: ${cita.horario}</span>
                 </div>
                 <button class="card-btn" ${cita.disponibles === 0 ? 'disabled' : ''}>
                     ${cita.disponibles === 0 ? 'Agotado' : 'Realizar Solicitud'}

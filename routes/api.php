@@ -3,8 +3,11 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\TerminalController;
+use App\Http\Controllers\FolioController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\HorarioCredencializacionController;
+use App\Http\Controllers\SolicitudEstadoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,6 +27,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::apiResource('perfiles', PerfilController::class);
 Route::apiResource('horarios-credencializacion', HorarioCredencializacionController::class);
+Route::apiResource('terminales', TerminalController::class);
+Route::apiResource('folios', FolioController::class);
+Route::apiResource('solicitudes-estados', SolicitudEstadoController::class);
 
 
 

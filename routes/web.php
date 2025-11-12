@@ -49,9 +49,21 @@ Route::prefix('admin')->group(function(){
         return view('cms.perfiles');
     })->name('cms.perfiles.index');
 
-    Route::get('/horarios-credencializacion', function () {
+    Route::get('horarios-credencializacion', function () {
         return view('cms.horarios-credencializacion');
     })->name('cms.horarios-credencializacion.index');
+
+    Route::get('terminales', function () {
+        return view('cms.terminales');
+    })->name('cms.terminales.index');
+
+    Route::get('folios', function () {
+        return view('cms.folios');
+    })->name('cms.folios.index');
+
+    Route::get('solicitudes-estados', function () {
+        return view('cms.solicitudes-estados');
+    })->name('cms.solicitudes-estados.index');
 
 
     Route::get('storage/images', [ToolsController::class, 'ObtenerImagen'])->name('tools.getimagen');
