@@ -230,6 +230,39 @@
             display: none;
         }
 
+        /* Breadcrumb */
+        .breadcrumb {
+            margin-bottom: 2rem;
+            padding: 1rem 0;
+        }
+
+        .breadcrumb-list {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            gap: 0.5rem;
+        }
+
+        .breadcrumb-item {
+            color: var(--gray);
+        }
+
+        .breadcrumb-item a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .breadcrumb-item.active {
+            color: var(--dark);
+        }
+
+        .breadcrumb-item:not(:last-child)::after {
+            content: "/";
+            margin-left: 0.5rem;
+            color: var(--gray);
+        }
+
         /* Contenido principal */
         .main-content {
             flex: 1;
@@ -498,13 +531,7 @@
                         <i class="fas fa-home menu-icon"></i>
                         <span class="menu-text">Inicio</span>
                     </a>
-                </li>
-                <li class="menu-item">
-                    <a href="{{route('cms.controles')}}" class="menu-link">
-                        <i class="fas fa-chart-bar menu-icon"></i>
-                        <span class="menu-text">Controles</span>
-                    </a>
-                </li>
+                </li>            
                 
                 <li class="menu-header">E-commerce</li>
                 <li class="menu-item dropdown">
@@ -540,17 +567,23 @@
                     </a>
                 </li>
                 
-                <li class="menu-header">Configuración</li>
+                <li class="menu-header">SISTEMA</li>
+                <li class="menu-item">
+                    <a href="{{route('cms.controles')}}" class="menu-link">
+                        <i class="fas fa-chart-bar menu-icon"></i>
+                        <span class="menu-text">Controles</span>
+                    </a>
+                </li>
                 <li class="menu-item dropdown">
                     <a href="#" class="menu-link dropdown-toggle">
                         <i class="fas fa-cog menu-icon"></i>
-                        <span class="menu-text">Ajustes</span>
+                        <span class="menu-text">Catálogos</span>
                         <i class="fas fa-angle-left dropdown-arrow"></i>
                     </a>
                     <ul class="dropdown-menu">
                         <li class="menu-item">
-                            <a href="#" class="menu-link">
-                                <span class="menu-text">Perfil</span>
+                            <a href="{{route('cms.perfiles.index')}}" class="menu-link">
+                                <span class="menu-text">Perfiles</span>
                             </a>
                         </li>
                         <li class="menu-item">
@@ -653,8 +686,25 @@
                 sidebarOverlay.classList.remove('show');
                 document.body.style.overflow = '';
             });
+
+            // Dropdowns del menú - SOLUCIÓN CORREGIDA
+            const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+            dropdownToggles.forEach(toggle => {
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const dropdownMenu = this.nextElementSibling;
+                    dropdownMenu.classList.toggle('show');
+                    
+                    const arrow = this.querySelector('.dropdown-arrow');
+                    arrow.classList.toggle('fa-angle-left');
+                    arrow.classList.toggle('fa-angle-down');
+                });
+            });
             
             // Cerrar sidebar al hacer clic en un enlace (en móviles)
+            /*
             document.querySelectorAll('.menu-link').forEach(link => {
                 link.addEventListener('click', function() {
                     if (window.innerWidth <= 992) {
@@ -663,32 +713,8 @@
                         document.body.style.overflow = '';
                     }
                 });
-            });
-            
-            // Cerrar sidebar al redimensionar la ventana
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 992) {
-                    sidebar.classList.remove('show');
-                    sidebarOverlay.classList.remove('show');
-                    document.body.style.overflow = '';
-                }
-            });
-            
-            // Dropdowns del menú
-            const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
-            dropdownToggles.forEach(toggle => {
-                toggle.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const dropdownMenu = this.nextElementSibling;
-                    dropdownMenu.classList.toggle('show');
-                    
-                    // Rotar la flecha
-                    const arrow = this.querySelector('.dropdown-arrow');
-                    arrow.classList.toggle('fa-angle-left');
-                    arrow.classList.toggle('fa-angle-down');
-                });
-            });
-            
+            });*/
+
             // Dropdown del perfil
             document.querySelector('.user-profile').addEventListener('click', function() {
                 document.querySelector('.dropdown-profile').classList.toggle('show');
@@ -709,6 +735,15 @@
                         arrow.classList.add('fa-angle-left');
                         arrow.classList.remove('fa-angle-down');
                     });
+                }
+            });
+            
+            // Cerrar sidebar al redimensionar la ventana
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 992) {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                    document.body.style.overflow = '';
                 }
             });
         });

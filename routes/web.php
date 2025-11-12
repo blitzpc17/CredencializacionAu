@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PerfilController;
+use App\Http\Controllers\ToolsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,6 +14,8 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+//imagenes
 
 
 
@@ -40,4 +44,20 @@ Route::prefix('admin')->group(function(){
         return view('cms.controles');
     })->name('cms.controles');
 
+
+    Route::get('perfiles', function () {
+        return view('cms.perfiles');
+    })->name('cms.perfiles.index');
+
+    Route::get('/horarios-credencializacion', function () {
+        return view('cms.horarios-credencializacion');
+    })->name('cms.horarios-credencializacion.index');
+
+
+    Route::get('storage/images', [ToolsController::class, 'ObtenerImagen'])->name('tools.getimagen');
+
 });
+
+
+
+

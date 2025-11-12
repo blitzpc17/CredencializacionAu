@@ -1,1015 +1,5 @@
 @extends('cms.layout')
 
-@section('content')
-<div class="dashboard-content">
-    <h1 class="page-title">Controles de Formulario</h1>
-    
-    <!-- Breadcrumb -->
-    <div class="breadcrumb">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb-list">
-                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                <li class="breadcrumb-item"><a href="#">Components</a></li>
-                <li class="breadcrumb-item active">Form Controls</li>
-            </ol>
-        </nav>
-    </div>
-
-    <div class="controls-container">
-        <!-- Sección de Visor de Imágenes -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Visor de Imágenes</h2>
-                <p class="section-description">Galería interactiva con miniaturas y controles</p>
-            </div>
-            <div class="section-content">
-                <div class="image-viewer-container">
-                    <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb" 
-                         alt="Imagen principal" class="image-viewer-main" id="mainImageViewer">
-                    
-                    <div class="image-viewer-thumbnails" id="imageThumbnails">
-                        <!-- Thumbnails generados por JavaScript -->
-                    </div>
-                    
-                    <div class="image-viewer-controls">
-                        <button class="btn primary" id="prevImage">
-                            <i class="fas fa-chevron-left"></i> Anterior
-                        </button>
-                        <button class="btn primary" id="nextImage">
-                            Siguiente <i class="fas fa-chevron-right"></i>
-                        </button>
-                        <button class="btn success" id="downloadImage">
-                            <i class="fas fa-download"></i> Descargar
-                        </button>
-                        <button class="btn danger" id="deleteImage">
-                            <i class="fas fa-trash"></i> Eliminar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección de Visor de Archivos -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Visor de Archivos</h2>
-                <p class="section-description">Previsualización de diferentes tipos de archivos</p>
-            </div>
-            <div class="section-content">
-                <div class="file-viewer-container">
-                    <div class="file-viewer-header">
-                        <div class="file-viewer-info">
-                            <i class="fas fa-file-pdf file-viewer-icon" id="fileViewerIcon"></i>
-                            <div class="file-viewer-details">
-                                <h4 id="fileName">documento.pdf</h4>
-                                <p id="fileDetails">PDF Document • 2.4 MB</p>
-                            </div>
-                        </div>
-                        <div class="file-viewer-actions">
-                            <button class="btn-icon" id="fileViewerDownload">
-                                <i class="fas fa-download"></i>
-                            </button>
-                            <button class="btn-icon" id="fileViewerPrint">
-                                <i class="fas fa-print"></i>
-                            </button>
-                            <button class="btn-icon danger" id="fileViewerClose">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="file-viewer-content">
-                        <div class="file-preview-content" id="filePreviewContent">
-                            <!-- Contenido del archivo generado por JavaScript -->
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-grid mt-4">
-                    <button class="btn primary" data-file-type="pdf">
-                        <i class="fas fa-file-pdf"></i> Ver PDF
-                    </button>
-                    <button class="btn success" data-file-type="image">
-                        <i class="fas fa-file-image"></i> Ver Imagen
-                    </button>
-                    <button class="btn warning" data-file-type="text">
-                        <i class="fas fa-file-text"></i> Ver Texto
-                    </button>
-                    <button class="btn info" data-file-type="video">
-                        <i class="fas fa-file-video"></i> Ver Video
-                    </button>
-                    <button class="btn dark" data-file-type="unsupported">
-                        <i class="fas fa-file"></i> Archivo no soportado
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección de Alerts -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Alertas</h2>
-                <p class="section-description">Notificaciones y mensajes de feedback</p>
-            </div>
-            <div class="section-content">
-                <div class="alert primary">
-                    <i class="fas fa-info-circle alert-icon"></i>
-                    <div class="alert-content">
-                        <h4 class="alert-title">Información</h4>
-                        <p class="alert-message">Esta es una alerta informativa con un mensaje importante.</p>
-                    </div>
-                    <button class="alert-close">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-
-                <div class="alert success">
-                    <i class="fas fa-check-circle alert-icon"></i>
-                    <div class="alert-content">
-                        <h4 class="alert-title">Éxito</h4>
-                        <p class="alert-message">La operación se completó correctamente.</p>
-                    </div>
-                    <button class="alert-close">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-
-                <div class="alert warning">
-                    <i class="fas fa-exclamation-triangle alert-icon"></i>
-                    <div class="alert-content">
-                        <h4 class="alert-title">Advertencia</h4>
-                        <p class="alert-message">Esta acción requiere tu atención inmediata.</p>
-                    </div>
-                    <button class="alert-close">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-
-                <div class="alert danger">
-                    <i class="fas fa-times-circle alert-icon"></i>
-                    <div class="alert-content">
-                        <h4 class="alert-title">Error</h4>
-                        <p class="alert-message">Ha ocurrido un error inesperado. Por favor, intenta nuevamente.</p>
-                    </div>
-                    <button class="alert-close">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-
-                <div class="mt-4">
-                    <button class="btn primary" id="showAlertDemo">
-                        <i class="fas fa-bell"></i> Mostrar Alerta Dinámica
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección de Modals -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Modales</h2>
-                <p class="section-description">Ventanas emergentes para contenido adicional</p>
-            </div>
-            <div class="section-content">
-                <div class="form-grid">
-                    <button class="btn primary" id="openBasicModal">
-                        <i class="fas fa-window-restore"></i> Modal Básico
-                    </button>
-                    <button class="btn success" id="openFormModal">
-                        <i class="fas fa-edit"></i> Modal con Formulario
-                    </button>
-                    <button class="btn warning" id="openLargeModal">
-                        <i class="fas fa-expand"></i> Modal Grande
-                    </button>
-                    <button class="btn danger" id="openDangerModal">
-                        <i class="fas fa-exclamation-triangle"></i> Modal de Confirmación
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección de File Inputs Mejorados -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Inputs de Archivo</h2>
-                <p class="section-description">Subida de archivos con preview y drag & drop</p>
-            </div>
-            <div class="section-content">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">Subida Básica</label>
-                        <div class="file-input-container">
-                            <input type="file" class="file-input" id="basicFileInput" accept="image/*,.pdf,.doc,.docx">
-                            <label for="basicFileInput" class="file-input-label">
-                                <i class="fas fa-cloud-upload-alt file-input-icon"></i>
-                                <div class="file-input-text">
-                                    <h4>Subir archivo</h4>
-                                    <p>Haz clic o arrastra un archivo aquí</p>
-                                </div>
-                            </label>
-                        </div>
-                        <div class="file-preview" id="basicFilePreview"></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Múltiples Archivos</label>
-                        <div class="file-input-container">
-                            <input type="file" class="file-input" id="multipleFileInput" multiple accept="image/*">
-                            <label for="multipleFileInput" class="file-input-label">
-                                <i class="fas fa-images file-input-icon"></i>
-                                <div class="file-input-text">
-                                    <h4>Subir múltiples archivos</h4>
-                                    <p>Máximo 5 archivos, solo imágenes</p>
-                                </div>
-                            </label>
-                        </div>
-                        <div class="file-preview" id="multipleFilePreview"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección de Textarea con Contador -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Textarea con Contador</h2>
-                <p class="section-description">Campos de texto con límite de caracteres</p>
-            </div>
-            <div class="section-content">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">Descripción Corta (Máx. 100 caracteres)</label>
-                        <div class="textarea-container">
-                            <textarea class="form-control" rows="3" placeholder="Escribe una descripción corta..." 
-                                     maxlength="100" id="shortDescription"></textarea>
-                            <div class="textarea-counter" id="shortCounter">0/100</div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Biografía (Máx. 500 caracteres)</label>
-                        <div class="textarea-container">
-                            <textarea class="form-control" rows="5" placeholder="Escribe tu biografía..." 
-                                     maxlength="500" id="bioTextarea"></textarea>
-                            <div class="textarea-counter" id="bioCounter">0/500</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección de Validaciones de Formulario -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Validaciones de Formulario</h2>
-                <p class="section-description">Ejemplos de validación en tiempo real</p>
-            </div>
-            <div class="section-content">
-                <form id="validationForm">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label">Nombre Completo *</label>
-                            <input type="text" class="form-control" id="fullName" 
-                                   placeholder="Ingresa tu nombre completo" required>
-                            <div class="form-feedback" id="nameFeedback"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Email *</label>
-                            <input type="email" class="form-control" id="email" 
-                                   placeholder="correo@ejemplo.com" required>
-                            <div class="form-feedback" id="emailFeedback"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Contraseña *</label>
-                            <input type="password" class="form-control" id="password" 
-                                   placeholder="Mínimo 8 caracteres" required minlength="8">
-                            <div class="form-feedback" id="passwordFeedback"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Confirmar Contraseña *</label>
-                            <input type="password" class="form-control" id="confirmPassword" 
-                                   placeholder="Repite tu contraseña" required>
-                            <div class="form-feedback" id="confirmPasswordFeedback"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Teléfono</label>
-                            <input type="tel" class="form-control" id="phone" 
-                                   placeholder="+1 (555) 000-0000" pattern="[0-9+\-\s\(\)]+">
-                            <div class="form-feedback" id="phoneFeedback"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Edad</label>
-                            <input type="number" class="form-control" id="age" 
-                                   placeholder="Entre 18 y 100" min="18" max="100">
-                            <div class="form-feedback" id="ageFeedback"></div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4">
-                        <button type="submit" class="btn success">
-                            <i class="fas fa-check"></i> Validar Formulario
-                        </button>
-                        <button type="reset" class="btn light">
-                            <i class="fas fa-undo"></i> Limpiar
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Sección de Badges -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Badges</h2>
-                <p class="section-description">Etiquetas para mostrar estados y categorías</p>
-            </div>
-            <div class="section-content">
-                <div class="badges-demo">
-                    <span class="badge primary">Primary</span>
-                    <span class="badge secondary">Secondary</span>
-                    <span class="badge success">Success</span>
-                    <span class="badge danger">Danger</span>
-                    <span class="badge warning">Warning</span>
-                    <span class="badge info">Info</span>
-                    <span class="badge light">Light</span>
-                    <span class="badge dark">Dark</span>
-                </div>
-                <div class="badges-demo mt-3">
-                    <span class="badge primary pill">Pill Primary</span>
-                    <span class="badge success pill">Pill Success</span>
-                    <span class="badge danger pill">Pill Danger</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección de Inputs -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Inputs</h2>
-                <p class="section-description">Diferentes tipos de campos de entrada</p>
-            </div>
-            <div class="section-content">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">Input Básico</label>
-                        <input type="text" class="form-control" placeholder="Escribe algo...">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Input con Icono</label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-user"></i>
-                            <input type="text" class="form-control" placeholder="Usuario">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Input Disabled</label>
-                        <input type="text" class="form-control" placeholder="Campo deshabilitado" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Input Readonly</label>
-                        <input type="text" class="form-control" value="Valor de solo lectura" readonly>
-                    </div>
-                </div>
-                
-                <div class="form-grid mt-3">
-                    <div class="form-group">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-control" placeholder="correo@ejemplo.com">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Password</label>
-                        <input type="password" class="form-control" placeholder="Contraseña">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Número</label>
-                        <input type="number" class="form-control" placeholder="0">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Teléfono</label>
-                        <input type="tel" class="form-control" placeholder="+1 (555) 000-0000">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección de Selects -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Selects</h2>
-                <p class="section-description">Listas desplegables y múltiples</p>
-            </div>
-            <div class="section-content">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">Select Básico</label>
-                        <select class="form-control">
-                            <option value="">Selecciona una opción</option>
-                            <option value="1">Opción 1</option>
-                            <option value="2">Opción 2</option>
-                            <option value="3">Opción 3</option>
-                            <option value="4">Opción 4</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Select Múltiple</label>
-                        <select class="form-control" multiple>
-                            <option value="1">Opción 1</option>
-                            <option value="2">Opción 2</option>
-                            <option value="3">Opción 3</option>
-                            <option value="4">Opción 4</option>
-                            <option value="5">Opción 5</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Select con Grupos</label>
-                        <select class="form-control">
-                            <option value="">Selecciona una categoría</option>
-                            <optgroup label="Frutas">
-                                <option value="manzana">Manzana</option>
-                                <option value="naranja">Naranja</option>
-                                <option value="platano">Plátano</option>
-                            </optgroup>
-                            <optgroup label="Verduras">
-                                <option value="zanahoria">Zanahoria</option>
-                                <option value="brocoli">Brócoli</option>
-                                <option value="espinaca">Espinaca</option>
-                            </optgroup>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección de Date Time Picker -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Date & Time Pickers</h2>
-                <p class="section-description">Selectores de fecha y hora</p>
-            </div>
-            <div class="section-content">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">Date Picker</label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-calendar"></i>
-                            <input type="date" class="form-control" id="datePicker">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Time Picker</label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-clock"></i>
-                            <input type="time" class="form-control" id="timePicker">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">DateTime Local</label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-calendar-alt"></i>
-                            <input type="datetime-local" class="form-control" id="datetimePicker">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="custom-datetime mt-4">
-                    <h4>Selector Personalizado</h4>
-                    <div class="datetime-selector">
-                        <div class="date-selector">
-                            <label>Fecha:</label>
-                            <div class="date-inputs">
-                                <select class="form-control sm" id="daySelect">
-                                    <option value="">Día</option>
-                                    <!-- Días generados por JS -->
-                                </select>
-                                <select class="form-control sm" id="monthSelect">
-                                    <option value="">Mes</option>
-                                    <option value="1">Enero</option>
-                                    <option value="2">Febrero</option>
-                                    <option value="3">Marzo</option>
-                                    <option value="4">Abril</option>
-                                    <option value="5">Mayo</option>
-                                    <option value="6">Junio</option>
-                                    <option value="7">Julio</option>
-                                    <option value="8">Agosto</option>
-                                    <option value="9">Septiembre</option>
-                                    <option value="10">Octubre</option>
-                                    <option value="11">Noviembre</option>
-                                    <option value="12">Diciembre</option>
-                                </select>
-                                <select class="form-control sm" id="yearSelect">
-                                    <option value="">Año</option>
-                                    <!-- Años generados por JS -->
-                                </select>
-                            </div>
-                        </div>
-                        <div class="time-selector">
-                            <label>Hora:</label>
-                            <div class="time-inputs">
-                                <select class="form-control sm" id="hourSelect">
-                                    <option value="">Hora</option>
-                                    <!-- Horas generadas por JS -->
-                                </select>
-                                <select class="form-control sm" id="minuteSelect">
-                                    <option value="">Minutos</option>
-                                    <!-- Minutos generados por JS -->
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección de Checkboxes y Radios -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Checkboxes & Radio Buttons</h2>
-                <p class="section-description">Selecciones múltiples y únicas</p>
-            </div>
-            <div class="section-content">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">Checkboxes</label>
-                        <div class="checkbox-group">
-                            <label class="checkbox">
-                                <input type="checkbox" checked>
-                                <span class="checkmark"></span>
-                                Opción 1
-                            </label>
-                            <label class="checkbox">
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
-                                Opción 2
-                            </label>
-                            <label class="checkbox">
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
-                                Opción 3
-                            </label>
-                            <label class="checkbox disabled">
-                                <input type="checkbox" disabled>
-                                <span class="checkmark"></span>
-                                Opción deshabilitada
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Radio Buttons</label>
-                        <div class="radio-group">
-                            <label class="radio">
-                                <input type="radio" name="radioGroup" checked>
-                                <span class="radiomark"></span>
-                                Opción A
-                            </label>
-                            <label class="radio">
-                                <input type="radio" name="radioGroup">
-                                <span class="radiomark"></span>
-                                Opción B
-                            </label>
-                            <label class="radio">
-                                <input type="radio" name="radioGroup">
-                                <span class="radiomark"></span>
-                                Opción C
-                            </label>
-                            <label class="radio disabled">
-                                <input type="radio" name="radioGroup" disabled>
-                                <span class="radiomark"></span>
-                                Opción deshabilitada
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Checkboxes Inline</label>
-                        <div class="checkbox-group inline">
-                            <label class="checkbox">
-                                <input type="checkbox" checked>
-                                <span class="checkmark"></span>
-                                Inline 1
-                            </label>
-                            <label class="checkbox">
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
-                                Inline 2
-                            </label>
-                            <label class="checkbox">
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
-                                Inline 3
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección de Tablas Básicas -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Tablas Básicas</h2>
-                <p class="section-description">Diferentes estilos de tablas</p>
-            </div>
-            <div class="section-content">
-                <div class="table-responsive">
-                    <table class="table basic-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nombre</th>
-                                <th>Email</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>Juan Pérez</td>
-                                <td>juan@example.com</td>
-                                <td><span class="badge success">Activo</span></td>
-                                <td>
-                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-icon danger"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>María García</td>
-                                <td>maria@example.com</td>
-                                <td><span class="badge warning">Pendiente</span></td>
-                                <td>
-                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-icon danger"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>Carlos López</td>
-                                <td>carlos@example.com</td>
-                                <td><span class="badge danger">Inactivo</span></td>
-                                <td>
-                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-icon danger"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección de DataTables -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">DataTables</h2>
-                <p class="section-description">Tablas avanzadas con funcionalidades</p>
-            </div>
-            <div class="section-content">
-                <div class="datatable-controls">
-                    <div class="datatable-search">
-                        <input type="text" class="form-control sm" placeholder="Buscar..." id="datatableSearch">
-                    </div>
-                    <div class="datatable-actions">
-                        <button class="btn primary sm" id="refreshTable">
-                            <i class="fas fa-sync-alt"></i> Actualizar
-                        </button>
-                        <button class="btn success sm" id="exportTable">
-                            <i class="fas fa-download"></i> Exportar
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="table-responsive">
-                    <table class="table datatable" id="advancedTable">
-                        <thead>
-                            <tr>
-                                <th data-sortable="true">ID</th>
-                                <th data-sortable="true">Nombre</th>
-                                <th data-sortable="true">Email</th>
-                                <th data-sortable="true">Teléfono</th>
-                                <th data-sortable="true">Ciudad</th>
-                                <th data-sortable="true">Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Datos generados por JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div class="datatable-footer">
-                    <div class="datatable-info">
-                        Mostrando <span id="startRecord">1</span> a <span id="endRecord">10</span> de <span id="totalRecords">50</span> registros
-                    </div>
-                    <div class="datatable-pagination">
-                        <button class="pagination-btn" id="prevPage" disabled>
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <div class="pagination-pages" id="paginationPages">
-                            <!-- Páginas generadas por JavaScript -->
-                        </div>
-                        <button class="pagination-btn" id="nextPage">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección de Gestor de Archivos -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Gestor de Archivos</h2>
-                <p class="section-description">Explorador y administrador de archivos</p>
-            </div>
-            <div class="section-content">
-                <div class="file-manager">
-                    <div class="file-manager-toolbar">
-                        <div class="file-actions">
-                            <button class="btn primary sm" id="uploadFile">
-                                <i class="fas fa-upload"></i> Subir Archivo
-                            </button>
-                            <button class="btn success sm" id="createFolder">
-                                <i class="fas fa-folder-plus"></i> Nueva Carpeta
-                            </button>
-                            <button class="btn danger sm" id="deleteSelected">
-                                <i class="fas fa-trash"></i> Eliminar
-                            </button>
-                        </div>
-                        <div class="file-view-options">
-                            <button class="btn-icon active" data-view="grid">
-                                <i class="fas fa-th"></i>
-                            </button>
-                            <button class="btn-icon" data-view="list">
-                                <i class="fas fa-list"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="file-manager-content">
-                        <div class="file-breadcrumb">
-                            <span class="breadcrumb-item active">Archivos</span>
-                            <span class="breadcrumb-separator">/</span>
-                            <span class="breadcrumb-item">Documentos</span>
-                        </div>
-                        
-                        <div class="files-grid" id="filesView">
-                            <!-- Archivos generados por JavaScript -->
-                        </div>
-                    </div>
-                    
-                    <div class="file-manager-sidebar">
-                        <div class="storage-info">
-                            <h4>Almacenamiento</h4>
-                            <div class="storage-progress">
-                                <div class="progress-bar">
-                                    <div class="progress-fill" style="width: 65%"></div>
-                                </div>
-                                <div class="storage-stats">
-                                    <span>6.5 GB de 10 GB usados</span>
-                                    <span>65%</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="quick-actions">
-                            <h4>Acciones Rápidas</h4>
-                            <button class="quick-action-btn">
-                                <i class="fas fa-images"></i>
-                                <span>Imágenes</span>
-                            </button>
-                            <button class="quick-action-btn">
-                                <i class="fas fa-file-pdf"></i>
-                                <span>Documentos</span>
-                            </button>
-                            <button class="quick-action-btn">
-                                <i class="fas fa-music"></i>
-                                <span>Música</span>
-                            </button>
-                            <button class="quick-action-btn">
-                                <i class="fas fa-video"></i>
-                                <span>Videos</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección de Textareas y Editors -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Textareas & Editors</h2>
-                <p class="section-description">Campos de texto extendidos y editores</p>
-            </div>
-            <div class="section-content">
-                <div class="form-group">
-                    <label class="form-label">Textarea Básico</label>
-                    <textarea class="form-control" rows="4" placeholder="Escribe tu mensaje aquí..."></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Editor de Texto Enriquecido</label>
-                    <div class="rich-editor">
-                        <div class="editor-toolbar">
-                            <button type="button" class="editor-btn" data-command="bold"><i class="fas fa-bold"></i></button>
-                            <button type="button" class="editor-btn" data-command="italic"><i class="fas fa-italic"></i></button>
-                            <button type="button" class="editor-btn" data-command="underline"><i class="fas fa-underline"></i></button>
-                            <div class="toolbar-separator"></div>
-                            <button type="button" class="editor-btn" data-command="insertUnorderedList"><i class="fas fa-list-ul"></i></button>
-                            <button type="button" class="editor-btn" data-command="insertOrderedList"><i class="fas fa-list-ol"></i></button>
-                            <div class="toolbar-separator"></div>
-                            <button type="button" class="editor-btn" data-command="createLink"><i class="fas fa-link"></i></button>
-                            <button type="button" class="editor-btn" data-command="unlink"><i class="fas fa-unlink"></i></button>
-                        </div>
-                        <div class="editor-content" contenteditable="true">
-                            <p>Escribe tu contenido aquí...</p>
-                            <p>Puedes usar la barra de herramientas para formatear el texto.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección de Sliders y Rangos -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Sliders & Rangos</h2>
-                <p class="section-description">Controles deslizantes para valores numéricos</p>
-            </div>
-            <div class="section-content">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">Slider Básico</label>
-                        <div class="slider-container">
-                            <input type="range" class="slider" min="0" max="100" value="50" id="basicSlider">
-                            <div class="slider-value">50</div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Slider con Steps</label>
-                        <div class="slider-container">
-                            <input type="range" class="slider" min="0" max="100" step="10" value="30" id="stepSlider">
-                            <div class="slider-value">30</div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Rango Doble</label>
-                        <div class="range-slider-container">
-                            <div class="range-slider">
-                                <input type="range" class="range-min" min="0" max="100" value="25">
-                                <input type="range" class="range-max" min="0" max="100" value="75">
-                            </div>
-                            <div class="range-values">
-                                <span id="rangeMin">25</span> - <span id="rangeMax">75</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modales -->
-<div class="modal-overlay" id="basicModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h3 class="modal-title">Modal Básico</h3>
-            <button class="modal-close" data-modal="basicModal">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="modal-body">
-            <p>Este es un modal básico de ejemplo. Puedes usar modales para mostrar contenido adicional, formularios, confirmaciones, etc.</p>
-            <p>Los modales son útiles para mantener la atención del usuario en una tarea específica sin navegar a otra página.</p>
-        </div>
-        <div class="modal-footer">
-            <button class="btn light" data-modal="basicModal">Cancelar</button>
-            <button class="btn primary">Aceptar</button>
-        </div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="formModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h3 class="modal-title">Formulario de Contacto</h3>
-            <button class="modal-close" data-modal="formModal">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="modal-body">
-            <form>
-                <div class="form-group">
-                    <label class="form-label">Nombre</label>
-                    <input type="text" class="form-control" placeholder="Tu nombre">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-control" placeholder="correo@ejemplo.com">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Mensaje</label>
-                    <textarea class="form-control" rows="4" placeholder="Escribe tu mensaje..."></textarea>
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button class="btn light" data-modal="formModal">Cancelar</button>
-            <button class="btn success">Enviar Mensaje</button>
-        </div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="largeModal">
-    <div class="modal" style="max-width: 800px;">
-        <div class="modal-header">
-            <h3 class="modal-title">Modal Grande</h3>
-            <button class="modal-close" data-modal="largeModal">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="modal-body">
-            <p>Este es un modal de tamaño grande. Perfecto para contenido extenso como tablas, listas largas o documentación.</p>
-            
-            <div class="table-responsive mt-3">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Producto</th>
-                            <th>Precio</th>
-                            <th>Stock</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Laptop Dell XPS 13</td>
-                            <td>$1,299.00</td>
-                            <td>15</td>
-                            <td><span class="badge success">Disponible</span></td>
-                        </tr>
-                        <tr>
-                            <td>iPhone 14 Pro</td>
-                            <td>$999.00</td>
-                            <td>8</td>
-                            <td><span class="badge warning">Poco Stock</span></td>
-                        </tr>
-                        <tr>
-                            <td>Samsung Galaxy S23</td>
-                            <td>$849.00</td>
-                            <td>0</td>
-                            <td><span class="badge danger">Agotado</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn light" data-modal="largeModal">Cerrar</button>
-        </div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="dangerModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h3 class="modal-title" style="color: var(--danger);">
-                <i class="fas fa-exclamation-triangle"></i> Confirmar Eliminación
-            </h3>
-            <button class="modal-close" data-modal="dangerModal">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="modal-body">
-            <div class="alert danger">
-                <i class="fas fa-exclamation-circle alert-icon"></i>
-                <div class="alert-content">
-                    <h4 class="alert-title">¡Atención!</h4>
-                    <p class="alert-message">Esta acción no se puede deshacer. ¿Estás seguro de que quieres eliminar este elemento permanentemente?</p>
-                </div>
-            </div>
-            <p>Elemento a eliminar: <strong>Proyecto "Dashboard CMS"</strong></p>
-        </div>
-        <div class="modal-footer">
-            <button class="btn light" data-modal="dangerModal">Cancelar</button>
-            <button class="btn danger">
-                <i class="fas fa-trash"></i> Eliminar Permanentemente
-            </button>
-        </div>
-    </div>
-</div>
-@endsection
-
 @push('css')
 <style>
     /* Estilos para controles de formulario */
@@ -1049,38 +39,7 @@
         padding: 2rem;
     }
 
-    /* Breadcrumb */
-    .breadcrumb {
-        margin-bottom: 2rem;
-        padding: 1rem 0;
-    }
-
-    .breadcrumb-list {
-        display: flex;
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        gap: 0.5rem;
-    }
-
-    .breadcrumb-item {
-        color: var(--gray);
-    }
-
-    .breadcrumb-item a {
-        color: var(--primary);
-        text-decoration: none;
-    }
-
-    .breadcrumb-item.active {
-        color: var(--dark);
-    }
-
-    .breadcrumb-item:not(:last-child)::after {
-        content: "/";
-        margin-left: 0.5rem;
-        color: var(--gray);
-    }
+ 
 
     /* Badges */
     .badges-demo {
@@ -2206,6 +1165,1019 @@
     }
 </style>
 @endpush
+
+
+@section('content')
+<div class="dashboard-content">
+    <h1 class="page-title">Controles de Formulario</h1>
+    
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb-list">
+                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                <li class="breadcrumb-item"><a href="#">Components</a></li>
+                <li class="breadcrumb-item active">Form Controls</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="controls-container">
+        <!-- Sección de Visor de Imágenes -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Visor de Imágenes</h2>
+                <p class="section-description">Galería interactiva con miniaturas y controles</p>
+            </div>
+            <div class="section-content">
+                <div class="image-viewer-container">
+                    <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb" 
+                         alt="Imagen principal" class="image-viewer-main" id="mainImageViewer">
+                    
+                    <div class="image-viewer-thumbnails" id="imageThumbnails">
+                        <!-- Thumbnails generados por JavaScript -->
+                    </div>
+                    
+                    <div class="image-viewer-controls">
+                        <button class="btn primary" id="prevImage">
+                            <i class="fas fa-chevron-left"></i> Anterior
+                        </button>
+                        <button class="btn primary" id="nextImage">
+                            Siguiente <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <button class="btn success" id="downloadImage">
+                            <i class="fas fa-download"></i> Descargar
+                        </button>
+                        <button class="btn danger" id="deleteImage">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Visor de Archivos -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Visor de Archivos</h2>
+                <p class="section-description">Previsualización de diferentes tipos de archivos</p>
+            </div>
+            <div class="section-content">
+                <div class="file-viewer-container">
+                    <div class="file-viewer-header">
+                        <div class="file-viewer-info">
+                            <i class="fas fa-file-pdf file-viewer-icon" id="fileViewerIcon"></i>
+                            <div class="file-viewer-details">
+                                <h4 id="fileName">documento.pdf</h4>
+                                <p id="fileDetails">PDF Document • 2.4 MB</p>
+                            </div>
+                        </div>
+                        <div class="file-viewer-actions">
+                            <button class="btn-icon" id="fileViewerDownload">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="btn-icon" id="fileViewerPrint">
+                                <i class="fas fa-print"></i>
+                            </button>
+                            <button class="btn-icon danger" id="fileViewerClose">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="file-viewer-content">
+                        <div class="file-preview-content" id="filePreviewContent">
+                            <!-- Contenido del archivo generado por JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-grid mt-4">
+                    <button class="btn primary" data-file-type="pdf">
+                        <i class="fas fa-file-pdf"></i> Ver PDF
+                    </button>
+                    <button class="btn success" data-file-type="image">
+                        <i class="fas fa-file-image"></i> Ver Imagen
+                    </button>
+                    <button class="btn warning" data-file-type="text">
+                        <i class="fas fa-file-text"></i> Ver Texto
+                    </button>
+                    <button class="btn info" data-file-type="video">
+                        <i class="fas fa-file-video"></i> Ver Video
+                    </button>
+                    <button class="btn dark" data-file-type="unsupported">
+                        <i class="fas fa-file"></i> Archivo no soportado
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Alerts -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Alertas</h2>
+                <p class="section-description">Notificaciones y mensajes de feedback</p>
+            </div>
+            <div class="section-content">
+                <div class="alert primary">
+                    <i class="fas fa-info-circle alert-icon"></i>
+                    <div class="alert-content">
+                        <h4 class="alert-title">Información</h4>
+                        <p class="alert-message">Esta es una alerta informativa con un mensaje importante.</p>
+                    </div>
+                    <button class="alert-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="alert success">
+                    <i class="fas fa-check-circle alert-icon"></i>
+                    <div class="alert-content">
+                        <h4 class="alert-title">Éxito</h4>
+                        <p class="alert-message">La operación se completó correctamente.</p>
+                    </div>
+                    <button class="alert-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="alert warning">
+                    <i class="fas fa-exclamation-triangle alert-icon"></i>
+                    <div class="alert-content">
+                        <h4 class="alert-title">Advertencia</h4>
+                        <p class="alert-message">Esta acción requiere tu atención inmediata.</p>
+                    </div>
+                    <button class="alert-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="alert danger">
+                    <i class="fas fa-times-circle alert-icon"></i>
+                    <div class="alert-content">
+                        <h4 class="alert-title">Error</h4>
+                        <p class="alert-message">Ha ocurrido un error inesperado. Por favor, intenta nuevamente.</p>
+                    </div>
+                    <button class="alert-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="mt-4">
+                    <button class="btn primary" id="showAlertDemo">
+                        <i class="fas fa-bell"></i> Mostrar Alerta Dinámica
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Modals -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Modales</h2>
+                <p class="section-description">Ventanas emergentes para contenido adicional</p>
+            </div>
+            <div class="section-content">
+                <div class="form-grid">
+                    <button class="btn primary" id="openBasicModal">
+                        <i class="fas fa-window-restore"></i> Modal Básico
+                    </button>
+                    <button class="btn success" id="openFormModal">
+                        <i class="fas fa-edit"></i> Modal con Formulario
+                    </button>
+                    <button class="btn warning" id="openLargeModal">
+                        <i class="fas fa-expand"></i> Modal Grande
+                    </button>
+                    <button class="btn danger" id="openDangerModal">
+                        <i class="fas fa-exclamation-triangle"></i> Modal de Confirmación
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de File Inputs Mejorados -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Inputs de Archivo</h2>
+                <p class="section-description">Subida de archivos con preview y drag & drop</p>
+            </div>
+            <div class="section-content">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Subida Básica</label>
+                        <div class="file-input-container">
+                            <input type="file" class="file-input" id="basicFileInput" accept="image/*,.pdf,.doc,.docx">
+                            <label for="basicFileInput" class="file-input-label">
+                                <i class="fas fa-cloud-upload-alt file-input-icon"></i>
+                                <div class="file-input-text">
+                                    <h4>Subir archivo</h4>
+                                    <p>Haz clic o arrastra un archivo aquí</p>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="file-preview" id="basicFilePreview"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Múltiples Archivos</label>
+                        <div class="file-input-container">
+                            <input type="file" class="file-input" id="multipleFileInput" multiple accept="image/*">
+                            <label for="multipleFileInput" class="file-input-label">
+                                <i class="fas fa-images file-input-icon"></i>
+                                <div class="file-input-text">
+                                    <h4>Subir múltiples archivos</h4>
+                                    <p>Máximo 5 archivos, solo imágenes</p>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="file-preview" id="multipleFilePreview"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Textarea con Contador -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Textarea con Contador</h2>
+                <p class="section-description">Campos de texto con límite de caracteres</p>
+            </div>
+            <div class="section-content">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Descripción Corta (Máx. 100 caracteres)</label>
+                        <div class="textarea-container">
+                            <textarea class="form-control" rows="3" placeholder="Escribe una descripción corta..." 
+                                     maxlength="100" id="shortDescription"></textarea>
+                            <div class="textarea-counter" id="shortCounter">0/100</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Biografía (Máx. 500 caracteres)</label>
+                        <div class="textarea-container">
+                            <textarea class="form-control" rows="5" placeholder="Escribe tu biografía..." 
+                                     maxlength="500" id="bioTextarea"></textarea>
+                            <div class="textarea-counter" id="bioCounter">0/500</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Validaciones de Formulario -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Validaciones de Formulario</h2>
+                <p class="section-description">Ejemplos de validación en tiempo real</p>
+            </div>
+            <div class="section-content">
+                <form id="validationForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Nombre Completo *</label>
+                            <input type="text" class="form-control" id="fullName" 
+                                   placeholder="Ingresa tu nombre completo" required>
+                            <div class="form-feedback" id="nameFeedback"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="email" 
+                                   placeholder="correo@ejemplo.com" required>
+                            <div class="form-feedback" id="emailFeedback"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Contraseña *</label>
+                            <input type="password" class="form-control" id="password" 
+                                   placeholder="Mínimo 8 caracteres" required minlength="8">
+                            <div class="form-feedback" id="passwordFeedback"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Confirmar Contraseña *</label>
+                            <input type="password" class="form-control" id="confirmPassword" 
+                                   placeholder="Repite tu contraseña" required>
+                            <div class="form-feedback" id="confirmPasswordFeedback"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" id="phone" 
+                                   placeholder="+1 (555) 000-0000" pattern="[0-9+\-\s\(\)]+">
+                            <div class="form-feedback" id="phoneFeedback"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Edad</label>
+                            <input type="number" class="form-control" id="age" 
+                                   placeholder="Entre 18 y 100" min="18" max="100">
+                            <div class="form-feedback" id="ageFeedback"></div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn success">
+                            <i class="fas fa-check"></i> Validar Formulario
+                        </button>
+                        <button type="reset" class="btn light">
+                            <i class="fas fa-undo"></i> Limpiar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sección de Badges -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Badges</h2>
+                <p class="section-description">Etiquetas para mostrar estados y categorías</p>
+            </div>
+            <div class="section-content">
+                <div class="badges-demo">
+                    <span class="badge primary">Primary</span>
+                    <span class="badge secondary">Secondary</span>
+                    <span class="badge success">Success</span>
+                    <span class="badge danger">Danger</span>
+                    <span class="badge warning">Warning</span>
+                    <span class="badge info">Info</span>
+                    <span class="badge light">Light</span>
+                    <span class="badge dark">Dark</span>
+                </div>
+                <div class="badges-demo mt-3">
+                    <span class="badge primary pill">Pill Primary</span>
+                    <span class="badge success pill">Pill Success</span>
+                    <span class="badge danger pill">Pill Danger</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Inputs -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Inputs</h2>
+                <p class="section-description">Diferentes tipos de campos de entrada</p>
+            </div>
+            <div class="section-content">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Input Básico</label>
+                        <input type="text" class="form-control" placeholder="Escribe algo...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Input con Icono</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" class="form-control" placeholder="Usuario">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Input Disabled</label>
+                        <input type="text" class="form-control" placeholder="Campo deshabilitado" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Input Readonly</label>
+                        <input type="text" class="form-control" value="Valor de solo lectura" readonly>
+                    </div>
+                </div>
+                
+                <div class="form-grid mt-3">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" placeholder="correo@ejemplo.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" placeholder="Contraseña">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Número</label>
+                        <input type="number" class="form-control" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Teléfono</label>
+                        <input type="tel" class="form-control" placeholder="+1 (555) 000-0000">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Selects -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Selects</h2>
+                <p class="section-description">Listas desplegables y múltiples</p>
+            </div>
+            <div class="section-content">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Select Básico</label>
+                        <select class="form-control">
+                            <option value="">Selecciona una opción</option>
+                            <option value="1">Opción 1</option>
+                            <option value="2">Opción 2</option>
+                            <option value="3">Opción 3</option>
+                            <option value="4">Opción 4</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Select Múltiple</label>
+                        <select class="form-control" multiple>
+                            <option value="1">Opción 1</option>
+                            <option value="2">Opción 2</option>
+                            <option value="3">Opción 3</option>
+                            <option value="4">Opción 4</option>
+                            <option value="5">Opción 5</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Select con Grupos</label>
+                        <select class="form-control">
+                            <option value="">Selecciona una categoría</option>
+                            <optgroup label="Frutas">
+                                <option value="manzana">Manzana</option>
+                                <option value="naranja">Naranja</option>
+                                <option value="platano">Plátano</option>
+                            </optgroup>
+                            <optgroup label="Verduras">
+                                <option value="zanahoria">Zanahoria</option>
+                                <option value="brocoli">Brócoli</option>
+                                <option value="espinaca">Espinaca</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Date Time Picker -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Date & Time Pickers</h2>
+                <p class="section-description">Selectores de fecha y hora</p>
+            </div>
+            <div class="section-content">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Date Picker</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-calendar"></i>
+                            <input type="date" class="form-control" id="datePicker">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Time Picker</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-clock"></i>
+                            <input type="time" class="form-control" id="timePicker">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">DateTime Local</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                            <input type="datetime-local" class="form-control" id="datetimePicker">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="custom-datetime mt-4">
+                    <h4>Selector Personalizado</h4>
+                    <div class="datetime-selector">
+                        <div class="date-selector">
+                            <label>Fecha:</label>
+                            <div class="date-inputs">
+                                <select class="form-control sm" id="daySelect">
+                                    <option value="">Día</option>
+                                    <!-- Días generados por JS -->
+                                </select>
+                                <select class="form-control sm" id="monthSelect">
+                                    <option value="">Mes</option>
+                                    <option value="1">Enero</option>
+                                    <option value="2">Febrero</option>
+                                    <option value="3">Marzo</option>
+                                    <option value="4">Abril</option>
+                                    <option value="5">Mayo</option>
+                                    <option value="6">Junio</option>
+                                    <option value="7">Julio</option>
+                                    <option value="8">Agosto</option>
+                                    <option value="9">Septiembre</option>
+                                    <option value="10">Octubre</option>
+                                    <option value="11">Noviembre</option>
+                                    <option value="12">Diciembre</option>
+                                </select>
+                                <select class="form-control sm" id="yearSelect">
+                                    <option value="">Año</option>
+                                    <!-- Años generados por JS -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="time-selector">
+                            <label>Hora:</label>
+                            <div class="time-inputs">
+                                <select class="form-control sm" id="hourSelect">
+                                    <option value="">Hora</option>
+                                    <!-- Horas generadas por JS -->
+                                </select>
+                                <select class="form-control sm" id="minuteSelect">
+                                    <option value="">Minutos</option>
+                                    <!-- Minutos generados por JS -->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Checkboxes y Radios -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Checkboxes & Radio Buttons</h2>
+                <p class="section-description">Selecciones múltiples y únicas</p>
+            </div>
+            <div class="section-content">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Checkboxes</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox">
+                                <input type="checkbox" checked>
+                                <span class="checkmark"></span>
+                                Opción 1
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox">
+                                <span class="checkmark"></span>
+                                Opción 2
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox">
+                                <span class="checkmark"></span>
+                                Opción 3
+                            </label>
+                            <label class="checkbox disabled">
+                                <input type="checkbox" disabled>
+                                <span class="checkmark"></span>
+                                Opción deshabilitada
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Radio Buttons</label>
+                        <div class="radio-group">
+                            <label class="radio">
+                                <input type="radio" name="radioGroup" checked>
+                                <span class="radiomark"></span>
+                                Opción A
+                            </label>
+                            <label class="radio">
+                                <input type="radio" name="radioGroup">
+                                <span class="radiomark"></span>
+                                Opción B
+                            </label>
+                            <label class="radio">
+                                <input type="radio" name="radioGroup">
+                                <span class="radiomark"></span>
+                                Opción C
+                            </label>
+                            <label class="radio disabled">
+                                <input type="radio" name="radioGroup" disabled>
+                                <span class="radiomark"></span>
+                                Opción deshabilitada
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Checkboxes Inline</label>
+                        <div class="checkbox-group inline">
+                            <label class="checkbox">
+                                <input type="checkbox" checked>
+                                <span class="checkmark"></span>
+                                Inline 1
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox">
+                                <span class="checkmark"></span>
+                                Inline 2
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox">
+                                <span class="checkmark"></span>
+                                Inline 3
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Tablas Básicas -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Tablas Básicas</h2>
+                <p class="section-description">Diferentes estilos de tablas</p>
+            </div>
+            <div class="section-content">
+                <div class="table-responsive">
+                    <table class="table basic-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Juan Pérez</td>
+                                <td>juan@example.com</td>
+                                <td><span class="badge success">Activo</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon danger"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>María García</td>
+                                <td>maria@example.com</td>
+                                <td><span class="badge warning">Pendiente</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon danger"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Carlos López</td>
+                                <td>carlos@example.com</td>
+                                <td><span class="badge danger">Inactivo</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon danger"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de DataTables -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">DataTables</h2>
+                <p class="section-description">Tablas avanzadas con funcionalidades</p>
+            </div>
+            <div class="section-content">
+                <div class="datatable-controls">
+                    <div class="datatable-search">
+                        <input type="text" class="form-control sm" placeholder="Buscar..." id="datatableSearch">
+                    </div>
+                    <div class="datatable-actions">
+                        <button class="btn primary sm" id="refreshTable">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                        <button class="btn success sm" id="exportTable">
+                            <i class="fas fa-download"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table datatable" id="advancedTable">
+                        <thead>
+                            <tr>
+                                <th data-sortable="true">ID</th>
+                                <th data-sortable="true">Nombre</th>
+                                <th data-sortable="true">Email</th>
+                                <th data-sortable="true">Teléfono</th>
+                                <th data-sortable="true">Ciudad</th>
+                                <th data-sortable="true">Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Datos generados por JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="datatable-footer">
+                    <div class="datatable-info">
+                        Mostrando <span id="startRecord">1</span> a <span id="endRecord">10</span> de <span id="totalRecords">50</span> registros
+                    </div>
+                    <div class="datatable-pagination">
+                        <button class="pagination-btn" id="prevPage" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="pagination-pages" id="paginationPages">
+                            <!-- Páginas generadas por JavaScript -->
+                        </div>
+                        <button class="pagination-btn" id="nextPage">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Gestor de Archivos -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Gestor de Archivos</h2>
+                <p class="section-description">Explorador y administrador de archivos</p>
+            </div>
+            <div class="section-content">
+                <div class="file-manager">
+                    <div class="file-manager-toolbar">
+                        <div class="file-actions">
+                            <button class="btn primary sm" id="uploadFile">
+                                <i class="fas fa-upload"></i> Subir Archivo
+                            </button>
+                            <button class="btn success sm" id="createFolder">
+                                <i class="fas fa-folder-plus"></i> Nueva Carpeta
+                            </button>
+                            <button class="btn danger sm" id="deleteSelected">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </div>
+                        <div class="file-view-options">
+                            <button class="btn-icon active" data-view="grid">
+                                <i class="fas fa-th"></i>
+                            </button>
+                            <button class="btn-icon" data-view="list">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="file-manager-content">
+                        <div class="file-breadcrumb">
+                            <span class="breadcrumb-item active">Archivos</span>
+                            <span class="breadcrumb-separator">/</span>
+                            <span class="breadcrumb-item">Documentos</span>
+                        </div>
+                        
+                        <div class="files-grid" id="filesView">
+                            <!-- Archivos generados por JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="file-manager-sidebar">
+                        <div class="storage-info">
+                            <h4>Almacenamiento</h4>
+                            <div class="storage-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 65%"></div>
+                                </div>
+                                <div class="storage-stats">
+                                    <span>6.5 GB de 10 GB usados</span>
+                                    <span>65%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="quick-actions">
+                            <h4>Acciones Rápidas</h4>
+                            <button class="quick-action-btn">
+                                <i class="fas fa-images"></i>
+                                <span>Imágenes</span>
+                            </button>
+                            <button class="quick-action-btn">
+                                <i class="fas fa-file-pdf"></i>
+                                <span>Documentos</span>
+                            </button>
+                            <button class="quick-action-btn">
+                                <i class="fas fa-music"></i>
+                                <span>Música</span>
+                            </button>
+                            <button class="quick-action-btn">
+                                <i class="fas fa-video"></i>
+                                <span>Videos</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Textareas y Editors -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Textareas & Editors</h2>
+                <p class="section-description">Campos de texto extendidos y editores</p>
+            </div>
+            <div class="section-content">
+                <div class="form-group">
+                    <label class="form-label">Textarea Básico</label>
+                    <textarea class="form-control" rows="4" placeholder="Escribe tu mensaje aquí..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Editor de Texto Enriquecido</label>
+                    <div class="rich-editor">
+                        <div class="editor-toolbar">
+                            <button type="button" class="editor-btn" data-command="bold"><i class="fas fa-bold"></i></button>
+                            <button type="button" class="editor-btn" data-command="italic"><i class="fas fa-italic"></i></button>
+                            <button type="button" class="editor-btn" data-command="underline"><i class="fas fa-underline"></i></button>
+                            <div class="toolbar-separator"></div>
+                            <button type="button" class="editor-btn" data-command="insertUnorderedList"><i class="fas fa-list-ul"></i></button>
+                            <button type="button" class="editor-btn" data-command="insertOrderedList"><i class="fas fa-list-ol"></i></button>
+                            <div class="toolbar-separator"></div>
+                            <button type="button" class="editor-btn" data-command="createLink"><i class="fas fa-link"></i></button>
+                            <button type="button" class="editor-btn" data-command="unlink"><i class="fas fa-unlink"></i></button>
+                        </div>
+                        <div class="editor-content" contenteditable="true">
+                            <p>Escribe tu contenido aquí...</p>
+                            <p>Puedes usar la barra de herramientas para formatear el texto.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Sliders y Rangos -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Sliders & Rangos</h2>
+                <p class="section-description">Controles deslizantes para valores numéricos</p>
+            </div>
+            <div class="section-content">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Slider Básico</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" min="0" max="100" value="50" id="basicSlider">
+                            <div class="slider-value">50</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Slider con Steps</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" min="0" max="100" step="10" value="30" id="stepSlider">
+                            <div class="slider-value">30</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Rango Doble</label>
+                        <div class="range-slider-container">
+                            <div class="range-slider">
+                                <input type="range" class="range-min" min="0" max="100" value="25">
+                                <input type="range" class="range-max" min="0" max="100" value="75">
+                            </div>
+                            <div class="range-values">
+                                <span id="rangeMin">25</span> - <span id="rangeMax">75</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modales -->
+<div class="modal-overlay" id="basicModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Modal Básico</h3>
+            <button class="modal-close" data-modal="basicModal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>Este es un modal básico de ejemplo. Puedes usar modales para mostrar contenido adicional, formularios, confirmaciones, etc.</p>
+            <p>Los modales son útiles para mantener la atención del usuario en una tarea específica sin navegar a otra página.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn light" data-modal="basicModal">Cancelar</button>
+            <button class="btn primary">Aceptar</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="formModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Formulario de Contacto</h3>
+            <button class="modal-close" data-modal="formModal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label class="form-label">Nombre</label>
+                    <input type="text" class="form-control" placeholder="Tu nombre">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" placeholder="correo@ejemplo.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mensaje</label>
+                    <textarea class="form-control" rows="4" placeholder="Escribe tu mensaje..."></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn light" data-modal="formModal">Cancelar</button>
+            <button class="btn success">Enviar Mensaje</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="largeModal">
+    <div class="modal" style="max-width: 800px;">
+        <div class="modal-header">
+            <h3 class="modal-title">Modal Grande</h3>
+            <button class="modal-close" data-modal="largeModal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>Este es un modal de tamaño grande. Perfecto para contenido extenso como tablas, listas largas o documentación.</p>
+            
+            <div class="table-responsive mt-3">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Laptop Dell XPS 13</td>
+                            <td>$1,299.00</td>
+                            <td>15</td>
+                            <td><span class="badge success">Disponible</span></td>
+                        </tr>
+                        <tr>
+                            <td>iPhone 14 Pro</td>
+                            <td>$999.00</td>
+                            <td>8</td>
+                            <td><span class="badge warning">Poco Stock</span></td>
+                        </tr>
+                        <tr>
+                            <td>Samsung Galaxy S23</td>
+                            <td>$849.00</td>
+                            <td>0</td>
+                            <td><span class="badge danger">Agotado</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn light" data-modal="largeModal">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="dangerModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title" style="color: var(--danger);">
+                <i class="fas fa-exclamation-triangle"></i> Confirmar Eliminación
+            </h3>
+            <button class="modal-close" data-modal="dangerModal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="alert danger">
+                <i class="fas fa-exclamation-circle alert-icon"></i>
+                <div class="alert-content">
+                    <h4 class="alert-title">¡Atención!</h4>
+                    <p class="alert-message">Esta acción no se puede deshacer. ¿Estás seguro de que quieres eliminar este elemento permanentemente?</p>
+                </div>
+            </div>
+            <p>Elemento a eliminar: <strong>Proyecto "Dashboard CMS"</strong></p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn light" data-modal="dangerModal">Cancelar</button>
+            <button class="btn danger">
+                <i class="fas fa-trash"></i> Eliminar Permanentemente
+            </button>
+        </div>
+    </div>
+</div>
+@endsection
+
+
 
 @push('js')
 <script>
