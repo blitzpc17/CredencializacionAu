@@ -533,7 +533,7 @@
                     </a>
                 </li>            
                 
-                <li class="menu-header">E-commerce</li>
+                <li class="menu-header">CREDENCIALIZACIÓN</li>
                 <li class="menu-item dropdown">
                     <a href="#" class="menu-link dropdown-toggle">
                         <i class="fas fa-shopping-cart menu-icon"></i>
@@ -564,6 +564,13 @@
                         <i class="fas fa-envelope menu-icon"></i>
                         <span class="menu-text">Mensajes</span>
                         <span class="notification-badge">5</span>
+                    </a>
+                </li>
+
+                 <li class="menu-item">
+                    <a href="{{route('cms.horarios-credencializacion.index')}}" class="menu-link">
+                        <i class="fas fa-clock menu-icon"></i>
+                        <span class="menu-text">Horarios</span>
                     </a>
                 </li>
                 
