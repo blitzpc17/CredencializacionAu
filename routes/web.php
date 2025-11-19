@@ -22,7 +22,7 @@ use App\Http\Controllers\ToolsController;
 
 Route::prefix('/')->group(function(){
 
-    Route::get('/home', function () {
+    Route::get('/', function () {
         return view('client.home');
     })->name('client.home');
 
