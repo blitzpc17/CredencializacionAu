@@ -9,6 +9,7 @@ use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\HorarioCredencializacionController;
 use App\Http\Controllers\SolicitudEstadoController;
 use App\Http\Controllers\SolicitudController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,9 +33,23 @@ Route::apiResource('terminales', TerminalController::class);
 Route::apiResource('folios', FolioController::class);
 Route::apiResource('solicitudes-estados', SolicitudEstadoController::class);
 
+
+//solicitudes
 Route::post('solicitudes', [SolicitudController::class, 'store']);
 Route::get('solicitudes/{folio}', [SolicitudController::class, 'consultarPorFolio']);
+Route::get('solicitudes', [SolicitudController::class, 'index']);
+Route::get('solicitudes-estadisticas/estadisticas', [SolicitudController::class, 'estadisticas']);
 
+//usuarios
+Route::prefix('usuarios')->group(function () {
+    Route::get('/', [UserController::class, 'index'])->name('index');
+    Route::get('/estadisticas', [UserController::class, 'estadisticas'])->name('estadisticas');
+    Route::post('/', [UserController::class, 'store'])->name('store');
+    Route::get('/{id}', [UserController::class, 'show'])->name('show');
+    Route::put('/{id}', [UserController::class, 'update'])->name('update');
+    Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
+    Route::put('/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('toggle-status');   
+});
 
 
 

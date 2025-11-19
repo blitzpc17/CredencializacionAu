@@ -542,7 +542,7 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li class="menu-item">
-                            <a href="#" class="menu-link">
+                            <a href="{{route('cms.solicitudes.index')}}" class="menu-link">
                                 <span class="menu-text">Solicitudes</span>
                             </a>
                         </li>
@@ -594,6 +594,12 @@
                     <a href="{{route('cms.controles')}}" class="menu-link">
                         <i class="fas fa-chart-bar menu-icon"></i>
                         <span class="menu-text">Controles</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="{{route('cms.usuarios.index')}}" class="menu-link">
+                        <i class="fas fa-user menu-icon"></i>
+                        <span class="menu-text">Usuarios</span>
                     </a>
                 </li>
                 <li class="menu-item dropdown">

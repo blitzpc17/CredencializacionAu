@@ -19,7 +19,7 @@ class SolicitudController extends Controller
     {
         $this->emailService = $emailService;
     }
-    
+
     public function store(Request $request)
     {
         // Validación de datos
@@ -152,4 +152,103 @@ class SolicitudController extends Controller
 
 
 
+   public function index(Request $request): JsonResponse
+    {
+        try {
+            // Query base con relaciones
+            $query = Solicitud::with([
+                'estado',
+                'terminal',
+                'usuarioConfirma',
+                'usuarioCancela'
+            ]);
+
+            // Filtros
+            if ($request->has('estado') && $request->estado) {
+                $query->where('solicitudes_estadosId', $request->estado);
+            }
+
+            if ($request->has('folio') && $request->folio) {
+                $query->where('folio', 'like', '%' . $request->folio . '%');
+            }
+
+            if ($request->has('solicitante') && $request->solicitante) {
+                $query->where(function($q) use ($request) {
+                    $q->where('nombres', 'like', '%' . $request->solicitante . '%')
+                      ->orWhere('apellidos', 'like', '%' . $request->solicitante . '%');
+                });
+            }
+
+            // Ordenamiento
+            $sortField = $request->get('sort_field', 'created_at');
+            $sortDirection = $request->get('sort_direction', 'desc');
+            $query->orderBy($sortField, $sortDirection);
+
+            // Paginación
+            $perPage = $request->get('per_page', 15);
+            $solicitudes = $query->paginate($perPage);
+
+            return response()->json([
+                'success' => true,
+                'data' => $solicitudes->items(),
+                'pagination' => [
+                    'current_page' => $solicitudes->currentPage(),
+                    'last_page' => $solicitudes->lastPage(),
+                    'per_page' => $solicitudes->perPage(),
+                    'total' => $solicitudes->total(),
+                    'from' => $solicitudes->firstItem(),
+                    'to' => $solicitudes->lastItem(),
+                ],
+                'message' => 'Solicitudes obtenidas correctamente'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener las solicitudes: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Obtener estadísticas de solicitudes
+     */
+    public function estadisticas(): JsonResponse
+    {
+        try {
+            $total = Solicitud::count();
+            $pendientes = Solicitud::where('solicitudes_estadosId', 1)->count();
+            $proceso = Solicitud::where('solicitudes_estadosId', 2)->count();
+            $aprobadas = Solicitud::where('solicitudes_estadosId', 3)->count();
+            $completadas = Solicitud::where('solicitudes_estadosId', 4)->count();
+            $rechazadas = Solicitud::where('solicitudes_estadosId', 5)->count();
+
+            // Solicitudes por mes (últimos 6 meses)
+            $solicitudesPorMes = Solicitud::selectRaw('MONTH(created_at) as mes, COUNT(*) as total')
+                ->where('created_at', '>=', now()->subMonths(6))
+                ->groupBy('mes')
+                ->orderBy('mes')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'total' => $total,
+                    'pendientes' => $pendientes,
+                    'proceso' => $proceso,
+                    'aprobadas' => $aprobadas,
+                    'completadas' => $completadas,
+                    'rechazadas' => $rechazadas,
+                    'solicitudes_por_mes' => $solicitudesPorMes
+                ],
+                'message' => 'Estadísticas obtenidas correctamente'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener estadísticas: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

@@ -65,6 +65,14 @@ Route::prefix('admin')->group(function(){
         return view('cms.solicitudes-estados');
     })->name('cms.solicitudes-estados.index');
 
+    Route::get('solicitudes', function () {
+        return view('cms.solicitudes');
+    })->name('cms.solicitudes.index');
+
+    Route::get('usuarios', function () {        
+        return view('cms.usuarios');
+    })->name('cms.usuarios.index');
+
 
     Route::get('storage/images', [ToolsController::class, 'ObtenerImagen'])->name('tools.getimagen');
 
