@@ -6,6 +6,7 @@
     <title>Acceso - Sistema de Credencialización</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* Tus estilos CSS aquí (mantén todo igual) */
         * {
             margin: 0;
             padding: 0;
@@ -23,7 +24,7 @@
             position: relative;
         }
 
-        .background-pattern {
+         .background-pattern {
             position: absolute;
             width: 100%;
             height: 100%;
@@ -172,7 +173,12 @@
             box-shadow: 0 6px 12px rgba(59, 130, 246, 0.3);
         }
 
-        .login-btn:active {
+        .login-btn.loading {
+            background: #10b981;
+            cursor: not-allowed;
+        }
+
+          .login-btn:active {
             transform: translateY(0);
         }
 
@@ -276,6 +282,11 @@
             .login-header p {
                 font-size: 14px;
             }
+
+            .login-btn.error {
+                background: #ef4444;
+            }
+
         }
     </style>
 </head>
@@ -298,49 +309,95 @@
         <div class="right-panel">
             <div class="login-header">
                 <h1>Acceso al Sistema</h1>
-                <p>Ingresa tus credenciales para acceder a tu cuenta</p>
+                <p>Ingresa tus accesos para acceder a tu cuenta</p>
             </div>
             
-            <form id="loginForm">
+            <form method="POST" action="{{ route('login') }}" id="loginForm">
+                @csrf
+                
                 <div class="form-group">
-                    <label for="username">Usuario</label>
+                    <label for="usuario">Usuario</label>
                     <i class="fas fa-user icon"></i>
-                    <input type="text" id="username" placeholder="Ingresa tu usuario" required>
+                    <input type="text" id="usuario" name="usuario" value="{{ old('usuario') }}" placeholder="Ingresa tu usuario" required autofocus>
+                    @error('usuario')
+                        <span style="color: #ef4444; font-size: 14px; margin-top: 5px; display: block;">
+                            {{ $message }}
+                        </span>
+                    @enderror
                 </div>
                 
                 <div class="form-group">
                     <label for="password">Contraseña</label>
                     <i class="fas fa-lock icon"></i>
-                    <input type="password" id="password" placeholder="Ingresa tu contraseña" required>
+                    <input type="password" id="password" name="password" placeholder="Ingresa tu contraseña" required>
+                    @error('password')
+                        <span style="color: #ef4444; font-size: 14px; margin-top: 5px; display: block;">
+                            {{ $message }}
+                        </span>
+                    @enderror
                 </div>
+
+                <!-- Mostrar errores generales -->
+                @if($errors->any() && !$errors->has('usuario') && !$errors->has('password'))
+                    <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 8px; padding: 12px; margin-bottom: 20px;">
+                        <span style="color: #ef4444; font-size: 14px;">
+                            {{ $errors->first() }}
+                        </span>
+                    </div>
+                @endif
                 
-                <button type="submit" class="login-btn">Iniciar Sesión</button>
+                <button type="submit" class="login-btn" id="loginButton">
+                    <span id="buttonText">Iniciar Sesión</span>
+                    <div id="buttonLoader" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i> Verificando...
+                    </div>
+                </button>
             </form>
         </div>
     </div>
 
     <script>
         document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+            const loginButton = document.getElementById('loginButton');
+            const buttonText = document.getElementById('buttonText');
+            const buttonLoader = document.getElementById('buttonLoader');
             
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+            // Mostrar estado de carga
+            buttonText.style.display = 'none';
+            buttonLoader.style.display = 'block';
+            buttonLoader.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+            loginButton.classList.add('loading');
+            loginButton.disabled = true;
             
-            // Simulación de validación
-            if(username && password) {
-                // Efecto visual de éxito
-                const loginBtn = document.querySelector('.login-btn');
-                loginBtn.innerHTML = '<i class="fas fa-check"></i> Acceso concedido';
-                loginBtn.style.background = '#10b981';
-                
-                setTimeout(function() {
-                    alert('¡Acceso exitoso! Redirigiendo al panel de control...');
-                    // Aquí normalmente redirigiríamos al usuario a su dashboard
-                }, 1000);
-            } else {
-                alert('Por favor, completa todos los campos requeridos.');
-            }
+            // Simular éxito después de un tiempo (solo para demo)
+            // En producción, esto lo maneja Laravel automáticamente
+            setTimeout(() => {
+                buttonLoader.innerHTML = '<i class="fas fa-check"></i> Acceso concedido';
+                loginButton.style.background = '#10b981';
+            }, 1000);
         });
+
+        // Opcional: Resetear el botón si hay errores de validación
+        @if($errors->any())
+            document.addEventListener('DOMContentLoaded', function() {
+                const loginButton = document.getElementById('loginButton');
+                const buttonText = document.getElementById('buttonText');
+                const buttonLoader = document.getElementById('buttonLoader');
+                
+                buttonText.style.display = 'block';
+                buttonLoader.style.display = 'none';
+                loginButton.classList.remove('loading');
+                loginButton.disabled = false;
+                
+                // Si hay errores, mostrar efecto de error
+                if(@json($errors->any())) {
+                    loginButton.classList.add('error');
+                    setTimeout(() => {
+                        loginButton.classList.remove('error');
+                    }, 2000);
+                }
+            });
+        @endif
     </script>
 </body>
 </html>

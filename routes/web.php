@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PerfilController;
+use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ToolsController;
 
 /*
@@ -30,7 +31,7 @@ Route::prefix('/')->group(function(){
     })->name('client.solicitud');
 });
 
-Route::prefix('admin')->group(function(){
+Route::middleware(['auth'])->prefix('admin')->group(function(){
 
     Route::get('login', function(){
         return view('cms.login');
@@ -74,9 +75,21 @@ Route::prefix('admin')->group(function(){
     })->name('cms.usuarios.index');
 
 
-    Route::get('storage/images', [ToolsController::class, 'ObtenerImagen'])->name('tools.getimagen');
+  
 
 });
+
+
+Route::get('storage/images', [ToolsController::class, 'ObtenerImagen'])->name('tools.getimagen');
+
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'login']);
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+
+
+
+
 
 
 

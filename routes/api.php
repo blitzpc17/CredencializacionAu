@@ -42,13 +42,12 @@ Route::get('solicitudes-estadisticas/estadisticas', [SolicitudController::class,
 
 //usuarios
 Route::prefix('usuarios')->group(function () {
+
     Route::get('/', [UserController::class, 'index'])->name('index');
-    Route::get('/estadisticas', [UserController::class, 'estadisticas'])->name('estadisticas');
     Route::post('/', [UserController::class, 'store'])->name('store');
     Route::get('/{id}', [UserController::class, 'show'])->name('show');
     Route::put('/{id}', [UserController::class, 'update'])->name('update');
-    Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
-    Route::put('/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('toggle-status');   
+    Route::put('/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('toggle-status');
 });
 
 

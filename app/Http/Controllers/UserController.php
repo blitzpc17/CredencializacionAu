@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\Rule;
 
+use Illuminate\Support\Facades\Log;
+
 class UserController extends Controller
 {
     /**
@@ -34,7 +36,7 @@ class UserController extends Controller
             }
 
             // Ordenamiento
-            $sortField = $request->get('sort_field', 'created_at');
+            $sortField = $request->get('sort_field', 'id');
             $sortDirection = $request->get('sort_direction', 'desc');
             $query->orderBy($sortField, $sortDirection);
 
@@ -56,40 +58,14 @@ class UserController extends Controller
                 'message' => 'Usuarios obtenidos correctamente'
             ]);
         } catch (\Exception $e) {
+            // CORRECCIÓN: Error en el log - no usar errors() en Exception general
+            Log::error('Error al obtener usuarios: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener los usuarios: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Obtener estadísticas de usuarios
-     */
-    public function estadisticas(): JsonResponse
-    {
-        try {
-            $total = User::count();
-            $activos = User::where('activo', true)->count();
-            $inactivos = User::where('activo', false)->count();
-            $adminCount = User::whereHas('perfil', function($q) {
-                $q->where('nombre', 'like', '%admin%');
-            })->count();
-
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'total' => $total,
-                    'activos' => $activos,
-                    'inactivos' => $inactivos,
-                    'administradores' => $adminCount
-                ],
-                'message' => 'Estadísticas obtenidas correctamente'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al obtener estadísticas: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -110,7 +86,11 @@ class UserController extends Controller
             ]);
 
             $userData = $request->all();
-            $userData['password'] = bcrypt($request->password);
+          
+            $userData['password'] = \Hash::make($request->password);
+            
+            // CORRECCIÓN: Manejo seguro del campo activo
+            $userData['activo'] = $request->has('activo') ? (int)$request->boolean('activo') : 1;
 
             $user = User::create($userData);
 
@@ -120,15 +100,25 @@ class UserController extends Controller
                 'message' => 'Usuario creado correctamente'
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Error de validación al crear usuario: ' . $e->getMessage(), [
+                'errors' => $e->errors(),
+                'request_data' => $request->except('password')
+            ]);
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Error de validación',
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
+            Log::error('Error al crear usuario: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->except('password')
+            ]);
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Error al crear el usuario: ' . $e->getMessage()
+                'message' => 'Error al crear el usuario'
             ], 500);
         }
     }
@@ -154,6 +144,12 @@ class UserController extends Controller
                 'message' => 'Usuario obtenido correctamente'
             ]);
         } catch (\Exception $e) {
+            // CORRECCIÓN: Error en el log - no hay $request en este método
+            Log::error('Error al obtener usuario: ' . $e->getMessage(), [
+                'user_id' => $id,
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener el usuario: ' . $e->getMessage()
@@ -196,9 +192,16 @@ class UserController extends Controller
             if (empty($userData['password'])) {
                 unset($userData['password']);
             } else {
-                $userData['password'] = bcrypt($userData['password']);
+                       //    dd($request->password);
+                $userData['password'] = \Hash::make($userData['password']);
             }
 
+            // CORRECCIÓN: Asegurar que activo sea entero
+            if (isset($userData['activo'])) {
+                $userData['activo'] = (int)$userData['activo'];
+            }
+
+           // dd($userData);
             $user->update($userData);
 
             return response()->json([
@@ -207,12 +210,25 @@ class UserController extends Controller
                 'message' => 'Usuario actualizado correctamente'
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Error de validación al actualizar usuario: ' . $e->getMessage(), [
+                'errors' => $e->errors(),
+                'user_id' => $id,
+                'request_data' => $request->except('password')
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error de validación',
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
+            // CORRECCIÓN: Error en el log - no usar errors() en Exception general
+            Log::error('Error al actualizar usuario: ' . $e->getMessage(), [
+                'user_id' => $id,
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->except('password')
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al actualizar el usuario: ' . $e->getMessage()
@@ -244,7 +260,7 @@ class UserController extends Controller
             }
 
             $nuevoEstado = !$user->activo;
-            $user->update(['activo' => $nuevoEstado]);
+            $user->update(['activo' => (int)$nuevoEstado]); // CORRECCIÓN: Convertir a entero
 
             $accion = $nuevoEstado ? 'activado' : 'desactivado';
             return response()->json([
@@ -253,6 +269,12 @@ class UserController extends Controller
                 'message' => "Usuario {$accion} correctamente"
             ]);
         } catch (\Exception $e) {
+            // CORRECCIÓN: Error en el log - no hay $request en este método
+            Log::error('Error al cambiar estado de usuario: ' . $e->getMessage(), [
+                'user_id' => $id,
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al cambiar el estado: ' . $e->getMessage()
@@ -260,9 +282,11 @@ class UserController extends Controller
         }
     }
 
- /*   public function getPerfiles(): JsonResponse
+    /**
+     * Obtener lista de perfiles para selects
+     */
+    public function getPerfiles(): JsonResponse
     {
-        dd("entro perro");
         try {
             $perfiles = Perfil::where('activo', true)
                             ->orderBy('nombre')
@@ -274,10 +298,15 @@ class UserController extends Controller
                 'message' => 'Perfiles obtenidos correctamente'
             ]);
         } catch (\Exception $e) {
+            // CORRECCIÓN: Error en el log - no hay $request en este método
+            Log::error('Error al obtener perfiles: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener los perfiles: ' . $e->getMessage()
             ], 500);
         }
-    }*/
+    }
 }

@@ -649,21 +649,24 @@
                     </div>
                     
                     <div class="user-profile">
-                        <div class="user-avatar">JD</div>
-                        <span class="user-name">John Doe</span>
+                        <div class="user-avatar">{{ substr(auth()->user()->nombres, 0, 1) }}{{ substr(auth()->user()->apellidos, 0, 1) }}</div>
+                        <span class="user-name">{{ auth()->user()->nombres }} {{ auth()->user()->apellidos }}</span>
                         <i class="fas fa-chevron-down"></i>
                         
                         <div class="dropdown-profile">
                             <a href="#" class="dropdown-item">
                                 <i class="fas fa-user"></i>
-                                <span>Mi Perfil</span>
+                                <span> {{ auth()->user()->perfil->nombre }}</span>
                             </a>
                             <a href="#" class="dropdown-item">
                                 <i class="fas fa-cog"></i>
                                 <span>Configuración</span>
                             </a>
                             <div class="dropdown-divider"></div>
-                            <a href="#" class="dropdown-item">
+                            <form method="POST" action="{{ route('logout') }}" id="logout-form" style="display: none;">
+                                @csrf
+                            </form>
+                             <a href="#" class="dropdown-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                 <i class="fas fa-sign-out-alt"></i>
                                 <span>Cerrar Sesión</span>
                             </a>

@@ -3,99 +3,42 @@
 @push('css')
 <style>
     .usuarios-container {
-        padding: 0;
-    }  
-
-    .page-header {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #e9ecef;
+        flex-direction: column;
+        gap: 2rem;
     }
 
-    .page-title {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin: 0;
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .stat-card {
+    .section-card {
         background: white;
         border-radius: 12px;
-        padding: 1.5rem;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-        border-left: 4px solid var(--primary);
-        transition: var(--transition);
-    }
-
-    .stat-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
-    }
-
-    .stat-card.total { border-left-color: var(--primary); }
-    .stat-card.activos { border-left-color: var(--success); }
-    .stat-card.inactivos { border-left-color: var(--danger); }
-    .stat-card.administradores { border-left-color: var(--accent); }
-
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        color: var(--dark);
-    }
-
-    .stat-label {
-        font-size: 0.9rem;
-        color: var(--gray);
-        font-weight: 600;
-    }
-
-    .filters-card {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    }
-
-    .filters-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-
-    .filters-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: var(--dark);
-        margin: 0;
-    }
-
-    .filters-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-    }
-
-    .table-container {
-        background: white;
-        border-radius: 12px;
         overflow: hidden;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
     }
 
+    .section-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid #e9ecef;
+        background: #f8f9fa;
+    }
+
+    .section-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    .section-description {
+        color: var(--gray);
+        margin: 0.5rem 0 0 0;
+        font-size: 0.9rem;
+    }
+
+    .section-content {
+        padding: 2rem;
+    }
+
+    /* Tabla */
     .table-responsive {
         overflow-x: auto;
     }
@@ -103,74 +46,63 @@
     .table {
         width: 100%;
         border-collapse: collapse;
-        margin: 0;
+    }
+
+    .table th, .table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #e9ecef;
     }
 
     .table th {
         background: #f8f9fa;
-        padding: 1rem;
         font-weight: 600;
         color: var(--dark);
-        text-align: left;
-        border-bottom: 1px solid #e9ecef;
-        white-space: nowrap;
-    }
-
-    .table td {
-        padding: 1rem;
-        border-bottom: 1px solid #e9ecef;
-        vertical-align: middle;
     }
 
     .table tbody tr:hover {
         background: #f8f9fa;
     }
 
-    .table tbody tr:last-child td {
-        border-bottom: none;
-    }
-
-    .usuario-info {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .usuario-nombre {
-        font-weight: 600;
-        color: var(--dark);
-        margin-bottom: 0.2rem;
-    }
-
-    .usuario-username {
-        font-size: 0.8rem;
-        color: var(--gray);
-    }
-
-    .estado-badge {
-        padding: 0.4rem 0.8rem;
-        border-radius: 20px;
+    /* Badges para estados */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.35rem 0.75rem;
         font-size: 0.75rem;
         font-weight: 600;
+        border-radius: 6px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
 
-    .estado-activo { background: #d4edda; color: #155724; }
-    .estado-inactivo { background: #f8d7da; color: #721c24; }
+    .badge.success { background: var(--success); color: white; }
+    .badge.danger { background: var(--danger); color: white; }
+    .badge.primary { background: var(--primary); color: white; }
 
-    .perfil-badge {
-        background: var(--primary);
-        color: white;
-        padding: 0.3rem 0.6rem;
+    /* Botones */
+    .btn {
+        padding: 0.5rem 1rem;
+        border: none;
         border-radius: 6px;
+        cursor: pointer;
         font-size: 0.8rem;
         font-weight: 600;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
-    .acciones-cell {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: nowrap;
+    .btn.primary { background: var(--primary); color: white; }
+    .btn.success { background: var(--success); color: white; }
+    .btn.danger { background: var(--danger); color: white; }
+    .btn.warning { background: var(--warning); color: var(--dark); }
+    .btn.sm { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
+
+    .btn:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
     }
 
     .btn-icon {
@@ -181,11 +113,6 @@
         cursor: pointer;
         transition: var(--transition);
         color: var(--gray);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
     }
 
     .btn-icon:hover {
@@ -193,94 +120,66 @@
         color: var(--dark);
     }
 
-    .btn-icon.primary { color: var(--primary); }
-    .btn-icon.primary:hover { background: rgba(67, 97, 238, 0.1); }
-
-    .btn-icon.warning { color: var(--warning); }
-    .btn-icon.warning:hover { background: rgba(255, 193, 7, 0.1); }
-
-    .pagination-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.5rem;
-        background: #f8f9fa;
-        border-top: 1px solid #e9ecef;
+    .btn-icon.warning {
+        color: var(--warning);
     }
 
-    .pagination-info {
-        color: var(--gray);
+    .btn-icon.warning:hover {
+        background: rgba(255, 193, 7, 0.1);
+    }
+
+    /* Formularios */
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--dark);
         font-size: 0.9rem;
     }
 
-    .pagination {
+    .form-control {
+        padding: 0.75rem 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: var(--transition);
+        background: white;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+    }
+
+    /* Controles de tabla */
+    .datatable-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .datatable-search {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .datatable-actions {
         display: flex;
         gap: 0.5rem;
-        align-items: center;
     }
 
-    .page-btn {
-        padding: 0.5rem 0.75rem;
-        border: 1px solid #e9ecef;
-        background: white;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: var(--transition);
-        font-size: 0.8rem;
-        min-width: 36px;
-        text-align: center;
-    }
-
-    .page-btn:hover:not(:disabled) {
-        background: #f8f9fa;
-    }
-
-    .page-btn.active {
-        background: var(--primary);
-        color: white;
-        border-color: var(--primary);
-    }
-
-    .page-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    .loading-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(255, 255, 255, 0.8);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 10;
-        border-radius: 12px;
-    }
-
-    .loading-overlay.show {
-        display: flex;
-    }
-
-    .spinner {
-        width: 40px;
-        height: 40px;
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid var(--primary);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
+    /* Estados vacíos */
     .empty-state {
         text-align: center;
-        padding: 3rem;
+        padding: 3rem 2rem;
         color: var(--gray);
     }
 
@@ -290,226 +189,341 @@
         color: #e9ecef;
     }
 
-    .empty-state h4 {
-        margin-bottom: 0.5rem;
+    /* Loading */
+    .loading {
+        text-align: center;
+        padding: 2rem;
+        color: var(--gray);
+    }
+
+    .loading i {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Alertas */
+    .alert {
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        border-left: 4px solid transparent;
+    }
+
+    .alert.primary {
+        background: rgba(67, 97, 238, 0.1);
+        border-left-color: var(--primary);
+        color: #2c44c4;
+    }
+
+    .alert.success {
+        background: rgba(75, 181, 67, 0.1);
+        border-left-color: var(--success);
+        color: #2e7d32;
+    }
+
+    .alert.danger {
+        background: rgba(220, 53, 69, 0.1);
+        border-left-color: var(--danger);
+        color: #c53030;
+    }
+
+    .alert.warning {
+        background: rgba(255, 204, 0, 0.1);
+        border-left-color: var(--warning);
+        color: #b38f00;
+    }
+
+    .alert-icon {
+        font-size: 1.25rem;
+        margin-top: 0.1rem;
+        flex-shrink: 0;
+    }
+
+    .alert-content {
+        flex: 1;
+    }
+
+    .alert-title {
+        font-weight: 600;
+        margin: 0 0 0.25rem 0;
+        font-size: 1rem;
+    }
+
+    .alert-message {
+        margin: 0;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    .alert-close {
+        background: none;
+        border: none;
+        color: inherit;
+        opacity: 0.7;
+        cursor: pointer;
+        padding: 0.25rem;
+        border-radius: 4px;
+        transition: var(--transition);
+        flex-shrink: 0;
+    }
+
+    .alert-close:hover {
+        opacity: 1;
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    /* Modal */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1100;
+        padding: 1rem;
+    }
+
+    .modal-overlay.show {
+        display: flex;
+    }
+
+    .modal {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        width: 100%;
+        max-width: 500px;
+        max-height: 90vh;
+        overflow: hidden;
+        animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-50px) scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .modal-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .modal-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        color: var(--gray);
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 6px;
+        transition: var(--transition);
+    }
+
+    .modal-close:hover {
+        background: #f8f9fa;
         color: var(--dark);
     }
 
-    @media (max-width: 768px) {
-        .page-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-
-        .stats-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .filters-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .acciones-cell {
-            flex-direction: column;
-        }
-
-        .pagination-container {
-            flex-direction: column;
-            gap: 1rem;
-            align-items: stretch;
-        }
-
-        .pagination {
-            justify-content: center;
-        }
-
-        .table-responsive {
-            font-size: 0.8rem;
-        }
-
-        .table th,
-        .table td {
-            padding: 0.75rem 0.5rem;
-        }
+    .modal-body {
+        padding: 2rem;
+        max-height: 60vh;
+        overflow-y: auto;
     }
 
-    @media (max-width: 480px) {
-        .stats-grid {
-            grid-template-columns: 1fr;
+    .modal-footer {
+        padding: 1.5rem 2rem;
+        border-top: 1px solid #e9ecef;
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+        background: #f8f9fa;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .datatable-controls {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .datatable-search {
+            min-width: auto;
+        }
+
+        .modal {
+            margin: 1rem;
+            max-width: calc(100% - 2rem);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            flex-direction: column;
+        }
+
+        .modal-footer .btn {
+            width: 100%;
         }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="dashboard-content usuarios-container">
-    <!-- Header de la página -->
-    <div class="page-header">
-        <div>
-            <h1 class="page-title">Gestión de Usuarios</h1>
-            <p class="section-description">Administra los usuarios del sistema y sus permisos</p>
-        </div>
-        <button class="btn primary" id="btnNuevoUsuario">
-            <i class="fas fa-plus"></i> Nuevo Usuario
-        </button>
+<div class="dashboard-content">
+    <h1 class="page-title">Gestión de Usuarios</h1>
+    
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb-list">
+                <li class="breadcrumb-item"><a href="{{ route('cms.dash') }}">Home</a></li>
+                <li class="breadcrumb-item"><a href="#">Configuración</a></li>
+                <li class="breadcrumb-item active">Usuarios</li>
+            </ol>
+        </nav>
     </div>
 
-    <!-- Estadísticas -->
-    <div class="stats-grid" id="statsContainer">
-        <!-- Las estadísticas se cargarán por JavaScript -->
-    </div>
+    <div class="usuarios-container">
+        <!-- Sección de Lista de Usuarios -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Usuarios del Sistema</h2>
+                <p class="section-description">Gestiona los usuarios y sus permisos en el sistema</p>
+            </div>
+            <div class="section-content">
+                <!-- Controles de la tabla -->
+                <div class="datatable-controls">
+                    <div class="datatable-search">
+                        <input type="text" class="form-control" placeholder="Buscar usuarios..." id="searchUsuarios">
+                    </div>
+                    <div class="datatable-actions">
+                        <button class="btn primary sm" id="refreshUsuarios">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                        <button class="btn success sm" id="addUsuario">
+                            <i class="fas fa-plus"></i> Nuevo Usuario
+                        </button>
+                    </div>
+                </div>
 
-    <!-- Filtros -->
-    <div class="filters-card">
-        <div class="filters-header">
-            <h3 class="filters-title">Filtros de Búsqueda</h3>
-            <button class="btn light sm" id="clearFilters">
-                <i class="fas fa-times"></i> Limpiar Filtros
-            </button>
-        </div>
-        <div class="filters-grid">
-            <div class="form-group">
-                <label class="form-label">Buscar</label>
-                <input type="text" class="form-control" id="filterSearch" placeholder="Nombre, apellido o usuario...">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Estado</label>
-                <select class="form-control" id="filterEstado">
-                    <option value="">Todos los estados</option>
-                    <option value="1">Activos</option>
-                    <option value="0">Inactivos</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Ordenar por</label>
-                <select class="form-control" id="sortField">
-                    <option value="created_at">Fecha de creación</option>
-                    <option value="nombres">Nombre</option>
-                    <option value="apellidos">Apellido</option>
-                    <option value="usuario">Usuario</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Dirección</label>
-                <select class="form-control" id="sortDirection">
-                    <option value="desc">Más reciente primero</option>
-                    <option value="asc">Más antiguo primero</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Registros por página</label>
-                <select class="form-control" id="perPage">
-                    <option value="10">10 registros</option>
-                    <option value="15" selected>15 registros</option>
-                    <option value="25">25 registros</option>
-                    <option value="50">50 registros</option>
-                </select>
-            </div>
-        </div>
-    </div>
+                <!-- Tabla de usuarios -->
+                <div class="table-responsive">
+                    <table class="table" id="usuariosTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Usuario</th>
+                                <th>Perfil</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usuariosTableBody">
+                            <!-- Los datos se cargan via AJAX -->
+                        </tbody>
+                    </table>
+                </div>
 
-    <!-- Tabla de usuarios -->
-    <div class="table-container">
-        <div class="loading-overlay" id="tableLoading">
-            <div class="spinner"></div>
-        </div>
+                <!-- Estado vacío -->
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <i class="fas fa-users"></i>
+                    <h3>No hay usuarios</h3>
+                    <p>No se han registrado usuarios en el sistema.</p>
+                    <button class="btn primary mt-3" id="addFirstUsuario">
+                        <i class="fas fa-plus"></i> Crear Primer Usuario
+                    </button>
+                </div>
 
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Usuario</th>
-                        <th>Perfil</th>
-                        <th>Estado</th>
-                        <th>Fecha de Registro</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="usuariosTableBody">
-                    <!-- Los usuarios se cargarán por JavaScript -->
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Estado vacío -->
-        <div class="empty-state" id="emptyState" style="display: none;">
-            <i class="fas fa-users"></i>
-            <h4>No hay usuarios</h4>
-            <p>No se encontraron usuarios con los filtros aplicados.</p>
-        </div>
-
-        <!-- Paginación -->
-        <div class="pagination-container">
-            <div class="pagination-info" id="paginationInfo">
-                Mostrando 0 a 0 de 0 registros
-            </div>
-            <div class="pagination" id="pagination">
-                <!-- La paginación se generará por JavaScript -->
+                <!-- Loading -->
+                <div class="loading" id="loadingUsuarios">
+                    <i class="fas fa-spinner"></i>
+                    <p>Cargando usuarios...</p>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal único para Crear/Editar -->
-<div class="modal-overlay" id="userModal">
-    <div class="modal" style="max-width: 600px;">
+<!-- Modal para agregar/editar usuario -->
+<div class="modal-overlay" id="usuarioModal">
+    <div class="modal">
         <div class="modal-header">
-            <h3 class="modal-title" id="userModalTitle">Nuevo Usuario</h3>
-            <button class="modal-close" onclick="usuariosManager.closeModal('userModal')">
+            <h3 class="modal-title" id="modalTitle">Nuevo Usuario</h3>
+            <button class="modal-close" data-modal="usuarioModal">
                 <i class="fas fa-times"></i>
             </button>
         </div>
         <div class="modal-body">
-            <form id="userForm">
-                @csrf
-                <input type="hidden" id="userId" name="id">
-                
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label" for="nombres">Nombres *</label>
-                        <input type="text" class="form-control" id="nombres" name="nombres" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="apellidos">Apellidos *</label>
-                        <input type="text" class="form-control" id="apellidos" name="apellidos" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="usuario">Usuario *</label>
-                        <input type="text" class="form-control" id="usuario" name="usuario" required>
-                    </div>
-
-            
-
-                    <div class="form-group">
-                        <label class="form-label" for="perfilesId">Perfil *</label>
-                        <select class="form-control" id="perfilesId" name="perfilesId" required>
-                            <option value="">Seleccione un perfil</option>
-                            <!-- Las opciones se llenarán dinámicamente con JavaScript -->
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="password">
-                            Contraseña 
-                            <span id="passwordRequired">*</span>
-                            <span id="passwordOptional" style="display: none; color: var(--gray); font-weight: normal;">(Opcional - dejar en blanco para mantener la actual)</span>
-                        </label>
-                        <input type="password" class="form-control" id="password" name="password">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="password_confirmation">Confirmar Contraseña</label>
-                        <input type="password" class="form-control" id="password_confirmation" name="password_confirmation">
-                    </div>
+            <form id="usuarioForm">
+                <input type="hidden" id="usuarioId">
+                <div class="form-group">
+                    <label class="form-label" for="nombres">Nombres *</label>
+                    <input type="text" class="form-control" id="nombres" required>
+                    <div class="form-feedback" id="nombresFeedback"></div>
                 </div>
-
-                <div class="form-group mt-3">
+                <div class="form-group">
+                    <label class="form-label" for="apellidos">Apellidos *</label>
+                    <input type="text" class="form-control" id="apellidos" required>
+                    <div class="form-feedback" id="apellidosFeedback"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="usuario">Usuario *</label>
+                    <input type="text" class="form-control" id="usuario" required>
+                    <div class="form-feedback" id="usuarioFeedback"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="perfilesId">Perfil *</label>
+                    <select class="form-control" id="perfilesId" required>
+                        <option value="">Seleccione un perfil</option>
+                    </select>
+                    <div class="form-feedback" id="perfilesIdFeedback"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">
+                        Contraseña <span id="passwordRequired">*</span>
+                        <span id="passwordOptional" style="display: none; color: var(--gray); font-weight: normal;">(Opcional - dejar en blanco para mantener la actual)</span>
+                    </label>
+                    <input type="password" class="form-control" id="password">
+                    <div class="form-feedback" id="passwordFeedback"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password_confirmation">Confirmar Contraseña</label>
+                    <input type="password" class="form-control" id="password_confirmation">
+                </div>
+                <div class="form-group">
                     <label class="checkbox">
-                        <input type="checkbox" id="activo" name="activo" value="1" checked>
+                        <input type="checkbox" id="activo" value="1" checked>
                         <span class="checkmark"></span>
                         Usuario activo
                     </label>
@@ -517,9 +531,40 @@
             </form>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn light" onclick="usuariosManager.closeModal('userModal')">Cancelar</button>
-            <button type="submit" form="userForm" class="btn success" id="userModalSubmit">
-                <i class="fas fa-save"></i> Crear Usuario
+            <button class="btn light" data-modal="usuarioModal">Cancelar</button>
+            <button class="btn primary" id="saveUsuario">
+                <i class="fas fa-save"></i> Guardar Usuario
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para cambiar estado -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title" style="color: var(--warning);">
+                <i class="fas fa-exclamation-triangle"></i> Confirmar Cambio de Estado
+            </h3>
+            <button class="modal-close" data-modal="confirmModal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="alert warning">
+                <i class="fas fa-exclamation-circle alert-icon"></i>
+                <div class="alert-content">
+                    <h4 class="alert-title">¡Atención!</h4>
+                    <p class="alert-message" id="confirmMessage">¿Estás seguro de que quieres cambiar el estado de este usuario?</p>
+                </div>
+            </div>
+            <p>Usuario: <strong id="usuarioToToggle"></strong></p>
+            <p>Acción: <strong id="accionToggle"></strong></p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn light" data-modal="confirmModal">Cancelar</button>
+            <button class="btn warning" id="confirmToggle">
+                <i class="fas fa-user-check"></i> Confirmar
             </button>
         </div>
     </div>
@@ -527,302 +572,246 @@
 @endsection
 
 @push('js')
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 <script>
-    class UsuariosManager {
-        constructor() {
-            this.currentPage = 1;
-            this.filters = {
-                search: '',
-                estado: '',
-                sort_field: 'created_at',
-                sort_direction: 'desc',
-                per_page: 15
-            };
-            this.init();
+    document.addEventListener('DOMContentLoaded', function() {
+        // Variables globales
+        let usuarios = [];
+        let perfiles = [];
+        let currentUsuarioId = null;
+
+        // Elementos del DOM
+        const usuariosTableBody = document.getElementById('usuariosTableBody');
+        const emptyState = document.getElementById('emptyState');
+        const loadingUsuarios = document.getElementById('loadingUsuarios');
+        const searchInput = document.getElementById('searchUsuarios');
+        const usuarioForm = document.getElementById('usuarioForm');
+        const usuarioModal = document.getElementById('usuarioModal');
+        const confirmModal = document.getElementById('confirmModal');
+        const perfilesSelect = document.getElementById('perfilesId');
+
+        // ===== INICIALIZACIÓN =====
+        initializeUsuarios();
+
+        function initializeUsuarios() {
+            loadPerfiles();
+            loadUsuarios();
+            setupEventListeners();
         }
 
-        async init() {
-            await this.loadPerfiles();
-            this.bindEvents();
-            this.loadStats();
-            this.loadUsuarios();
-        }
-
-        async loadPerfiles() {
-        try {
-            const response = await fetch('/api/perfiles');
-            const result = await response.json();
-
-            if (result.success) {
-                this.perfiles = result.data;
-                this.renderPerfilesSelect();
-            } else {
-                throw new Error(result.message);
-            }
-        } catch (error) {
-            console.error('Error cargando perfiles:', error);
-            this.showAlert('error', 'Error al cargar los perfiles');
-        }
-    }
-
-
-     renderPerfilesSelect() {
-        const select = document.getElementById('perfilesId');
-        
-        // Limpiar opciones existentes (excepto la primera)
-        while (select.children.length > 1) {
-            select.removeChild(select.lastChild);
-        }
-        
-        // Agregar opciones de perfiles
-        this.perfiles.forEach(perfil => {
-            const option = document.createElement('option');
-            option.value = perfil.id;
-            option.textContent = perfil.nombre;
-            select.appendChild(option);
-        });
-    }
-
-        bindEvents() {
-            // Filtros
-            document.getElementById('filterSearch').addEventListener('input', this.debounce(() => {
-                this.filters.search = document.getElementById('filterSearch').value;
-                this.currentPage = 1;
-                this.loadUsuarios();
-            }, 500));
-
-            document.getElementById('filterEstado').addEventListener('change', () => {
-                this.filters.estado = document.getElementById('filterEstado').value;
-                this.currentPage = 1;
-                this.loadUsuarios();
-            });
-
-            document.getElementById('sortField').addEventListener('change', () => {
-                this.filters.sort_field = document.getElementById('sortField').value;
-                this.loadUsuarios();
-            });
-
-            document.getElementById('sortDirection').addEventListener('change', () => {
-                this.filters.sort_direction = document.getElementById('sortDirection').value;
-                this.loadUsuarios();
-            });
-
-            document.getElementById('perPage').addEventListener('change', () => {
-                this.filters.per_page = document.getElementById('perPage').value;
-                this.currentPage = 1;
-                this.loadUsuarios();
-            });
-
-            // Botones
-            document.getElementById('btnNuevoUsuario').addEventListener('click', () => {
-                this.showUserModal();
-            });
-
-            document.getElementById('clearFilters').addEventListener('click', () => {
-                this.clearFilters();
-            });
-
-            // Formulario
-            document.getElementById('userForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.saveUser();
-            });
-        }
-
-        async loadStats() {
-            try {
-                const response = await fetch('/api/usuarios/estadisticas');
-                const result = await response.json();
-
-                if (result.success) {
-                    this.renderStats(result.data);
-                } else {
-                    throw new Error(result.message);
-                }
-            } catch (error) {
-                console.error('Error cargando estadísticas:', error);
-                this.showAlert('error', 'Error al cargar las estadísticas');
-            }
-        }
-
-        renderStats(data) {
-            const statsContainer = document.getElementById('statsContainer');
-            statsContainer.innerHTML = `
-                <div class="stat-card total">
-                    <div class="stat-value">${data.total}</div>
-                    <div class="stat-label">Total Usuarios</div>
-                </div>
-                <div class="stat-card activos">
-                    <div class="stat-value">${data.activos}</div>
-                    <div class="stat-label">Usuarios Activos</div>
-                </div>
-                <div class="stat-card inactivos">
-                    <div class="stat-value">${data.inactivos}</div>
-                    <div class="stat-label">Usuarios Inactivos</div>
-                </div>
-                <div class="stat-card administradores">
-                    <div class="stat-value">${data.administradores}</div>
-                    <div class="stat-label">Administradores</div>
-                </div>
-            `;
-        }
-
-        async loadUsuarios() {
-            const tableBody = document.getElementById('usuariosTableBody');
-            const loadingOverlay = document.getElementById('tableLoading');
-            const emptyState = document.getElementById('emptyState');
-
-            try {
-                loadingOverlay.classList.add('show');
-                tableBody.innerHTML = '';
-
-                const queryParams = new URLSearchParams({
-                    page: this.currentPage,
-                    ...this.filters
-                });
-
-                const response = await fetch(`/api/usuarios?${queryParams}`);
-                const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result.message);
-                }
-
-                if (result.success) {
-                    this.renderUsuarios(result.data);
-                    this.renderPagination(result.pagination);
-                    
-                    // Mostrar/ocultar estado vacío
-                    if (result.data.length === 0) {
-                        emptyState.style.display = 'block';
+        // ===== CARGAR PERFILES =====
+        function loadPerfiles() {
+            $.ajax({
+                url: '/api/perfiles',
+                method: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        perfiles = response.data;
+                        renderPerfilesSelect();
                     } else {
-                        emptyState.style.display = 'none';
+                        showAlert('error', 'Error al cargar los perfiles: ' + response.message);
                     }
-                } else {
-                    throw new Error(result.message);
+                },
+                error: function(xhr) {
+                    let errorMessage = 'Error al cargar los perfiles';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage += ': ' + xhr.responseJSON.message;
+                    }
+                    showAlert('error', errorMessage);
                 }
-            } catch (error) {
-                console.error('Error cargando usuarios:', error);
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align: center; color: var(--danger);">
-                            <i class="fas fa-exclamation-triangle"></i> Error al cargar los usuarios
-                        </td>
-                    </tr>
-                `;
-                this.showAlert('error', 'Error al cargar los usuarios');
-            } finally {
-                loadingOverlay.classList.remove('show');
-            }
+            });
         }
 
-        renderUsuarios(usuarios) {
-            const tableBody = document.getElementById('usuariosTableBody');
+        function renderPerfilesSelect() {
+            perfilesSelect.innerHTML = '<option value="">Seleccione un perfil</option>';
+            perfiles.forEach(perfil => {
+                const option = document.createElement('option');
+                option.value = perfil.id;
+                option.textContent = perfil.nombre;
+                perfilesSelect.appendChild(option);
+            });
+        }
+
+        // ===== CARGAR USUARIOS =====
+        function loadUsuarios() {
+            showLoading();
             
-            if (usuarios.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align: center; color: var(--gray);">
-                            No se encontraron usuarios
-                        </td>
-                    </tr>
-                `;
+            $.ajax({
+                url: '/api/usuarios',
+                method: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        usuarios = response.data;
+                        renderUsuarios(usuarios);
+                    } else {
+                        showAlert('error', 'Error al cargar los usuarios: ' + response.message);
+                    }
+                },
+                error: function(xhr) {
+                    let errorMessage = 'Error al cargar los usuarios';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage += ': ' + xhr.responseJSON.message;
+                    }
+                    showAlert('error', errorMessage);
+                },
+                complete: function() {
+                    hideLoading();
+                }
+            });
+        }
+
+        // ===== RENDERIZAR USUARIOS =====
+        function renderUsuarios(usuariosList) {
+            if (usuariosList.length === 0) {
+                usuariosTableBody.innerHTML = '';
+                emptyState.style.display = 'block';
                 return;
             }
 
-            tableBody.innerHTML = usuarios.map(usuario => `
+            emptyState.style.display = 'none';
+            
+            const html = usuariosList.map(usuario => `
                 <tr>
                     <td>${usuario.id}</td>
                     <td>
-                        <div class="usuario-info">
-                            <span class="usuario-nombre">${usuario.nombres} ${usuario.apellidos}</span>
-                            <span class="usuario-username">@${usuario.usuario}</span>
+                        <div>
+                            <strong>${usuario.nombres} ${usuario.apellidos}</strong><br>
+                            <small class="text-muted">@${usuario.usuario}</small>
                         </div>
                     </td>
                     <td>
-                        <span class="perfil-badge">${usuario.perfil?.nombre || 'N/A'}</span>
+                        <span class="badge primary">
+                            ${usuario.perfil?.nombre || 'N/A'}
+                        </span>
                     </td>
                     <td>
-                        <span class="estado-badge ${usuario.activo ? 'estado-activo' : 'estado-inactivo'}">
+                        <span class="badge ${usuario.activo ? 'success' : 'danger'}">
                             ${usuario.activo ? 'Activo' : 'Inactivo'}
                         </span>
                     </td>
-                    <td>${new Date(usuario.created_at).toLocaleDateString('es-MX')}</td>
                     <td>
-                        <div class="acciones-cell">
-                            <button class="btn-icon primary" onclick="usuariosManager.editUsuario(${usuario.id})" 
-                                    title="Editar">
-                                <i class="fas fa-edit"></i>
+                        <button class="btn-icon edit-usuario" 
+                                data-id="${usuario.id}" 
+                                data-nombres="${usuario.nombres}"
+                                data-apellidos="${usuario.apellidos}"
+                                data-usuario="${usuario.usuario}"
+                                data-perfilesid="${usuario.perfilesId}"
+                                data-activo="${usuario.activo}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        ${usuario.id !== {{ /*auth()->id()*/1 }} ? `
+                            <button class="btn-icon warning toggle-usuario" 
+                                    data-id="${usuario.id}" 
+                                    data-nombre="${usuario.nombres} ${usuario.apellidos}"
+                                    data-activo="${usuario.activo}">
+                                <i class="fas fa-${usuario.activo ? 'user-slash' : 'user-check'}"></i>
                             </button>
-                            ${usuario.id !== {{ /*auth()->id()*/ 0 }} ? `
-                                <button class="btn-icon warning" onclick="usuariosManager.toggleStatus(${usuario.id}, ${usuario.activo})" 
-                                        title="${usuario.activo ? 'Desactivar' : 'Activar'}">
-                                    <i class="fas fa-${usuario.activo ? 'user-slash' : 'user-check'}"></i>
-                                </button>
-                            ` : ''}
-                        </div>
+                        ` : ''}
                     </td>
                 </tr>
             `).join('');
+
+            usuariosTableBody.innerHTML = html;
         }
 
-        renderPagination(pagination) {
-            const paginationContainer = document.getElementById('pagination');
-            const paginationInfo = document.getElementById('paginationInfo');
-
-            // Información de paginación
-            paginationInfo.textContent = 
-                `Mostrando ${pagination.from || 0} a ${pagination.to || 0} de ${pagination.total} registros`;
-
-            // Botones de paginación
-            let paginationHTML = '';
-
-            // Botón anterior
-            paginationHTML += `
-                <button class="page-btn" ${pagination.current_page === 1 ? 'disabled' : ''} 
-                        onclick="usuariosManager.changePage(${pagination.current_page - 1})">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-            `;
-
-            // Números de página
-            const startPage = Math.max(1, pagination.current_page - 2);
-            const endPage = Math.min(pagination.last_page, pagination.current_page + 2);
-
-            for (let i = startPage; i <= endPage; i++) {
-                paginationHTML += `
-                    <button class="page-btn ${i === pagination.current_page ? 'active' : ''}" 
-                            onclick="usuariosManager.changePage(${i})">
-                        ${i}
-                    </button>
-                `;
-            }
-
-            // Botón siguiente
-            paginationHTML += `
-                <button class="page-btn" ${pagination.current_page === pagination.last_page ? 'disabled' : ''} 
-                        onclick="usuariosManager.changePage(${pagination.current_page + 1})">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            `;
-
-            paginationContainer.innerHTML = paginationHTML;
+        // ===== BÚSQUEDA =====
+        function setupSearch() {
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const filteredUsuarios = usuarios.filter(usuario => 
+                    usuario.nombres.toLowerCase().includes(searchTerm) ||
+                    usuario.apellidos.toLowerCase().includes(searchTerm) ||
+                    usuario.usuario.toLowerCase().includes(searchTerm) ||
+                    usuario.perfil?.nombre.toLowerCase().includes(searchTerm) ||
+                    usuario.id.toString().includes(searchTerm)
+                );
+                renderUsuarios(filteredUsuarios);
+            });
         }
 
-        changePage(page) {
-            this.currentPage = page;
-            this.loadUsuarios();
+        // ===== CRUD OPERATIONS =====
+        function createUsuario(usuarioData) {
+            $.ajax({
+                url: '/api/usuarios',
+                method: 'POST',
+                data: usuarioData,
+                success: function(response) {
+                    if (response.success) {
+                        showAlert('success', 'Usuario creado correctamente');
+                        closeModal('usuarioModal');
+                        loadUsuarios();
+                    } else {
+                        showAlert('error', 'Error al crear el usuario: ' + response.message);
+                    }
+                },
+                error: function(xhr) {
+                    let errorMessage = 'Error al crear el usuario';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage += ': ' + xhr.responseJSON.message;
+                    }
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        errorMessage += ': ' + Object.values(xhr.responseJSON.errors).flat().join(', ');
+                    }
+                    showAlert('error', errorMessage);
+                }
+            });
         }
 
-        showUserModal() {
-            // Configurar modal para crear
-            document.getElementById('userModalTitle').textContent = 'Nuevo Usuario';
-            document.getElementById('userModalSubmit').innerHTML = '<i class="fas fa-save"></i> Crear Usuario';
-            
-            // Limpiar formulario
-            document.getElementById('userForm').reset();
-            document.getElementById('userId').value = '';
-             document.getElementById('perfilesId').value = ''; 
+        function updateUsuario(id, usuarioData) {
+            $.ajax({
+                url: `/api/usuarios/${id}`,
+                method: 'PUT',
+                data: usuarioData,
+                success: function(response) {
+                    if (response.success) {
+                        showAlert('success', 'Usuario actualizado correctamente');
+                        closeModal('usuarioModal');
+                        loadUsuarios();
+                    } else {
+                        showAlert('error', 'Error al actualizar el usuario: ' + response.message);
+                    }
+                },
+                error: function(xhr) {
+                    let errorMessage = 'Error al actualizar el usuario';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage += ': ' + xhr.responseJSON.message;
+                    }
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        errorMessage += ': ' + Object.values(xhr.responseJSON.errors).flat().join(', ');
+                    }
+                    showAlert('error', errorMessage);
+                }
+            });
+        }
+
+        function toggleUsuarioStatus(id) {
+            $.ajax({
+                url: `/api/usuarios/${id}/toggle-status`,
+                method: 'PUT',
+                success: function(response) {
+                    if (response.success) {
+                        showAlert('success', response.message);
+                        closeModal('confirmModal');
+                        loadUsuarios();
+                    } else {
+                        showAlert('error', 'Error al cambiar el estado: ' + response.message);
+                    }
+                },
+                error: function(xhr) {
+                    let errorMessage = 'Error al cambiar el estado';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage += ': ' + xhr.responseJSON.message;
+                    }
+                    showAlert('error', errorMessage);
+                }
+            });
+        }
+
+        // ===== MANEJO DE FORMULARIOS =====
+        function openCreateModal() {
+            document.getElementById('modalTitle').textContent = 'Nuevo Usuario';
+            document.getElementById('usuarioId').value = '';
+            document.getElementById('usuarioForm').reset();
             
             // Mostrar campos de contraseña como requeridos
             document.getElementById('passwordRequired').style.display = 'inline';
@@ -830,32 +819,13 @@
             document.getElementById('password').required = true;
             document.getElementById('password_confirmation').required = true;
             
-            this.openModal('userModal');
+            clearFormFeedback();
+            openModal('usuarioModal');
         }
 
-        async editUsuario(userId) {
-            try {
-                const response = await fetch(`/api/usuarios/${userId}`);
-                const result = await response.json();
-
-                if (result.success) {
-                    this.showEditModal(result.data);
-                } else {
-                    throw new Error(result.message);
-                }
-            } catch (error) {
-                console.error('Error cargando usuario para editar:', error);
-                this.showAlert('error', 'Error al cargar el usuario para editar');
-            }
-        }
-
-        showEditModal(usuario) {
-            // Configurar modal para editar
-            document.getElementById('userModalTitle').textContent = 'Editar Usuario';
-            document.getElementById('userModalSubmit').innerHTML = '<i class="fas fa-save"></i> Actualizar Usuario';
-            
-            // Llenar formulario con datos del usuario
-            document.getElementById('userId').value = usuario.id;
+        function openEditModal(usuario) {
+            document.getElementById('modalTitle').textContent = 'Editar Usuario';
+            document.getElementById('usuarioId').value = usuario.id;
             document.getElementById('nombres').value = usuario.nombres;
             document.getElementById('apellidos').value = usuario.apellidos;
             document.getElementById('usuario').value = usuario.usuario;
@@ -870,156 +840,232 @@
             document.getElementById('password').required = false;
             document.getElementById('password_confirmation').required = false;
             
-            this.openModal('userModal');
+            clearFormFeedback();
+            openModal('usuarioModal');
         }
 
-        async saveUser() {
-            const form = document.getElementById('userForm');
-            const formData = new FormData(form);
-            const userId = document.getElementById('userId').value;
-            
-            const url = userId ? `/api/usuarios/${userId}` : '/api/usuarios';
-            const method = userId ? 'PUT' : 'POST';
-
-            try {
-                const response = await fetch(url, {
-                    method: method,
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    this.closeModal('userModal');
-                    this.loadUsuarios();
-                    this.loadStats();
-                    this.showAlert('success', result.message);
-                } else {
-                    if (result.errors) {
-                        const errorMessages = Object.values(result.errors).flat().join('<br>');
-                        this.showAlert('error', errorMessages);
-                    } else {
-                        this.showAlert('error', result.message);
-                    }
-                }
-            } catch (error) {
-                console.error('Error guardando usuario:', error);
-                this.showAlert('error', 'Error al guardar el usuario');
-            }
-        }
-
-        async toggleStatus(userId, currentStatus) {
-            const accion = currentStatus ? 'desactivar' : 'activar';
-            const mensaje = currentStatus ? 
+        function openToggleModal(id, nombre, activo) {
+            const accion = activo ? 'desactivar' : 'activar';
+            const mensaje = activo ? 
                 '¿Estás seguro de que deseas desactivar este usuario? El usuario no podrá acceder al sistema.' :
                 '¿Estás seguro de que deseas activar este usuario? El usuario podrá acceder al sistema nuevamente.';
             
-            if (confirm(mensaje)) {
-                try {
-                    const response = await fetch(`/api/usuarios/${userId}/toggle-status`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    });
+            document.getElementById('usuarioToToggle').textContent = nombre;
+            document.getElementById('accionToggle').textContent = accion.charAt(0).toUpperCase() + accion.slice(1);
+            document.getElementById('confirmMessage').textContent = mensaje;
+            currentUsuarioId = id;
+            openModal('confirmModal');
+        }
 
-                    const result = await response.json();
+        function handleFormSubmit() {
+            const id = document.getElementById('usuarioId').value;
+            const nombres = document.getElementById('nombres').value.trim();
+            const apellidos = document.getElementById('apellidos').value.trim();
+            const usuario = document.getElementById('usuario').value.trim();
+            const perfilesId = document.getElementById('perfilesId').value;
+            const password = document.getElementById('password').value;
+            const passwordConfirmation = document.getElementById('password_confirmation').value;
+            const activo = document.getElementById('activo').checked;
 
-                    if (result.success) {
-                        this.loadUsuarios();
-                        this.loadStats();
-                        this.showAlert('success', result.message);
-                    } else {
-                        throw new Error(result.message);
-                    }
-                } catch (error) {
-                    console.error('Error cambiando estado:', error);
-                    this.showAlert('error', 'Error al cambiar el estado del usuario');
-                }
+            // Validación básica
+            if (!nombres) {
+                showFieldError('nombres', 'Los nombres son obligatorios');
+                return;
+            }
+            if (!apellidos) {
+                showFieldError('apellidos', 'Los apellidos son obligatorios');
+                return;
+            }
+            if (!usuario) {
+                showFieldError('usuario', 'El usuario es obligatorio');
+                return;
+            }
+            if (!perfilesId) {
+                showFieldError('perfilesId', 'El perfil es obligatorio');
+                return;
+            }
+            if (!id && !password) {
+                showFieldError('password', 'La contraseña es obligatoria para nuevos usuarios');
+                return;
+            }
+            if (password && password !== passwordConfirmation) {
+                showFieldError('password_confirmation', 'Las contraseñas no coinciden');
+                return;
+            }
+
+            const usuarioData = { 
+                nombres, 
+                apellidos, 
+                usuario, 
+                perfilesId, 
+                activo: activo ? 1 : 0
+            };
+
+            // Solo incluir contraseña si se proporcionó
+            if (password) {
+                usuarioData.password = password;
+                usuarioData.password_confirmation = passwordConfirmation;
+            }
+
+            if (id) {
+                updateUsuario(id, usuarioData);
+            } else {
+                createUsuario(usuarioData);
             }
         }
 
-        clearFilters() {
-            document.getElementById('filterSearch').value = '';
-            document.getElementById('filterEstado').value = '';
-            document.getElementById('sortField').value = 'created_at';
-            document.getElementById('sortDirection').value = 'desc';
-            document.getElementById('perPage').value = '15';
+        // ===== EVENT LISTENERS =====
+        function setupEventListeners() {
+            // Botón agregar usuario
+            document.getElementById('addUsuario').addEventListener('click', openCreateModal);
+            document.getElementById('addFirstUsuario').addEventListener('click', openCreateModal);
 
-            this.filters = {
-                search: '',
-                estado: '',
-                sort_field: 'created_at',
-                sort_direction: 'desc',
-                per_page: 15
-            };
-            this.currentPage = 1;
-            this.loadUsuarios();
+            // Botón refrescar
+            document.getElementById('refreshUsuarios').addEventListener('click', loadUsuarios);
+
+            // Guardar usuario
+            document.getElementById('saveUsuario').addEventListener('click', handleFormSubmit);
+
+            // Confirmar cambio de estado
+            document.getElementById('confirmToggle').addEventListener('click', function() {
+                if (currentUsuarioId) {
+                    toggleUsuarioStatus(currentUsuarioId);
+                }
+            });
+
+            // Búsqueda
+            setupSearch();
+
+            // Cerrar modales
+            document.querySelectorAll('.modal-close, .modal-overlay, .btn[data-modal]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const modalId = this.getAttribute('data-modal');
+                    closeModal(modalId);
+                });
+            });
+
+            // Event delegation para botones de editar/cambiar estado
+            document.getElementById('usuariosTableBody').addEventListener('click', function(e) {
+                const target = e.target.closest('button');
+                if (!target) return;
+
+                if (target.classList.contains('edit-usuario')) {
+                    const usuario = {
+                        id: target.getAttribute('data-id'),
+                        nombres: target.getAttribute('data-nombres'),
+                        apellidos: target.getAttribute('data-apellidos'),
+                        usuario: target.getAttribute('data-usuario'),
+                        perfilesId: target.getAttribute('data-perfilesid'),
+                        activo: target.getAttribute('data-activo') === 'true'
+                    };
+                    openEditModal(usuario);
+                } else if (target.classList.contains('toggle-usuario')) {
+                    const id = target.getAttribute('data-id');
+                    const nombre = target.getAttribute('data-nombre');
+                    const activo = target.getAttribute('data-activo') === 'true';
+                    openToggleModal(id, nombre, activo);
+                }
+            });
+
+            // Cerrar con ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal-overlay.show').forEach(modal => {
+                        modal.classList.remove('show');
+                    });
+                }
+            });
         }
 
-        openModal(modalId) {
+        // ===== UTILIDADES =====
+        function showLoading() {
+            loadingUsuarios.style.display = 'block';
+            usuariosTableBody.innerHTML = '';
+            emptyState.style.display = 'none';
+        }
+
+        function hideLoading() {
+            loadingUsuarios.style.display = 'none';
+        }
+
+        function openModal(modalId) {
             document.getElementById(modalId).classList.add('show');
             document.body.style.overflow = 'hidden';
         }
 
-        closeModal(modalId) {
+        function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('show');
             document.body.style.overflow = '';
+            currentUsuarioId = null;
         }
 
-        showAlert(type, message) {
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-ES');
+        }
+
+        function showAlert(type, message, title = null) {
             const alertTypes = {
-                success: { class: 'success', icon: 'fa-check-circle' },
-                error: { class: 'danger', icon: 'fa-times-circle' },
-                warning: { class: 'warning', icon: 'fa-exclamation-triangle' },
-                info: { class: 'primary', icon: 'fa-info-circle' }
+                info: { class: 'primary', icon: 'fa-info-circle', defaultTitle: 'Información' },
+                success: { class: 'success', icon: 'fa-check-circle', defaultTitle: 'Éxito' },
+                warning: { class: 'warning', icon: 'fa-exclamation-triangle', defaultTitle: 'Advertencia' },
+                error: { class: 'danger', icon: 'fa-times-circle', defaultTitle: 'Error' }
             };
 
             const alertConfig = alertTypes[type] || alertTypes.info;
-            
-            // Crear alerta temporal
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert ${alertConfig.class}`;
-            alertDiv.innerHTML = `
-                <i class="fas ${alertConfig.icon} alert-icon"></i>
-                <div class="alert-content">
-                    <p class="alert-message">${message}</p>
+            const alertTitle = title || alertConfig.defaultTitle;
+
+            const alertHTML = `
+                <div class="alert ${alertConfig.class}">
+                    <i class="fas ${alertConfig.icon} alert-icon"></i>
+                    <div class="alert-content">
+                        <h4 class="alert-title">${alertTitle}</h4>
+                        <p class="alert-message">${message}</p>
+                    </div>
+                    <button class="alert-close">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-                <button class="alert-close" onclick="this.parentElement.remove()">
-                    <i class="fas fa-times"></i>
-                </button>
             `;
-            
-            document.body.appendChild(alertDiv);
-            
+
+            // Insertar al inicio del contenido
+            const sectionContent = document.querySelector('.section-content');
+            sectionContent.insertAdjacentHTML('afterbegin', alertHTML);
+
+            // Agregar evento al botón de cerrar
+            sectionContent.querySelector('.alert:first-child .alert-close').addEventListener('click', function() {
+                this.closest('.alert').style.display = 'none';
+            });
+
             // Auto-remover después de 5 segundos
             setTimeout(() => {
-                if (alertDiv.parentElement) {
-                    alertDiv.remove();
+                const alert = sectionContent.querySelector('.alert:first-child');
+                if (alert) {
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 300);
                 }
             }, 5000);
         }
 
-        debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
+        function showFieldError(field, message) {
+            const input = document.getElementById(field);
+            const feedback = document.getElementById(field + 'Feedback');
+            
+            input.style.borderColor = 'var(--danger)';
+            feedback.className = 'form-feedback error';
+            feedback.innerHTML = `<i class="fas fa-times-circle"></i> ${message}`;
         }
-    }
 
-    // Inicializar cuando el DOM esté listo
-    document.addEventListener('DOMContentLoaded', function() {
-        window.usuariosManager = new UsuariosManager();
+        function clearFormFeedback() {
+            const fields = ['nombres', 'apellidos', 'usuario', 'perfilesId', 'password', 'password_confirmation'];
+            fields.forEach(field => {
+                const input = document.getElementById(field);
+                const feedback = document.getElementById(field + 'Feedback');
+                if (input) input.style.borderColor = '';
+                if (feedback) feedback.innerHTML = '';
+            });
+        }
     });
 </script>
 @endpush

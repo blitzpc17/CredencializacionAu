@@ -11,11 +11,12 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $table = 'usuarios';
+    public $timestamps = false;
 
     protected $fillable = [
         'nombres',
         'apellidos',
-        'usuario',
+        'usuario', // Este será nuestro campo de login
         'password',
         'perfilesId',
         'activo'
@@ -28,8 +29,23 @@ class User extends Authenticatable
 
     protected $casts = [
         'activo' => 'boolean',
-        'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Sobrescribir el método para usar 'usuario' en lugar de 'email'
+     */
+    public function getAuthIdentifierName()
+    {
+        return 'usuario';
+    }
+
+    /**
+     * Sobrescribir para encontrar por usuario
+     */
+    public function getAuthIdentifier()
+    {
+        return $this->usuario;
+    }
 
     // Relación con el perfil
     public function perfil()
@@ -50,8 +66,8 @@ class User extends Authenticatable
     }
 
     // Mutator para encriptar password
-    public function setPasswordAttribute($value)
+    /*public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = bcrypt($value);
-    }
+    }*/
 }
