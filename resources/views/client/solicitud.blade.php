@@ -334,15 +334,15 @@
     .terms-header {
         background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
         color: white;
-        padding: 30px;
+        padding: 0.85rem;/*30px;*/
         text-align: center;
         border-radius: 0; /*15px 15px 0 0;*/
         flex-shrink: 0;
     }
 
     .terms-header h1 {
-        font-size: 2rem;
-        margin-bottom: 10px;
+        font-size: 1.65rem;
+        margin-bottom: 5px;
     }
 
     .last-updated {
@@ -561,17 +561,18 @@
     }
 
     .terms-footer {
-        text-align: center;
-        padding: 20px;
+        padding: 10px;
         background: #f5f5f5;
         color: #666;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         border-radius: 0 0 15px 15px;
-        flex-shrink: 0;
+        display:flex;
+        justify-content:center;
+
     }
 
-    .contact-info {
-        margin-top: 10px;
+    .terms-footer p{
+        margin:0;
     }
 
     /* Animaciones */
@@ -873,14 +874,8 @@
                         <input type="checkbox" id="terminos" required>
                         <label for="terminos">Acepto los <a href="#" id="openTermsModal">términos y condiciones</a> del servicio</label>
                     </div>
-                </div>
+                </div>               
                 
-                <div class="form-group">
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="privacidad" required>
-                        <label for="privacidad">Autorizo el tratamiento de mis datos personales de acuerdo con la política de privacidad</label>
-                    </div>
-                </div>
             </div>
 
             <!-- Botones de Acción -->
@@ -902,7 +897,6 @@
             
             <div class="terms-header">
                 <h1>Términos y Condiciones del Servicio</h1>
-                <p class="last-updated">Última actualización: 15 de noviembre, 2023</p>
             </div>
 
             <div class="terms-container">
@@ -1076,11 +1070,7 @@
             </div>
 
             <div class="terms-footer">
-                <p>&copy; 2023 Servicio de Credencialización para Pasajeros. Todos los derechos reservados.</p>
-                <div class="contact-info">
-                    <p>Para preguntas sobre estos términos: <a href="mailto:legal@credencializacion.com">legal@credencializacion.com</a></p>
-                    <p>Teléfono: +1 (800) 123-4567</p>
-                </div>
+                <p>&copy; {{date('Y')}} Servicio de Credencialización para Pasajeros. Todos los derechos reservados.</p>               
             </div>
         </div>
     </div>
@@ -1220,13 +1210,12 @@
         
         // Validar términos y condiciones
         const terminosCheckbox = document.getElementById('terminos');
-        const privacidadCheckbox = document.getElementById('privacidad');
         
-        if (!terminosCheckbox.checked || !privacidadCheckbox.checked) {
+        if (!terminosCheckbox.checked) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Atención',
-                text: 'Debe aceptar los términos y condiciones y la política de privacidad para continuar.',
+                text: 'Debe aceptar los términos y condiciones de la política de credenzializaicones.',
                 confirmButtonText: 'Entendido'
             });
             return;
@@ -1322,6 +1311,7 @@
 
     // Modal de Términos y Condiciones - FUNCIONALIDAD MEJORADA
     const termsModal = document.getElementById('termsModal');
+    const selfieModal = document.getElementById('selfieModal');
     const openTermsModal = document.getElementById('openTermsModal');
     const closeTermsModal = document.getElementById('closeTermsModal');
     const acceptTermsModal = document.getElementById('acceptTermsModal');
