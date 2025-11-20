@@ -692,6 +692,170 @@
             font-size: 1.1rem;
         }
     }
+
+
+
+    /* Estilos adicionales para el modal de procesamiento de foto */
+    .photo-processing-header {
+        background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        color: white;
+        padding: 1.5rem;
+        text-align: center;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .photo-processing-content {
+        padding: 2rem;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .specs {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin: 1.5rem 0;
+        text-align: left;
+        border-left: 4px solid #27ae60;
+    }
+
+    .specs h3 {
+        color: #27ae60;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .specs ul {
+        margin: 0;
+        padding-left: 1.5rem;
+    }
+
+    .specs li {
+        margin-bottom: 0.5rem;
+    }
+
+    .preview-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        justify-content: center;
+        margin: 1.5rem 0;
+    }
+
+    .credential-preview {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        text-align: center;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .credential-photo {
+        border: 1px solid #ddd;
+        background: #f8f9fa;
+        margin: 1rem 0;
+        width: 100%;
+        height: auto;
+    }
+
+    .photo-actions {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .photo-btn {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 0.6rem 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .photo-btn:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+    }
+
+    .photo-btn.success {
+        background: #27ae60;
+    }
+
+    .photo-btn.success:hover {
+        background: #219653;
+    }
+
+    .photo-btn.accent {
+        background: #e74c3c;
+    }
+
+    .photo-btn.accent:hover {
+        background: #c0392b;
+    }
+
+    .upload-area {
+        border: 2px dashed #3498db;
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        margin: 1.5rem 0;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .upload-area:hover {
+        background-color: #f8f9fa;
+        border-color: #2980b9;
+    }
+
+    .upload-area i {
+        font-size: 3rem;
+        color: #3498db;
+        margin-bottom: 1rem;
+    }
+
+    .upload-area p {
+        margin: 0.5rem 0;
+        color: #495057;
+    }
+
+    .processing-status {
+        text-align: center;
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 5px;
+        background: #e8f4fd;
+        color: #3498db;
+    }
+
+    .detection-results {
+        text-align: center;
+        margin: 1rem 0;
+    }
+
+    .detection-success {
+        color: #27ae60;
+        font-weight: 600;
+    }
+
+    .detection-error {
+        color: #e74c3c;
+        font-weight: 600;
+    }
+
+
 </style>
 @endpush
 
@@ -852,16 +1016,16 @@
                 </div>
 
                 
-                <div class="form-group">
+                 <div class="form-group">
                     <label>12.- ADJUNTE FOTOGRAFIA TAMAÑO INFANTIL A COLOR, CON FONDO BLANCO:</label>
                     <div class="file-upload">
-                        <div class="file-upload-btn">
-                            <i class="fas fa-camera"></i> Seleccionar Imagen
+                        <div class="file-upload-btn" id="openPhotoModalBtn">
+                            <i class="fas fa-camera"></i> Procesar Fotografía
                         </div>
-                        <input type="file" id="fotoSolicitante" accept="image/*" required>
+                        <input type="file" id="fotoSolicitante" accept="image/*" required style="display: none;">
                     </div>
                     <div class="file-preview" id="fotoPreview"></div>
-                </div>                         
+                </div>                                    
                
             </div>
 
@@ -1074,10 +1238,61 @@
             </div>
         </div>
     </div>
+
+
+    <!-- Modal de Procesamiento de Foto para Credencial -->
+    <div class="modal" id="photoModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closePhotoModal">&times;</span>
+            
+            <div class="photo-processing-header">
+                <h1><i class="fas fa-camera"></i> Procesar Fotografía para Credencial</h1>
+            </div>
+
+            <div class="photo-processing-content">
+                <div class="specs">
+                    <h3><i class="fas fa-ruler"></i> Especificaciones estándar para credencial</h3>
+                    <ul>
+                        <li><strong>Tamaño:</strong> 3x3 cm a 300 DPI</li>
+                        <li><strong>Formato:</strong> Fondo blanco o claro</li>
+                        <li><strong>Orientación:</strong> Frontal, rostro completo</li>
+                        <li><strong>Resolución:</strong> Mínimo 354x472 pixels</li>
+                    </ul>
+                </div>
+
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Seleccionar Fotografía</h3>
+                    <p>Haga clic aquí o arrastre una imagen para procesarla</p>
+                    <input type="file" id="photoInput" accept="image/*" style="display: none;">
+                </div>
+
+                <div id="processingStatus" class="processing-status" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i> Procesando imagen...
+                </div>
+
+                <div id="detectionResults" class="detection-results" style="display: none;"></div>
+
+                <div id="resultsPreview" class="preview-container" style="display: none;"></div>
+
+                <div class="form-actions" id="photoActions" style="display: none; margin-top: 2rem;">
+                    <button type="button" class="btn btn-accent" id="cancelPhotoBtn">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn btn-success" id="usePhotoBtn" disabled>
+                        <i class="fas fa-check"></i> Usar esta Foto
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.0.7/dist/blazeface.min.js"></script>
 <script>
     // Función mejorada con estado de carga
     async function cargarTerminales() {
@@ -1440,5 +1655,396 @@
     updateActiveNav();
     updateReadingProgress();
 });
+
+
+// Variables para el procesamiento de foto
+    let faceDetectionModel = null;
+    let processedPhotoCanvas = null;
+
+    // Dimensiones estándar para credencial (3x3 cm a 300 DPI = 354x354 pixels)
+    const CREDENTIAL_SIZE = {
+        width: 354,
+        height: 472,  // Un poco más alto para incluir hombros
+        dpi: 300
+    };
+
+    // Modal de Procesamiento de Foto
+    const photoModal = document.getElementById('photoModal');
+    const openPhotoModalBtn = document.getElementById('openPhotoModalBtn');
+    const closePhotoModal = document.getElementById('closePhotoModal');
+    const uploadArea = document.getElementById('uploadArea');
+    const photoInput = document.getElementById('photoInput');
+    const processingStatus = document.getElementById('processingStatus');
+    const detectionResults = document.getElementById('detectionResults');
+    const resultsPreview = document.getElementById('resultsPreview');
+    const photoActions = document.getElementById('photoActions');
+    const cancelPhotoBtn = document.getElementById('cancelPhotoBtn');
+    const usePhotoBtn = document.getElementById('usePhotoBtn');
+
+    // Abrir modal de procesamiento de foto
+    openPhotoModalBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        photoModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        resetPhotoModal();
+    });
+
+    // Cerrar modal de procesamiento de foto
+    closePhotoModal.addEventListener('click', function() {
+        photoModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        resetPhotoModal();
+    });
+
+    cancelPhotoBtn.addEventListener('click', function() {
+        photoModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        resetPhotoModal();
+    });
+
+    // Cerrar modal al hacer clic fuera
+    window.addEventListener('click', function(e) {
+        if (e.target === photoModal) {
+            photoModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            resetPhotoModal();
+        }
+    });
+
+    // Resetear el modal de foto
+    function resetPhotoModal() {
+        uploadArea.style.display = 'block';
+        processingStatus.style.display = 'none';
+        detectionResults.style.display = 'none';
+        resultsPreview.style.display = 'none';
+        photoActions.style.display = 'none';
+        resultsPreview.innerHTML = '';
+        detectionResults.innerHTML = '';
+        processedPhotoCanvas = null;
+        usePhotoBtn.disabled = true;
+    }
+
+    // Eventos para subir foto
+    uploadArea.addEventListener('click', function() {
+        photoInput.click();
+    });
+
+    photoInput.addEventListener('change', handlePhotoUpload);
+
+    // Manejar la subida de foto
+    async function handlePhotoUpload(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Mostrar estado de procesamiento
+        uploadArea.style.display = 'none';
+        processingStatus.style.display = 'block';
+        detectionResults.style.display = 'none';
+        resultsPreview.style.display = 'none';
+        photoActions.style.display = 'none';
+
+        // Cargar modelo si no está cargado
+        if (!faceDetectionModel) {
+            try {
+                faceDetectionModel = await blazeface.load();
+            } catch (error) {
+                console.error('Error cargando el modelo:', error);
+                showPhotoError('Error al cargar el modelo de detección facial');
+                return;
+            }
+        }
+
+        // Procesar la imagen
+        const img = new Image();
+        img.onload = async () => {
+            try {
+                const predictions = await faceDetectionModel.estimateFaces(img, false);
+                
+                // Mostrar resultados
+                processingStatus.style.display = 'none';
+                detectionResults.style.display = 'block';
+                
+                if (predictions.length === 0) {
+                    detectionResults.innerHTML = '<p class="detection-error"><i class="fas fa-times-circle"></i> No se detectaron rostros. Intenta con otra foto.</p>';
+                    uploadArea.style.display = 'block';
+                    return;
+                }
+                
+                detectionResults.innerHTML = `<p class="detection-success"><i class="fas fa-check-circle"></i> Rostros detectados: ${predictions.length}</p>`;
+                
+                // Procesar cada rostro detectado
+                resultsPreview.style.display = 'flex';
+                predictions.forEach((pred, i) => {
+                    createCredentialPreview(img, pred, i);
+                });
+                
+                photoActions.style.display = 'flex';
+                
+            } catch (error) {
+                console.error('Error procesando la imagen:', error);
+                showPhotoError('Error procesando la imagen');
+            }
+        };
+        
+        img.onerror = () => {
+            showPhotoError('Error al cargar la imagen');
+        };
+        
+        img.src = URL.createObjectURL(file);
+    }
+
+    // Crear vista previa de credencial
+    function createCredentialPreview(originalImg, prediction, index) {
+        const [x1, y1] = prediction.topLeft;
+        const [x2, y2] = prediction.bottomRight;
+        const faceWidth = x2 - x1;
+        const faceHeight = y2 - y1;
+        
+        // Calcular área expandida para incluir hombros y cabello
+        const expansionFactor = 1.85;
+        const expandedWidth = faceWidth * expansionFactor;
+        const expandedHeight = faceHeight * expansionFactor;
+        
+        // Centro del rostro
+        const faceCenterX = x1 + faceWidth / 2;
+        const faceCenterY = y1 + faceHeight / 2;
+        
+        // Calcular nueva área de recorte centrada en el rostro
+        let cropX = faceCenterX - expandedWidth / 2;
+        let cropY = faceCenterY - expandedHeight / 2;
+        let cropWidth = expandedWidth;
+        let cropHeight = expandedHeight;
+        
+        // Ajustar para no salirse de los límites de la imagen
+        cropX = Math.max(0, cropX);
+        cropY = Math.max(0, cropY);
+        cropWidth = Math.min(cropWidth, originalImg.width - cropX);
+        cropHeight = Math.min(cropHeight, originalImg.height - cropY);
+        
+        // Crear canvas para la foto de credencial
+        const credentialCanvas = document.createElement('canvas');
+        credentialCanvas.width = CREDENTIAL_SIZE.width;
+        credentialCanvas.height = CREDENTIAL_SIZE.height;
+        const ctx = credentialCanvas.getContext('2d');
+        
+        // Fondo blanco
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, credentialCanvas.width, credentialCanvas.height);
+        
+        // Dibujar el rostro recortado y redimensionado
+        ctx.drawImage(
+            originalImg,
+            cropX, cropY, cropWidth, cropHeight, // Área de origen
+            0, 0, CREDENTIAL_SIZE.width, CREDENTIAL_SIZE.height // Área de destino
+        );
+        
+        // Crear contenedor para previsualización
+        const previewDiv = document.createElement('div');
+        previewDiv.className = 'credential-preview';
+        previewDiv.innerHTML = `
+            <h4>Foto ${index + 1}</h4>
+            <canvas class="credential-photo" width="${CREDENTIAL_SIZE.width}" height="${CREDENTIAL_SIZE.height}"></canvas>
+            <div class="photo-actions">
+                <button class="photo-btn" onclick="selectPhoto(${index})">
+                    <i class="fas fa-check"></i> Seleccionar
+                </button>
+                <button class="photo-btn accent" onclick="applyPassportStyle(${index}, this)">
+                    <i class="fas fa-palette"></i> Blanco/Negro
+                </button>
+            </div>
+        `;
+        
+        // Dibujar en el canvas de previsualización
+        const previewCanvas = previewDiv.querySelector('.credential-photo');
+        const previewCtx = previewCanvas.getContext('2d');
+        previewCtx.drawImage(credentialCanvas, 0, 0);
+        
+        // Almacenar para selección
+        if (!window.credentialPhotos) window.credentialPhotos = [];
+        window.credentialPhotos[index] = credentialCanvas;
+        
+        resultsPreview.appendChild(previewDiv);
+    }
+
+    // Seleccionar foto para usar en el formulario
+    window.selectPhoto = function(index) {
+        const canvas = window.credentialPhotos[index];
+        if (canvas) {
+            processedPhotoCanvas = canvas;
+            usePhotoBtn.disabled = false;
+            
+            // Resaltar la foto seleccionada
+            document.querySelectorAll('.credential-preview').forEach((preview, i) => {
+                if (i === index) {
+                    preview.style.borderColor = '#27ae60';
+                    preview.style.boxShadow = '0 0 0 2px #27ae60';
+                } else {
+                    preview.style.borderColor = '#e9ecef';
+                    preview.style.boxShadow = 'none';
+                }
+            });
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Foto seleccionada',
+                text: 'La foto ha sido seleccionada. Haga clic en "Usar esta Foto" para confirmar.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+    };
+
+    // Aplicar estilo blanco y negro
+    window.applyPassportStyle = function(index, button) {
+        const originalCanvas = window.credentialPhotos[index];
+        if (!originalCanvas) return;
+        
+        const bwCanvas = document.createElement('canvas');
+        bwCanvas.width = originalCanvas.width;
+        bwCanvas.height = originalCanvas.height;
+        const bwCtx = bwCanvas.getContext('2d');
+        
+        // Dibujar imagen original
+        bwCtx.drawImage(originalCanvas, 0, 0);
+        
+        // Aplicar filtro blanco y negro
+        const imageData = bwCtx.getImageData(0, 0, bwCanvas.width, bwCanvas.height);
+        const data = imageData.data;
+        
+        for (let i = 0; i < data.length; i += 4) {
+            const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
+            data[i] = brightness;     // rojo
+            data[i + 1] = brightness; // verde
+            data[i + 2] = brightness; // azul
+        }
+        
+        bwCtx.putImageData(imageData, 0, 0);
+        
+        // Reemplazar la foto original con la versión blanco y negro
+        window.credentialPhotos[index] = bwCanvas;
+        
+        // Actualizar la previsualización
+        const previews = document.querySelectorAll('.credential-photo');
+        if (previews[index]) {
+            const previewCtx = previews[index].getContext('2d');
+            previewCtx.drawImage(bwCanvas, 0, 0);
+        }
+        
+        // Cambiar texto del botón
+        button.innerHTML = '<i class="fas fa-palette"></i> Color';
+        button.onclick = function() { revertToColor(index, this); };
+        
+        // Si esta foto estaba seleccionada, actualizar processedPhotoCanvas
+        if (processedPhotoCanvas === originalCanvas) {
+            processedPhotoCanvas = bwCanvas;
+        }
+        
+        Swal.fire({
+            icon: 'info',
+            title: 'Filtro aplicado',
+            text: 'Se ha aplicado el filtro blanco y negro (estilo pasaporte)',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    };
+
+    // Revertir a color
+    function revertToColor(index, button) {
+        // Esta función necesitaría guardar el original, pero por simplicidad
+        // recargaremos la imagen original del input
+        const file = photoInput.files[0];
+        if (!file) return;
+        
+        const img = new Image();
+        img.onload = async () => {
+            try {
+                const predictions = await faceDetectionModel.estimateFaces(img, false);
+                if (predictions.length > index) {
+                    createCredentialPreview(img, predictions[index], index);
+                    
+                    // Actualizar botón
+                    button.innerHTML = '<i class="fas fa-palette"></i> Blanco/Negro';
+                    button.onclick = function() { applyPassportStyle(index, this); };
+                    
+                    // Si esta foto estaba seleccionada, resetear processedPhotoCanvas
+                    if (processedPhotoCanvas) {
+                        processedPhotoCanvas = null;
+                        usePhotoBtn.disabled = true;
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        };
+        img.src = URL.createObjectURL(file);
+    }
+
+    // Usar la foto seleccionada en el formulario
+    usePhotoBtn.addEventListener('click', function() {
+        if (!processedPhotoCanvas) return;
+        
+        // Convertir canvas a blob
+        processedPhotoCanvas.toBlob(function(blob) {
+            // Crear un archivo a partir del blob
+            const file = new File([blob], "foto_credencial.jpg", { type: "image/jpeg" });
+            
+            // Crear un DataTransfer para simular la selección de archivo
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            
+            // Asignar el archivo al input de fotoSolicitante
+            const fotoSolicitanteInput = document.getElementById('fotoSolicitante');
+            fotoSolicitanteInput.files = dataTransfer.files;
+            
+            // Actualizar la vista previa
+            const preview = document.getElementById('fotoPreview');
+            preview.innerHTML = '';
+            
+            const previewItem = document.createElement('div');
+            previewItem.className = 'file-preview-item';
+            
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(blob);
+            previewItem.appendChild(img);
+            
+            const fileInfo = document.createElement('div');
+            fileInfo.className = 'file-info';
+            fileInfo.textContent = 'foto_credencial.jpg';
+            previewItem.appendChild(fileInfo);
+            
+            const removeBtn = document.createElement('div');
+            removeBtn.className = 'remove-file';
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.addEventListener('click', function() {
+                previewItem.remove();
+                fotoSolicitanteInput.value = '';
+            });
+            previewItem.appendChild(removeBtn);
+            
+            preview.appendChild(previewItem);
+            
+            // Cerrar modal y mostrar mensaje de éxito
+            photoModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            resetPhotoModal();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Foto procesada',
+                text: 'La fotografía para la credencial ha sido procesada y agregada al formulario.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }, 'image/jpeg', 0.95);
+    });
+
+    // Mostrar error en el procesamiento de foto
+    function showPhotoError(message) {
+        processingStatus.style.display = 'none';
+        detectionResults.style.display = 'block';
+        detectionResults.innerHTML = `<p class="detection-error"><i class="fas fa-exclamation-triangle"></i> ${message}</p>`;
+        uploadArea.style.display = 'block';
+    }
+    
 </script>
 @endpush
