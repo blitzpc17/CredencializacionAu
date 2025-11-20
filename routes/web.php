@@ -75,6 +75,14 @@ Route::middleware(['auth'])->prefix('admin')->group(function(){
     })->name('cms.usuarios.index');
 
 
+    Route::get('variables', function () {        
+        return view('cms.variables');
+    })->name('cms.variables.index');
+
+
+
+
+
   
 
 });
@@ -85,6 +93,11 @@ Route::get('storage/images', [ToolsController::class, 'ObtenerImagen'])->name('t
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+
+Route::get('mapa', function(){
+    return view('cms.tools.mapa_calor');
+});
 
 
 

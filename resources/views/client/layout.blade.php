@@ -335,87 +335,7 @@
             font-size: 0.9rem;
         }
 
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1001;
-            justify-content: center;
-            align-items: center;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .modal-content {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            max-width: 500px;
-            width: 90%;
-            position: relative;
-            animation: slideInUp 0.3s ease;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #777;
-            transition: var(--transition);
-        }
-
-        .close-modal:hover {
-            color: var(--accent-color);
-        }
-
-        .modal-header {
-            margin-bottom: 1.5rem;
-        }
-
-        .modal-header h2 {
-            color: var(--primary-color);
-        }
-
-        .status-info {
-            background-color: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 5px;
-            margin-bottom: 1.5rem;
-        }
-
-        .status-info p {
-            margin-bottom: 0.5rem;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-top: 0.5rem;
-        }
-
-        .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-
-        .status-approved {
-            background-color: #d1edff;
-            color: #0c5460;
-        }
-
-        .status-completed {
-            background-color: #d4edda;
-            color: #155724;
-        }
+        
 
         /* Botón flotante de WhatsApp */
         .whatsapp-btn {
@@ -717,23 +637,7 @@
         </div>
     </footer>
 
-    <!-- Modal para mostrar información del folio -->
-    <div class="modal" id="folioModal">
-        <div class="modal-content">
-            <span class="close-modal" id="closeModal">&times;</span>
-            <div class="modal-header">
-                <h2>Estado de tu Solicitud</h2>
-            </div>
-            <div class="status-info">
-                <p><strong>Folio:</strong> <span id="modalFolio"></span></p>
-                <p><strong>Solicitante:</strong> <span id="modalSolicitante"></span></p>
-                <p><strong>Fecha de solicitud:</strong> <span id="modalFecha"></span></p>
-                <p><strong>Estado:</strong> <span id="modalEstado" class="status-badge"></span></p>
-                <p><strong>Próximo paso:</strong> <span id="modalProximo"></span></p>
-            </div>
-            <button class="card-btn" id="closeModalBtn">Cerrar</button>
-        </div>
-    </div>
+   
 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
@@ -746,10 +650,7 @@
         const header = document.getElementById('header');
         const menuToggle = document.getElementById('menuToggle');
         const navMenu = document.getElementById('navMenu');
-        const folioModal = document.getElementById('folioModal');
-        const closeModal = document.getElementById('closeModal');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-
+     
         // Ocultar loader después de 2 segundos
         setTimeout(() => {
             loader.classList.add('hidden');
@@ -803,21 +704,7 @@
             lastScrollTop = scrollTop;
         });
 
-        // Cerrar el modal
-        closeModal.addEventListener('click', function() {
-            folioModal.style.display = 'none';
-        });
-
-        closeModalBtn.addEventListener('click', function() {
-            folioModal.style.display = 'none';
-        });
-
-        // Cerrar el modal al hacer clic fuera de él
-        window.addEventListener('click', function(e) {
-            if (e.target === folioModal) {
-                folioModal.style.display = 'none';
-            }
-        });
+      
     </script>
 </body>
 </html>

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Solicitud;
+use App\Models\SolicitudEstado;
+use App\Models\Terminal;
 use App\Services\EmailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -251,4 +253,137 @@ class SolicitudController extends Controller
             ], 500);
         }
     }
+
+
+     public function cambiarEstado(Request $request, string $id): JsonResponse
+    {
+        try {
+            $request->validate([
+                'solicitudes_estadosId' => 'required|exists:solicitudes_estados,id',
+                'accion' => 'sometimes|string' // confirmar, cancelar, etc.
+            ]);
+
+            $solicitud = Solicitud::find($id);
+
+            if (!$solicitud) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Solicitud no encontrada'
+                ], 404);
+            }
+
+            $updateData = ['solicitudes_estadosId' => $request->solicitudes_estadosId];
+            
+            // Asignar usuario según la acción
+            if ($request->accion === 'confirmar') {
+                $updateData['usuarios_confirma_documentacionId'] = auth()->id();
+            } elseif ($request->accion === 'cancelar') {
+                $updateData['usuarios_cancela_solicitudId'] = auth()->id();
+            }
+
+            $solicitud->update($updateData);
+
+            $accion = $request->accion ?: 'actualizado';
+            return response()->json([
+                'success' => true,
+                'data' => $solicitud->load('estado'),
+                'message' => "Estado de la solicitud {$accion} correctamente"
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al cambiar el estado: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+     public function destroy(string $id): JsonResponse
+    {
+        try {
+            $solicitud = Solicitud::find($id);
+
+            if (!$solicitud) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Solicitud no encontrada'
+                ], 404);
+            }
+
+            $solicitud->update([
+                'baja_at' => now(),
+                'usuarios_cancela_solicitudId' => auth()->id()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Solicitud dada de baja correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al dar de baja la solicitud: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+     public function getFormData(): JsonResponse
+    {
+        try {
+            $estados = SolicitudEstado::
+                            orderBy('nombre')
+                            ->get(['id', 'nombre']);
+            
+            $terminales = Terminal::where('baja', true)
+                            ->orderBy('nombre')
+                            ->get(['id', 'nombre']);
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'estados' => $estados,
+                    'terminales' => $terminales,
+                    'perfiles_academicos' => [
+                        ['id' => 1, 'nombre' => 'Estudiante'],
+                        ['id' => 2, 'nombre' => 'Maestro'],
+                        ['id' => 3, 'nombre' => 'Investigador'],
+                        ['id' => 4, 'nombre' => 'Personal Administrativo'],
+                        ['id' => 5, 'nombre' => 'Otro']
+                    ],
+                    'formas_pago' => [
+                        ['id' => 1, 'nombre' => 'Efectivo'],
+                        ['id' => 2, 'nombre' => 'Tarjeta'],
+                        ['id' => 3, 'nombre' => 'Transferencia']
+                    ],
+                    'dias_semana' => [
+                        ['id' => 1, 'nombre' => 'Lunes'],
+                        ['id' => 2, 'nombre' => 'Martes'],
+                        ['id' => 3, 'nombre' => 'Miércoles'],
+                        ['id' => 4, 'nombre' => 'Jueves'],
+                        ['id' => 5, 'nombre' => 'Viernes'],
+                        ['id' => 6, 'nombre' => 'Sábado'],
+                        ['id' => 7, 'nombre' => 'Domingo']
+                    ]
+                ],
+                'message' => 'Datos para formulario obtenidos correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener datos del formulario: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
+
+
 }

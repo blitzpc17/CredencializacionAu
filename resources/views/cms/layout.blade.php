@@ -624,6 +624,11 @@
                                 <span class="menu-text">Folios</span>
                             </a>
                         </li>
+                        <li class="menu-item">
+                            <a href="{{route('cms.variables.index')}}" class="menu-link">
+                                <span class="menu-text">Variables</span>
+                            </a>
+                        </li>
                     </ul>
                 </li>
             </ul>

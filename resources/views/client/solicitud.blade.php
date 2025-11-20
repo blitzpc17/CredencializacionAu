@@ -276,7 +276,322 @@
         }
     }
 
-    /* Responsive */
+    /* Modal de Términos y Condiciones - MEJORADO */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 1001;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.3s ease;
+        padding: 20px;
+        
+    }
+
+    .modal-content{
+        background-color: white;
+        border-radius: 15px;
+        max-width:  1000px;
+        /*width: 100%;*/
+        max-height: 90vh;        
+        overflow: hidden;
+        position: relative;
+        animation: slideInUp 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .close-modal {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #777;
+        transition: var(--transition);
+        z-index: 10;
+        background: rgba(255, 255, 255, 0.8);
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .close-modal:hover {
+        color: var(--accent-color);
+        background: rgba(255, 255, 255, 1);
+        transform: rotate(90deg);
+    }
+
+    .terms-header {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+        border-radius: 0; /*15px 15px 0 0;*/
+        flex-shrink: 0;
+    }
+
+    .terms-header h1 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+
+    .last-updated {
+        font-style: italic;
+        opacity: 0.9;
+        font-size: 0.9rem;
+    }
+
+    /* Contenedor principal mejorado */
+    .terms-container {
+        display: flex;
+        height: 60vh;
+        overflow: hidden;
+        flex: 1;
+    }
+
+    /* Navegación lateral */
+    .terms-nav {
+        width: 280px;
+        background: #f8f9fa;
+        border-right: 1px solid #e9ecef;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        flex-shrink: 0;
+    }
+
+    .nav-header {
+        padding: 15px 20px;
+        background: #e9ecef;
+        font-weight: 600;
+        color: #495057;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .nav-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .nav-link {
+        display: block;
+        padding: 12px 20px;
+        color: #495057;
+        text-decoration: none;
+        border-bottom: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .nav-link:hover {
+        background: #e9ecef;
+        color: #1e3c72;
+    }
+
+    .nav-link.active {
+        background: #1e3c72;
+        color: white;
+        border-left: 4px solid #2a5298;
+    }
+
+    .nav-progress {
+        padding: 15px 20px;
+        background: white;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 6px;
+        background: #e9ecef;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-bottom: 8px;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #1e3c72, #2a5298);
+        width: 0%;
+        transition: width 0.3s ease;
+    }
+
+    .progress-text {
+        font-size: 0.8rem;
+        color: #6c757d;
+        text-align: center;
+        display: block;
+    }
+
+    /* Contenido principal */
+    .terms-content-wrapper {
+        flex: 1;
+        overflow-y: auto;
+        position: relative;
+    }
+
+    .terms-content {
+        padding: 25px;
+        max-height: none;
+    }
+
+    .section {
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+        scroll-margin-top: 10px;
+    }
+
+    .section:last-child {
+        border-bottom: none;
+    }
+
+    h2 {
+        color: #1e3c72;
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+    }
+
+    h3 {
+        color: #2a5298;
+        margin: 15px 0 10px;
+        font-size: 1.2rem;
+    }
+
+    p {
+        margin-bottom: 15px;
+        text-align: justify;
+    }
+
+    ul, ol {
+        margin: 15px 0;
+        padding-left: 30px;
+    }
+
+    li {
+        margin-bottom: 8px;
+    }
+
+    .highlight {
+        background-color: #f0f5ff;
+        padding: 15px;
+        border-left: 4px solid #2a5298;
+        margin: 15px 0;
+        border-radius: 0 5px 5px 0;
+        position: relative;
+    }
+
+    .highlight:before {
+        content: "💡";
+        position: absolute;
+        left: -30px;
+        top: 15px;
+        font-size: 1.2rem;
+    }
+
+    /* Sección de aceptación mejorada */
+    .acceptance-section {
+        min-height: auto; /* Quitar altura fija */
+        padding: 20px; /* Menos padding */
+        margin-top: 20px;
+
+        background: #f9f9f9;
+        /*padding: 25px;*/
+        border-radius: 10px;
+        /*margin-top: 30px;*/
+        text-align: center;
+        border: 2px dashed #ddd;
+        position: relative;
+        bottom: 0;
+        background: white;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    }
+
+    .checkbox-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 20px 0;
+    }
+
+    .checkbox-container input {
+        margin-right: 10px;
+        transform: scale(1.2);
+    }
+
+    #acceptTermsBtn {
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 15px;
+    }
+
+    #acceptTermsBtn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(30, 60, 114, 0.3);
+    }
+
+    #acceptTermsBtn:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .terms-footer {
+        text-align: center;
+        padding: 20px;
+        background: #f5f5f5;
+        color: #666;
+        font-size: 0.9rem;
+        border-radius: 0 0 15px 15px;
+        flex-shrink: 0;
+    }
+
+    .contact-info {
+        margin-top: 10px;
+    }
+
+    /* Animaciones */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive mejorado */
     @media (max-width: 768px) {
         .hero {
             margin-top: 70px;
@@ -306,6 +621,44 @@
         .form-section {
             padding: 1rem;
         }
+
+        .modal-content {
+            max-height: 95vh;
+        }
+        
+        .terms-header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .terms-container {
+            flex-direction: column;
+            height: 70vh;
+        }
+        
+        .terms-nav {
+            width: 100%;
+            height: 150px;
+            border-right: none;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .nav-links {
+            display: flex;
+            overflow-x: auto;
+            flex-wrap: nowrap;
+        }
+        
+        .nav-link {
+            white-space: nowrap;
+            border-bottom: none;
+            border-right: 1px solid #e9ecef;
+            min-width: max-content;
+        }
+        
+        .terms-content {
+            padding: 20px;
+            max-height: 65vh;
+        }
     }
 
     @media (max-width: 480px) {
@@ -315,6 +668,27 @@
 
         .form-section {
             padding: 1rem;
+        }
+
+        .terms-header {
+            padding: 20px;
+        }
+        
+        .terms-content {
+            padding: 15px;
+        }
+        
+        .section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+        }
+        
+        h2 {
+            font-size: 1.3rem;
+        }
+        
+        h3 {
+            font-size: 1.1rem;
         }
     }
 </style>
@@ -355,10 +729,8 @@
                             <option value="">Seleccione una opción</option>
                             <option value="1">ESTUDIANTE</option>
                             <option value="2">DOCENTE</option>
-                           
                         </select>
                     </div>                    
-                 
                 </div>
 
                 <div class="form-row">
@@ -393,12 +765,6 @@
                         <input type="email" id="correo" class="form-control" required>
                     </div>
                 </div>
-
-               
-                
-
-
-
             </div>
 
             <!-- Información de viajes -->
@@ -411,8 +777,6 @@
                         <input type="text" id="lugar_viaja_frecuente" class="form-control"  required>
                     </div>
                 </div>
-
-
 
                 <div class="form-row">
                     <div class="form-group">
@@ -435,7 +799,7 @@
                         <label for="dia_semana_viaja">¿QUE DIAS DE LA SEMANA VIAJA?</label>
                         <select id="dia_semana_viaja" class="form-control form-select" required>
                             <option value="">Seleccione una opción</option>
-                            <option value="1">LUENES</option>
+                            <option value="1">LUNES</option>
                             <option value="2">MARTES</option>                           
                             <option value="3">MIÉRCOLES</option>
                             <option value="4">JUEVES</option>
@@ -446,15 +810,9 @@
                     </div>
                 </div>
 
-
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="veces_semana">¿CUANTAS VECES ESTIMA VIAJAR POR SEMANA?</label>
-                        <input type="text" id="veces_semana" class="form-control" required>
-                    </div>
-                    
-                <div class="form-group">
-                        <label for="FormaPAgo">FORMA DE PAGO:</label>
+                        <label for="formaPago">FORMA DE PAGO:</label>
                         <select id="formaPago" class="form-control form-select" required>
                             <option value="">Seleccione una opción</option>
                             <option value="1">TRANSFERENCIA</option>
@@ -464,125 +822,7 @@
                         </select>
                     </div>
                 </div>
-
-                <!-- 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="marca">Marca</label>
-                        <input type="text" id="marca" class="form-control" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="modelo">Modelo</label>
-                        <input type="text" id="modelo" class="form-control" required>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="ano">Año</label>
-                        <input type="number" id="ano" class="form-control" min="1990" max="2023" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="placa">Placa</label>
-                        <input type="text" id="placa" class="form-control" required>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="capacidad">Capacidad de Pasajeros</label>
-                        <select id="capacidad" class="form-control form-select" required>
-                            <option value="">Seleccione una opción</option>
-                            <option value="20-30">20-30 pasajeros</option>
-                            <option value="31-40">31-40 pasajeros</option>
-                            <option value="41-50">41-50 pasajeros</option>
-                            <option value="51-60">51-60 pasajeros</option>
-                            <option value="61+">Más de 60 pasajeros</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="tipo">Tipo de Autobús</label>
-                        <select id="tipo" class="form-control form-select" required>
-                            <option value="">Seleccione una opción</option>
-                            <option value="urbano">Urbano</option>
-                            <option value="suburbano">Suburbano</option>
-                            <option value="turismo">Turismo</option>
-                            <option value="escolar">Escolar</option>
-                            <option value="ejecutivo">Ejecutivo</option>
-                        </select>
-                    </div>
-                </div>
-                -->
-
             </div>
-
-            <!-- Preguntas de Opción Múltiple -->
-             <!--
-            <div class="form-section">
-                <h3><i class="fas fa-question-circle"></i> Documentación</h3>
-                
-                <div class="form-group">
-                    <label>¿Cuántos años de experiencia tiene manejando autobuses?</label>
-                    <div class="radio-group">
-                        <div class="radio-item">
-                            <input type="radio" id="exp1" name="experiencia" value="menos-2" required>
-                            <label for="exp1">Menos de 2 años</label>
-                        </div>
-                        <div class="radio-item">
-                            <input type="radio" id="exp2" name="experiencia" value="2-5">
-                            <label for="exp2">2 a 5 años</label>
-                        </div>
-                        <div class="radio-item">
-                            <input type="radio" id="exp3" name="experiencia" value="5-10">
-                            <label for="exp3">5 a 10 años</label>
-                        </div>
-                        <div class="radio-item">
-                            <input type="radio" id="exp4" name="experiencia" value="mas-10">
-                            <label for="exp4">Más de 10 años</label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>¿Qué tipo de rutas maneja principalmente?</label>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="ruta1" name="rutas" value="urbanas">
-                            <label for="ruta1">Urbanas</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="ruta2" name="rutas" value="interurbanas">
-                            <label for="ruta2">Interurbanas</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="ruta3" name="rutas" value="larga-distancia">
-                            <label for="ruta3">Larga distancia</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="ruta4" name="rutas" value="turismo">
-                            <label for="ruta4">Turismo</label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="seguridad">¿Qué medidas de seguridad implementa en su autobús?</label>
-                    <select id="seguridad" class="form-control form-select" multiple>
-                        <option value="extintor">Extintor</option>
-                        <option value="botiquin">Botiquín de primeros auxilios</option>
-                        <option value="salidas-emergencia">Salidas de emergencia</option>
-                        <option value="cinturones">Cinturones de seguridad</option>
-                        <option value="camaras">Cámaras de seguridad</option>
-                        <option value="gps">Sistema de GPS</option>
-                    </select>
-                    <small class="form-text">Mantenga presionada la tecla Ctrl (o Cmd en Mac) para seleccionar múltiples opciones</small>
-                </div>
-            </div>
-
-            -->
 
             <!-- Subida de Archivos -->
             <div class="form-section">
@@ -625,14 +865,13 @@
             </div>
 
             <!-- Términos y Condiciones -->
-             <!-- 
             <div class="form-section">
                 <h3><i class="fas fa-file-contract"></i> Términos y Condiciones</h3>
                 
                 <div class="form-group">
                     <div class="checkbox-item">
                         <input type="checkbox" id="terminos" required>
-                        <label for="terminos">Acepto los términos y condiciones del servicio</label>
+                        <label for="terminos">Acepto los <a href="#" id="openTermsModal">términos y condiciones</a> del servicio</label>
                     </div>
                 </div>
                 
@@ -643,7 +882,6 @@
                     </div>
                 </div>
             </div>
--->
 
             <!-- Botones de Acción -->
             <div class="form-actions">
@@ -656,127 +894,201 @@
             </div>
         </form>
     </section>
+
+    <!-- Modal de Términos y Condiciones - MEJORADO -->
+    <div class="modal" id="termsModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeTermsModal">&times;</span>
+            
+            <div class="terms-header">
+                <h1>Términos y Condiciones del Servicio</h1>
+                <p class="last-updated">Última actualización: 15 de noviembre, 2023</p>
+            </div>
+
+            <div class="terms-container">
+                <!-- Navegación lateral para secciones -->
+                <div class="terms-nav">
+                    <div class="nav-header">
+                        <i class="fas fa-list"></i>
+                        <span>Contenido</span>
+                    </div>
+                    <ul class="nav-links">
+                        <li><a href="#section1" class="nav-link active">1. Aceptación</a></li>
+                        <li><a href="#section2" class="nav-link">2. Descripción</a></li>
+                        <li><a href="#section3" class="nav-link">3. Requisitos</a></li>
+                        <li><a href="#section4" class="nav-link">4. Registro</a></li>
+                        <li><a href="#section5" class="nav-link">5. Uso Aceptable</a></li>
+                        <li><a href="#section6" class="nav-link">6. Privacidad</a></li>
+                        <li><a href="#section7" class="nav-link">7. Tarifas</a></li>
+                        <li><a href="#section8" class="nav-link">8. Vigencia</a></li>
+                        <li><a href="#section9" class="nav-link">9. Responsabilidad</a></li>
+                        <li><a href="#section10" class="nav-link">10. Modificaciones</a></li>
+                        <li><a href="#section11" class="nav-link">11. Terminación</a></li>
+                        <li><a href="#acceptance" class="nav-link">Aceptación</a></li>
+                    </ul>
+                    <div class="nav-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                        <span class="progress-text">0% leído</span>
+                    </div>
+                </div>
+
+                <!-- Contenido principal -->
+                <div class="terms-content-wrapper" id="termsContent">
+                    <div class="terms-content" >
+                        <div class="section" id="section1">
+                            <h2>1. Aceptación de los Términos</h2>
+                            <p>Al utilizar nuestro servicio de credencialización para pasajeros, usted acepta cumplir y estar sujeto a los siguientes términos y condiciones. Si no está de acuerdo con alguna parte de estos términos, no podrá utilizar nuestro servicio.</p>
+                        </div>
+
+                        <div class="section" id="section2">
+                            <h2>2. Descripción del Servicio</h2>
+                            <p>El servicio de credencialización para pasajeros permite la emisión, gestión y verificación de credenciales digitales para pasajeros con el fin de agilizar procesos de identificación en terminales de transporte, aeropuertos y otros puntos de control.</p>
+                            
+                            <h3>2.1 Servicios Incluidos</h3>
+                            <ul>
+                                <li>Emisión de credenciales digitales para pasajeros</li>
+                                <li>Verificación de identidad mediante procesos establecidos</li>
+                                <li>Gestión y renovación de credenciales</li>
+                                <li>Soporte técnico para problemas relacionados con las credenciales</li>
+                                <li>Integración con sistemas de transporte autorizados</li>
+                            </ul>
+                        </div>
+
+                        <div class="section" id="section3">
+                            <h2>3. Requisitos de Elegibilidad</h2>
+                            <p>Para utilizar nuestro servicio, debe cumplir con los siguientes requisitos:</p>
+                            <ul>
+                                <li>Ser mayor de 18 años o contar con autorización de un tutor legal</li>
+                                <li>Proporcionar información veraz y completa durante el registro</li>
+                                <li>Contar con identificación oficial vigente</li>
+                                <li>Aceptar los procesos de verificación de identidad establecidos</li>
+                                <li>No estar sujeto a restricciones legales que impidan la utilización del servicio</li>
+                            </ul>
+                        </div>
+
+                        <div class="section" id="section4">
+                            <h2>4. Proceso de Registro y Verificación</h2>
+                            <p>El registro para obtener una credencial de pasajero implica los siguientes pasos:</p>
+                            <ol>
+                                <li>Completar el formulario de solicitud en línea con información personal precisa</li>
+                                <li>Proporcionar documentación de identificación válida</li>
+                                <li>Someterse a los procesos de verificación de identidad</li>
+                                <li>Esperar la aprobación de la solicitud</li>
+                                <li>Recibir la credencial digital una vez aprobada</li>
+                            </ol>
+                            
+                            <div class="highlight">
+                                <p><strong>Nota importante:</strong> La aprobación de las credenciales está sujeta a la verificación exitosa de la información proporcionada y puede tomar hasta 5 días hábiles.</p>
+                            </div>
+                        </div>
+
+                        <div class="section" id="section5">
+                            <h2>5. Uso Aceptable de la Credencial</h2>
+                            <p>La credencial emitida debe utilizarse exclusivamente para los fines establecidos:</p>
+                            <ul>
+                                <li>Identificación en puntos de control de transporte</li>
+                                <li>Agilización de procesos de embarque</li>
+                                <li>Acceso a servicios relacionados con viajes</li>
+                            </ul>
+                            
+                            <p><strong>Está estrictamente prohibido:</strong></p>
+                            <ul>
+                                <li>Alterar, falsificar o duplicar la credencial</li>
+                                <li>Utilizar la credencial de otra persona</li>
+                                <li>Utilizar la credencial para fines fraudulentos o ilegales</li>
+                                <li>Transferir o vender la credencial a terceros</li>
+                            </ul>
+                        </div>
+
+                        <div class="section" id="section6">
+                            <h2>6. Privacidad y Protección de Datos</h2>
+                            <p>Nos comprometemos a proteger su información personal de acuerdo con la legislación aplicable en materia de protección de datos. Toda la información recopilada durante el proceso de credencialización se utilizará exclusivamente para:</p>
+                            <ul>
+                                <li>Verificar su identidad</li>
+                                <li>Emitir y gestionar su credencial</li>
+                                <li>Mejorar nuestros servicios</li>
+                                <li>Cumplir con obligaciones legales</li>
+                            </ul>
+                        </div>
+
+                        <div class="section" id="section7">
+                            <h2>7. Tarifas y Pagos</h2>
+                            <p>El servicio de credencialización puede estar sujeto a tarifas que serán comunicadas claramente durante el proceso de solicitud. Las tarifas cubren:</p>
+                            <ul>
+                                <li>Procesamiento de la solicitud</li>
+                                <li>Emisión de la credencial</li>
+                                <li>Mantenimiento del sistema de verificación</li>
+                                <li>Soporte técnico durante la vigencia de la credencial</li>
+                            </ul>
+                            
+                            <p>Las tarifas son no reembolsables una vez iniciado el proceso de verificación.</p>
+                        </div>
+
+                        <div class="section" id="section8">
+                            <h2>8. Vigencia y Renovación</h2>
+                            <p>La credencial de pasajero tiene una vigencia determinada que será indicada al momento de su emisión. Los usuarios recibirán notificaciones previas a la expiración con instrucciones para la renovación.</p>
+                            
+                            <p>Es responsabilidad del usuario mantener su credencial vigente. El uso de una credencial expirada puede resultar en la denegación de servicios de transporte.</p>
+                        </div>
+
+                        <div class="section" id="section9">
+                            <h2>9. Limitación de Responsabilidad</h2>
+                            <p>El servicio de credencialización se proporciona "tal cual" y según disponibilidad. No nos hacemos responsables por:</p>
+                            <ul>
+                                <li>Retrasos o denegaciones de embarque por parte de las compañías de transporte</li>
+                                <li>Pérdida o hurto de la credencial</li>
+                                <li>Uso no autorizado de la credencial debido a negligencia del usuario</li>
+                                <li>Interrupciones temporales del servicio por mantenimiento o causas fuera de nuestro control</li>
+                            </ul>
+                        </div>
+
+                        <div class="section" id="section10">
+                            <h2>10. Modificaciones a los Términos</h2>
+                            <p>Nos reservamos el derecho de modificar estos términos y condiciones en cualquier momento. Los cambios entrarán en vigor tras su publicación en nuestra plataforma. El uso continuado del servicio después de dichos cambios constituye la aceptación de los términos modificados.</p>
+                        </div>
+
+                        <div class="section" id="section11">
+                            <h2>11. Terminación del Servicio</h2>
+                            <p>Podemos suspender o cancelar su credencial y acceso al servicio si:</p>
+                            <ul>
+                                <li>Se detecta información falsa durante el registro o verificación</li>
+                                <li>Se hace un uso indebido de la credencial</li>
+                                <li>Se violan estos términos y condiciones</li>
+                                <li>Existe una orden judicial o requerimiento legal</li>
+                            </ul>
+                        </div>
+
+                        <div class="acceptance-section" id="acceptance">
+                            <h2>Aceptación de Términos y Condiciones</h2>
+                            <p>Para proceder con la solicitud de credencialización, debe leer y aceptar nuestros términos y condiciones.</p>
+                            
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="acceptTermsModal">
+                                <label for="acceptTermsModal">He leído y acepto los Términos y Condiciones del servicio <br>de credencialización para pasajeros</label>
+                            </div>
+                            
+                            <button id="acceptTermsBtn" disabled>Aceptar y Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="terms-footer">
+                <p>&copy; 2023 Servicio de Credencialización para Pasajeros. Todos los derechos reservados.</p>
+                <div class="contact-info">
+                    <p>Para preguntas sobre estos términos: <a href="mailto:legal@credencializacion.com">legal@credencializacion.com</a></p>
+                    <p>Teléfono: +1 (800) 123-4567</p>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Inicializar datepicker para fecha de nacimiento
-    /*flatpickr("#fechaNacimiento", {
-        locale: "es",
-        dateFormat: "d/m/Y",
-        maxDate: "today",
-        disable: [
-            function(date) {
-                // Deshabilitar fechas futuras
-                return date > new Date();
-            }
-        ]
-    });*/
-
-    // Manejar la vista previa de archivos
-    /*
-    function setupFilePreview(inputId, previewId) {
-        const input = document.getElementById(inputId);
-        const preview = document.getElementById(previewId);
-        
-        input.addEventListener('change', function(e) {
-            preview.innerHTML = '';
-            
-            if (this.files && this.files[0]) {
-                const file = this.files[0];
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    const previewItem = document.createElement('div');
-                    previewItem.className = 'file-preview-item';
-                    
-                    // Si es una imagen, mostrar vista previa
-                    if (file.type.startsWith('image/')) {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        previewItem.appendChild(img);
-                    } else {
-                        // Para PDFs, mostrar un icono
-                        const icon = document.createElement('div');
-                        icon.style.width = '100%';
-                        icon.style.height = '100%';
-                        icon.style.display = 'flex';
-                        icon.style.justifyContent = 'center';
-                        icon.style.alignItems = 'center';
-                        icon.style.backgroundColor = '#f8f9fa';
-                        icon.innerHTML = `<i class="fas fa-file-pdf" style="font-size: 2rem; color: #e74c3c;"></i>`;
-                        previewItem.appendChild(icon);
-                    }
-                    
-                    const fileInfo = document.createElement('div');
-                    fileInfo.className = 'file-info';
-                    fileInfo.textContent = file.name;
-                    previewItem.appendChild(fileInfo);
-                    
-                    const removeBtn = document.createElement('div');
-                    removeBtn.className = 'remove-file';
-                    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-                    removeBtn.addEventListener('click', function() {
-                        previewItem.remove();
-                        input.value = '';
-                    });
-                    previewItem.appendChild(removeBtn);
-                    
-                    preview.appendChild(previewItem);
-                }
-                
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-
-    // Configurar vista previa para todos los campos de archivo
-    setupFilePreview('fotoSolicitante', 'fotoPreview');
-    setupFilePreview('licencia', 'licenciaPreview');
-    setupFilePreview('tarjetaCirculacion', 'tarjetaPreview');
-    setupFilePreview('seguro', 'seguroPreview');
-
-    // Manejar el envío del formulario
-    document.getElementById('registroForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Mostrar loader
-        document.getElementById('loader').classList.remove('hidden');
-        
-        // Simular envío de formulario
-        setTimeout(() => {
-            alert('¡Formulario enviado con éxito! Recibirá un correo de confirmación en breve.');
-            document.getElementById('loader').classList.add('hidden');
-            this.reset();
-            
-            // Limpiar vistas previas
-            document.querySelectorAll('.file-preview').forEach(preview => {
-                preview.innerHTML = '';
-            });
-        }, 2000);
-    });
-
-    // Animación para las secciones del formulario al hacer scroll
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.animation = 'slideInRight 0.5s ease forwards';
-            }
-        });
-    }, observerOptions);
-
-    // Observar todas las secciones del formulario
-    document.querySelectorAll('.form-section').forEach(section => {
-        observer.observe(section);
-    });*/
-
-
     // Función mejorada con estado de carga
     async function cargarTerminales() {
         const select = document.getElementById('terminalesId');
@@ -844,7 +1156,7 @@
         cargarTerminales();
     }
 
-     function setupFilePreview(inputId, previewId) {
+    function setupFilePreview(inputId, previewId) {
         const input = document.getElementById(inputId);
         const preview = document.getElementById(previewId);
         
@@ -906,8 +1218,19 @@
     document.getElementById('registroForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // Mostrar loader (debes agregar un elemento loader en tu HTML)
-        // document.getElementById('loader').classList.remove('hidden');
+        // Validar términos y condiciones
+        const terminosCheckbox = document.getElementById('terminos');
+        const privacidadCheckbox = document.getElementById('privacidad');
+        
+        if (!terminosCheckbox.checked || !privacidadCheckbox.checked) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Atención',
+                text: 'Debe aceptar los términos y condiciones y la política de privacidad para continuar.',
+                confirmButtonText: 'Entendido'
+            });
+            return;
+        }
         
         // Crear FormData para enviar archivos
         const formData = new FormData();
@@ -996,5 +1319,136 @@
     document.querySelectorAll('.form-section').forEach(section => {
         observer.observe(section);
     });
+
+    // Modal de Términos y Condiciones - FUNCIONALIDAD MEJORADA
+    const termsModal = document.getElementById('termsModal');
+    const openTermsModal = document.getElementById('openTermsModal');
+    const closeTermsModal = document.getElementById('closeTermsModal');
+    const acceptTermsModal = document.getElementById('acceptTermsModal');
+    const acceptTermsBtn = document.getElementById('acceptTermsBtn');
+    const mainCheckbox = document.getElementById('terminos');
+
+    // Abrir modal de términos
+    openTermsModal.addEventListener('click', function(e) {
+        e.preventDefault();
+        termsModal.style.display = 'flex'
+        
+        document.body.style.overflow = 'hidden';
+    });
+
+    // Cerrar modal de términos
+    closeTermsModal.addEventListener('click', function() {
+        termsModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    });
+
+    // Cerrar modal al hacer clic fuera
+    window.addEventListener('click', function(e) {
+        if (e.target === termsModal) {
+            termsModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    });
+
+    // Habilitar botón de aceptar cuando se marca el checkbox
+    acceptTermsModal.addEventListener('change', function() {
+        acceptTermsBtn.disabled = !this.checked;
+    });
+
+    // Aceptar términos y cerrar modal
+    acceptTermsBtn.addEventListener('click', function() {
+        if (!this.disabled) {
+            // Marcar el checkbox principal
+            mainCheckbox.checked = true;
+            
+            // Cerrar modal
+            termsModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            
+            // Mostrar mensaje de confirmación
+            Swal.fire({
+                icon: 'success',
+                title: 'Términos aceptados',
+                text: 'Has aceptado los términos y condiciones correctamente.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+    });
+
+    // Navegación y seguimiento de progreso en el modal de términos - NUEVA FUNCIONALIDAD
+    document.addEventListener('DOMContentLoaded', function() {
+    const termsContent = document.getElementById('termsContent');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const progressFill = document.querySelector('.progress-fill');
+    const progressText = document.querySelector('.progress-text');
+    const sections = document.querySelectorAll('.section');
+
+    // Función para actualizar la navegación activa
+    function updateActiveNav() {
+        let currentSection = '';
+        
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop - termsContent.offsetTop;
+            const sectionHeight = section.clientHeight;
+            
+            // Verificar si la sección está visible en el viewport del contenedor
+            if (termsContent.scrollTop >= sectionTop - 100 && 
+                termsContent.scrollTop <= sectionTop + sectionHeight - 100) {
+                currentSection = section.id;
+            }
+        });
+        
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            const href = link.getAttribute('href');
+            if (href === `#${currentSection}`) {
+                link.classList.add('active');
+            }
+        });
+    }
+
+    // Función para actualizar el progreso de lectura
+    function updateReadingProgress() {
+        const contentHeight = termsContent.scrollHeight - termsContent.clientHeight;
+        const scrollPosition = termsContent.scrollTop;
+        const scrollPercentage = contentHeight > 0 ? (scrollPosition / contentHeight) * 100 : 0;
+        
+        progressFill.style.width = `${Math.min(scrollPercentage, 100)}%`;
+        progressText.textContent = `${Math.min(Math.round(scrollPercentage), 100)}% leído`;
+    }
+
+    // Event listeners para navegación (click en menú)
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetSection = document.querySelector(targetId);
+
+            console.log(targetSection)
+            
+            if (targetSection) {
+                const targetOffset = targetSection.offsetTop - termsContent.offsetTop;
+                termsContent.scrollTo({
+                    top: targetOffset,
+                    behavior: 'smooth'
+                });
+                
+                // Actualizar navegación activa después del scroll
+                setTimeout(updateActiveNav, 300);
+            }
+        });
+    });
+
+    // Event listener para scroll
+    termsContent.addEventListener('scroll', function() {
+        updateActiveNav();
+        updateReadingProgress();
+    });
+
+    // Inicializar
+    updateActiveNav();
+    updateReadingProgress();
+});
 </script>
 @endpush

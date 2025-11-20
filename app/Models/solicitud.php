@@ -34,13 +34,21 @@ class Solicitud extends Model
         'formaPago',
         'usuarios_confirma_documentacionId',
         'usuarios_cancela_solicitudId',
-        'usuarios_modifico_solicitudId'
+        'usuarios_modifico_solicitudId',
+        'baja_at'
     ];
 
     protected $dates = [
         'created_at',
         'updated_at',
         'baja_at'
+    ];
+
+    protected $casts = [
+        'perfil_academico' => 'integer',
+        'formaPago' => 'integer',
+        'dia_semana_viaja' => 'integer',
+        'baja_at' => 'datetime',
     ];
 
     // Relaciones
@@ -67,6 +75,80 @@ class Solicitud extends Model
     public function usuarioModifico()
     {
         return $this->belongsTo(User::class, 'usuarios_modifico_solicitudId');
+    }
+
+     // Accessors
+    public function getNombreCompletoAttribute()
+    {
+        return $this->nombres . ' ' . $this->apellidos;
+    }
+
+     public function getPerfilAcademicoTextoAttribute()
+    {
+        $perfiles = [
+            1 => 'Estudiante',
+            2 => 'Maestro',
+            3 => 'Investigador',
+            4 => 'Personal Administrativo',
+            5 => 'Otro'
+        ];
+        
+        return $perfiles[$this->perfil_academico] ?? 'Desconocido';
+    }
+
+    public function getFormaPagoTextoAttribute()
+    {
+        $formasPago = [
+            1 => 'Efectivo',
+            2 => 'Tarjeta',
+            3 => 'Transferencia'
+        ];
+        
+        return $formasPago[$this->formaPago] ?? 'Desconocido';
+    }
+
+    public function getDiaSemanaTextoAttribute()
+    {
+        $dias = [
+            1 => 'Lunes',
+            2 => 'Martes',
+            3 => 'Miércoles',
+            4 => 'Jueves',
+            5 => 'Viernes',
+            6 => 'Sábado',
+            7 => 'Domingo'
+        ];
+        
+        return $dias[$this->dia_semana_viaja] ?? 'Desconocido';
+    }
+
+    // Scopes
+    public function scopeActivas($query)
+    {
+        return $query->whereNull('baja_at');
+    }
+
+    public function scopePorEstado($query, $estadoId)
+    {
+        return $query->where('solicitudes_estadosId', $estadoId);
+    }
+
+    public function scopePorTerminal($query, $terminalId)
+    {
+        return $query->where('terminalesId', $terminalId);
+    }
+
+    public function scopeConFolio($query, $folio)
+    {
+        return $query->where('folio', 'like', "%{$folio}%");
+    }
+
+    public function scopeConNombre($query, $nombre)
+    {
+        return $query->where(function($q) use ($nombre) {
+            $q->where('nombres', 'like', "%{$nombre}%")
+              ->orWhere('apellidos', 'like', "%{$nombre}%");
+        });
     }
 
     // Generar folio automático con transacción
@@ -98,7 +180,6 @@ class Solicitud extends Model
             return $folio;
         });
     }
-
     // Método alternativo con reintentos para manejar posibles deadlocks
     public static function generarFolioConReintento($maxReintentos = 3)
     {
