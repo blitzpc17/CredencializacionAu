@@ -26,7 +26,7 @@ Route::prefix('/')->group(function(){
         return view('client.home');
     })->name('client.home');
 
-    Route::get('/solicitud', function () {
+    Route::get('solicitud', function () {
         return view('client.solicitud');
     })->name('client.solicitud');
 });
@@ -97,6 +97,10 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::get('mapa', function(){
     return view('cms.tools.mapa_calor');
+});
+
+Route::get('selfie', function(){
+    return view('client.selfie');
 });
 
 
