@@ -129,7 +129,7 @@
             const faceHeight = y2 - y1;
             
             // Calcular área expandida para incluir hombros y cabello
-            const expansionFactor = 2.5; // Incluir más área alrededor del rostro
+            const expansionFactor = 1.85; // Incluir más área alrededor del rostro  //original 2.5
             const expandedWidth = faceWidth * expansionFactor;
             const expandedHeight = faceHeight * expansionFactor;
             
