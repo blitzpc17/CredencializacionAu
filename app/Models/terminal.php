@@ -30,7 +30,9 @@ class Terminal extends Model
      */
     protected $fillable = [
         'nombre',
-        'baja'
+        'baja',
+        'latitud',
+        'longitud'
     ];
 
     /**
@@ -39,9 +41,9 @@ class Terminal extends Model
      * @var array
      */
     protected $casts = [
-        'baja' => 'boolean',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'baja' => 'boolean',      
+        'latitud' => 'decimal:8',
+        'longitud' => 'decimal:8',
     ];
 
     /**
@@ -50,4 +52,27 @@ class Terminal extends Model
      * @var bool
      */
     public $timestamps = false;
+
+
+    /**
+     * Scope para búsqueda por proximidad
+     */
+    public function scopeCercanos($query, $latitud, $longitud, $radioKm = 10)
+    {
+        return $query->selectRaw(
+            '*, (6371 * acos(cos(radians(?)) * cos(radians(latitud)) * cos(radians(longitud) - radians(?)) + sin(radians(?)) * sin(radians(latitud)))) AS distancia',
+            [$latitud, $longitud, $latitud]
+        )->having('distancia', '<', $radioKm)
+         ->orderBy('distancia');
+    }
+
+    /**
+     * Accessor para coordenadas formateadas
+     */
+    public function getCoordenadasAttribute()
+    {
+        return "{$this->latitud}, {$this->longitud}";
+    }
+
+
 }

@@ -464,7 +464,6 @@
                     <table class="table" id="variablesTable">
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th>Nombre</th>
                                 <th>Valor</th>
                                 <th>Acciones</th>
@@ -634,7 +633,6 @@
             
             const html = variablesList.map(variable => `
                 <tr>
-                    <td>${variable.id}</td>
                     <td>
                         <strong>${variable.nombre}</strong>
                     </td>

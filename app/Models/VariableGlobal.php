@@ -10,6 +10,7 @@ class VariableGlobal extends Model
     use HasFactory;
 
     protected $table = 'variables_globales';
+    public $timestamps = false;
 
     protected $fillable = [
         'nombre',

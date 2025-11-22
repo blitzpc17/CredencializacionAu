@@ -82,6 +82,7 @@
     .btn.success { background: var(--success); color: white; }
     .btn.danger { background: var(--danger); color: white; }
     .btn.warning { background: var(--warning); color: var(--dark); }
+    .btn.light { background: #e9ecef; color: var(--dark); }
     .btn.sm { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
 
     .btn:hover {
@@ -117,6 +118,16 @@
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .form-col {
+        flex: 1;
     }
 
     .form-label {
@@ -132,12 +143,71 @@
         font-size: 0.9rem;
         transition: var(--transition);
         background: white;
+        width: 100%;
     }
 
     .form-control:focus {
         outline: none;
         border-color: var(--primary);
         box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+    }
+
+    .form-control[readonly] {
+        background-color: #f8f9fa;
+        cursor: not-allowed;
+    }
+
+    .form-feedback {
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+    }
+
+    .form-feedback.error {
+        color: var(--danger);
+    }
+
+    /* Mapa */
+    .map-container {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        overflow: hidden;
+        height: 400px;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+    }
+
+    .map-instructions {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        font-size: 0.8rem;
+        color: var(--dark);
+    }
+
+    .coordinates-display {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .coordinate-field {
+        flex: 1;
+    }
+
+    .map-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
     }
 
     /* Controles de tabla */
@@ -289,7 +359,7 @@
         border-radius: 12px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         width: 100%;
-        max-width: 500px;
+        max-width: 700px;
         max-height: 90vh;
         overflow: hidden;
         animation: modalSlideIn 0.3s ease;
@@ -352,6 +422,40 @@
         background: #f8f9fa;
     }
 
+    /* Search Results */
+    .search-results {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        margin-top: 1rem;
+    }
+
+    .search-result-item {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #e9ecef;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .search-result-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .search-result-item:last-child {
+        border-bottom: none;
+    }
+
+    .search-result-name {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .search-result-address {
+        font-size: 0.8rem;
+        color: var(--gray);
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
         .datatable-controls {
@@ -378,6 +482,16 @@
 
         .modal-footer .btn {
             width: 100%;
+        }
+
+        .form-row {
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .coordinates-display {
+            flex-direction: column;
+            gap: 0.5rem;
         }
     }
 </style>
@@ -426,7 +540,9 @@
                     <table class="table" id="terminalesTable">
                         <thead>
                             <tr>
-                                <th>Nombre</th>                              
+                                <th>Nombre</th>
+                                <th>Latitud</th>
+                                <th>Longitud</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -468,11 +584,48 @@
         <div class="modal-body">
             <form id="terminalForm">
                 <input type="hidden" id="terminalId">
+                
                 <div class="form-group">
                     <label class="form-label" for="nombre">Nombre del Terminal *</label>
                     <input type="text" class="form-control" id="nombre" 
                            placeholder="Ingresa el nombre del terminal" required>
                     <div class="form-feedback" id="nombreFeedback"></div>
+                </div>
+
+                <!-- Mapa para seleccionar ubicación -->
+                <div class="form-group">
+                    <label class="form-label">Selecciona la ubicación en el mapa *</label>
+                    <div class="map-container">
+                        <div class="map-instructions">
+                            <i class="fas fa-mouse-pointer"></i> Haz clic en el mapa para seleccionar la ubicación
+                        </div>
+                        <div id="map"></div>
+                    </div>
+                    
+                    <div class="coordinates-display">
+                        <div class="form-group coordinate-field">
+                            <label class="form-label" for="latitud">Latitud</label>
+                            <input type="text" class="form-control" id="latitud" 
+                                   placeholder="Latitud" readonly required>
+                            <div class="form-feedback" id="latitudFeedback"></div>
+                        </div>
+                        
+                        <div class="form-group coordinate-field">
+                            <label class="form-label" for="longitud">Longitud</label>
+                            <input type="text" class="form-control" id="longitud" 
+                                   placeholder="Longitud" readonly required>
+                            <div class="form-feedback" id="longitudFeedback"></div>
+                        </div>
+                    </div>
+
+                    <div class="map-actions">
+                        <button type="button" class="btn light sm" id="btnCurrentLocation">
+                            <i class="fas fa-location-arrow"></i> Usar mi ubicación actual
+                        </button>
+                        <button type="button" class="btn light sm" id="btnSearchLocation">
+                            <i class="fas fa-search"></i> Buscar ubicación
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -514,15 +667,53 @@
         </div>
     </div>
 </div>
+
+<!-- Modal para buscar ubicación -->
+<div class="modal-overlay" id="searchModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Buscar Ubicación</h3>
+            <button class="modal-close" data-modal="searchModal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label" for="searchAddress">Dirección o lugar</label>
+                <input type="text" class="form-control" id="searchAddress" 
+                       placeholder="Ej: Avenida Reforma, Ciudad de México">
+                <div class="form-feedback" id="searchFeedback"></div>
+            </div>
+            <div id="searchResults" style="display: none;">
+                <h4>Resultados:</h4>
+                <div id="resultsList" class="search-results"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn light" data-modal="searchModal">Cancelar</button>
+            <button class="btn primary" id="performSearch">
+                <i class="fas fa-search"></i> Buscar
+            </button>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('js')
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+<!-- Google Maps API -->
+<script src="https://maps.googleapis.com/maps/api/js?key={{$apimapas}}&libraries=places"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Variables globales
         let terminales = [];
         let currentTerminalId = null;
+        let map = null;
+        let marker = null;
+        let geocoder = null;
+        let autocomplete = null;
+        let defaultLat = 19.4326; // CDMX por defecto
+        let defaultLng = -99.1332;
 
         // Elementos del DOM
         const terminalesTableBody = document.getElementById('terminalesTableBody');
@@ -532,6 +723,7 @@
         const terminalForm = document.getElementById('terminalForm');
         const terminalModal = document.getElementById('terminalModal');
         const confirmModal = document.getElementById('confirmModal');
+        const searchModal = document.getElementById('searchModal');
 
         // ===== INICIALIZACIÓN =====
         initializeTerminales();
@@ -539,6 +731,203 @@
         function initializeTerminales() {
             loadTerminales();
             setupEventListeners();
+        }
+
+        // ===== GOOGLE MAPS =====
+        function initMap(lat = defaultLat, lng = defaultLng) {
+            const mapElement = document.getElementById('map');
+            if (!mapElement) return;
+
+            // Configuración del mapa
+            const mapOptions = {
+                center: { lat: lat, lng: lng },
+                zoom: 13,
+                mapTypeControl: true,
+                streetViewControl: true,
+                fullscreenControl: true,
+                styles: [
+                    {
+                        "featureType": "administrative",
+                        "elementType": "labels.text.fill",
+                        "stylers": [{"color": "#444444"}]
+                    },
+                    {
+                        "featureType": "landscape",
+                        "elementType": "all",
+                        "stylers": [{"color": "#f2f2f2"}]
+                    },
+                    {
+                        "featureType": "poi",
+                        "elementType": "all",
+                        "stylers": [{"visibility": "off"}]
+                    },
+                    {
+                        "featureType": "road",
+                        "elementType": "all",
+                        "stylers": [{"saturation": -100}, {"lightness": 45}]
+                    },
+                    {
+                        "featureType": "road.highway",
+                        "elementType": "all",
+                        "stylers": [{"visibility": "simplified"}]
+                    },
+                    {
+                        "featureType": "road.arterial",
+                        "elementType": "labels.icon",
+                        "stylers": [{"visibility": "off"}]
+                    },
+                    {
+                        "featureType": "transit",
+                        "elementType": "all",
+                        "stylers": [{"visibility": "off"}]
+                    },
+                    {
+                        "featureType": "water",
+                        "elementType": "all",
+                        "stylers": [{"color": "#4361ee"}, {"visibility": "on"}]
+                    }
+                ]
+            };
+
+            // Crear mapa
+            map = new google.maps.Map(mapElement, mapOptions);
+            geocoder = new google.maps.Geocoder();
+
+            // Crear marcador
+            marker = new google.maps.Marker({
+                position: { lat: lat, lng: lng },
+                map: map,
+                draggable: true,
+                title: 'Ubicación del terminal'
+            });
+
+            // Evento al hacer clic en el mapa
+            map.addListener('click', function(event) {
+                updateMarkerPosition(event.latLng.lat(), event.latLng.lng());
+            });
+
+            // Evento al arrastrar el marcador
+            marker.addListener('dragend', function(event) {
+                const position = marker.getPosition();
+                updateCoordinates(position.lat(), position.lng());
+            });
+
+            // Inicializar autocomplete para búsqueda
+            const searchInput = document.getElementById('searchAddress');
+            if (searchInput) {
+                autocomplete = new google.maps.places.Autocomplete(searchInput, {
+                    types: ['geocode'],
+                    componentRestrictions: { country: 'mx' }
+                });
+
+                autocomplete.addListener('place_changed', function() {
+                    const place = autocomplete.getPlace();
+                    if (!place.geometry) {
+                        showAlert('error', 'No se encontró la ubicación: "' + place.name + '"');
+                        return;
+                    }
+
+                    // Centrar mapa en la ubicación encontrada
+                    map.setCenter(place.geometry.location);
+                    map.setZoom(17);
+                    
+                    // Actualizar marcador
+                    updateMarkerPosition(
+                        place.geometry.location.lat(),
+                        place.geometry.location.lng()
+                    );
+                });
+            }
+
+            // Actualizar coordenadas iniciales
+            updateCoordinates(lat, lng);
+        }
+
+        function updateMarkerPosition(lat, lng) {
+            if (marker) {
+                const newPosition = new google.maps.LatLng(lat, lng);
+                marker.setPosition(newPosition);
+                map.panTo(newPosition);
+            }
+            updateCoordinates(lat, lng);
+        }
+
+        function updateCoordinates(lat, lng) {
+            document.getElementById('latitud').value = lat.toFixed(6);
+            document.getElementById('longitud').value = lng.toFixed(6);
+        }
+
+        function getCurrentLocation() {
+            if (!navigator.geolocation) {
+                showAlert('error', 'La geolocalización no es soportada por este navegador');
+                return;
+            }
+
+            showAlert('info', 'Obteniendo tu ubicación actual...');
+
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    updateMarkerPosition(lat, lng);
+                    showAlert('success', 'Ubicación actual obtenida correctamente');
+                },
+                function(error) {
+                    let errorMessage = 'Error al obtener la ubicación: ';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage += 'Permiso denegado por el usuario';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage += 'La información de ubicación no está disponible';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage += 'Tiempo de espera agotado';
+                            break;
+                        default:
+                            errorMessage += 'Error desconocido';
+                    }
+                    showAlert('error', errorMessage);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 60000
+                }
+            );
+        }
+
+        function searchLocation() {
+            openModal('searchModal');
+            // Enfocar el campo de búsqueda cuando se abre el modal
+            setTimeout(() => {
+                const searchInput = document.getElementById('searchAddress');
+                if (searchInput) {
+                    searchInput.focus();
+                    searchInput.value = '';
+                }
+            }, 300);
+        }
+
+        function performGeocoding(address) {
+            if (!address.trim()) {
+                showFieldError('searchAddress', 'Ingresa una dirección para buscar');
+                return;
+            }
+
+            showAlert('info', 'Buscando ubicación...');
+
+            geocoder.geocode({ 'address': address }, function(results, status) {
+                if (status === 'OK' && results[0]) {
+                    const location = results[0].geometry.location;
+                    updateMarkerPosition(location.lat(), location.lng());
+                    map.setZoom(17);
+                    closeModal('searchModal');
+                    showAlert('success', `Ubicación encontrada: ${results[0].formatted_address}`);
+                } else {
+                    showAlert('error', 'No se encontraron resultados para: "' + address + '"');
+                }
+            });
         }
 
         // ===== CARGAR TERMINALES =====
@@ -581,9 +970,14 @@
             
             const html = terminalesList.map(terminal => `
                 <tr>
-                    <td>${terminal.nombre}</td>                   
+                    <td>${terminal.nombre}</td>
+                    <td>${terminal.latitud??"SIN ASIGNAR"}</td>
+                    <td>${terminal.longitud??"SIN ASIGNAR"}</td>
                     <td>
-                        <button class="btn-icon edit-terminal" data-id="${terminal.id}" data-nombre="${terminal.nombre}">
+                        <button class="btn-icon edit-terminal" data-id="${terminal.id}" 
+                                data-nombre="${terminal.nombre}" 
+                                data-latitud="${terminal.latitud}" 
+                                data-longitud="${terminal.longitud}">
                             <i class="fas fa-edit"></i>
                         </button>
                         <button class="btn-icon danger delete-terminal" data-id="${terminal.id}" data-nombre="${terminal.nombre}">
@@ -602,7 +996,14 @@
                 const searchTerm = e.target.value.toLowerCase();
                 const filteredTerminales = terminales.filter(terminal => 
                     terminal.nombre.toLowerCase().includes(searchTerm) ||
-                    terminal.id.toString().includes(searchTerm)
+                    (terminal.latitud != undefined ? 
+                        terminal.latitud.toString().includes(searchTerm) : 
+                        "SIN ASIGNAR".toLowerCase().includes(searchTerm)
+                    ) ||
+                    (terminal.longitud != undefined ? 
+                        terminal.longitud.toString().includes(searchTerm) : 
+                        "SIN ASIGNAR".toLowerCase().includes(searchTerm)
+                    )
                 );
                 renderTerminales(filteredTerminales);
             });
@@ -692,14 +1093,26 @@
             document.getElementById('terminalId').value = '';
             document.getElementById('nombre').value = '';
             clearFormFeedback();
+            
+            // Inicializar mapa con ubicación por defecto
+            setTimeout(() => {
+                initMap();
+            }, 100);
+            
             openModal('terminalModal');
         }
 
-        function openEditModal(id, nombre) {
+        function openEditModal(id, nombre, latitud, longitud) {
             document.getElementById('modalTitle').textContent = 'Editar Terminal';
             document.getElementById('terminalId').value = id;
             document.getElementById('nombre').value = nombre;
             clearFormFeedback();
+            
+            // Inicializar mapa con la ubicación existente
+            setTimeout(() => {
+                initMap(parseFloat(latitud), parseFloat(longitud));
+            }, 100);
+            
             openModal('terminalModal');
         }
 
@@ -713,15 +1126,35 @@
 
         function handleFormSubmit() {
             const nombre = document.getElementById('nombre').value.trim();
+            const latitud = document.getElementById('latitud').value.trim();
+            const longitud = document.getElementById('longitud').value.trim();
             const id = document.getElementById('terminalId').value;
 
-            // Validación básica
+            // Validación
+            let isValid = true;
+
             if (!nombre) {
                 showFieldError('nombre', 'El nombre del terminal es obligatorio');
-                return;
+                isValid = false;
             }
 
-            const terminalData = { nombre: nombre };
+            if (!latitud) {
+                showFieldError('latitud', 'La latitud es obligatoria');
+                isValid = false;
+            }
+
+            if (!longitud) {
+                showFieldError('longitud', 'La longitud es obligatoria');
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            const terminalData = { 
+                nombre: nombre,
+                latitud: latitud,
+                longitud: longitud
+            };
 
             if (id) {
                 updateTerminal(id, terminalData);
@@ -749,6 +1182,14 @@
                 }
             });
 
+            // Mapa y ubicación
+            document.getElementById('btnCurrentLocation').addEventListener('click', getCurrentLocation);
+            document.getElementById('btnSearchLocation').addEventListener('click', searchLocation);
+            document.getElementById('performSearch').addEventListener('click', function() {
+                const address = document.getElementById('searchAddress').value.trim();
+                performGeocoding(address);
+            });
+
             // Búsqueda
             setupSearch();
 
@@ -768,7 +1209,9 @@
                 if (target.classList.contains('edit-terminal')) {
                     const id = target.getAttribute('data-id');
                     const nombre = target.getAttribute('data-nombre');
-                    openEditModal(id, nombre);
+                    const latitud = target.getAttribute('data-latitud');
+                    const longitud = target.getAttribute('data-longitud');
+                    openEditModal(id, nombre, latitud, longitud);
                 } else if (target.classList.contains('delete-terminal')) {
                     const id = target.getAttribute('data-id');
                     const nombre = target.getAttribute('data-nombre');
@@ -790,6 +1233,14 @@
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     handleFormSubmit();
+                }
+            });
+
+            // Enter en búsqueda de ubicación
+            document.getElementById('searchAddress').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('performSearch').click();
                 }
             });
         }
@@ -814,12 +1265,6 @@
             document.getElementById(modalId).classList.remove('show');
             document.body.style.overflow = '';
             currentTerminalId = null;
-        }
-
-        function formatDate(dateString) {
-            if (!dateString) return '-';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('es-ES') + ' ' + date.toLocaleTimeString('es-ES');
         }
 
         function showAlert(type, message, title = null) {
@@ -875,8 +1320,13 @@
         }
 
         function clearFormFeedback() {
-            document.getElementById('nombre').style.borderColor = '';
-            document.getElementById('nombreFeedback').innerHTML = '';
+            const fields = ['nombre', 'latitud', 'longitud', 'searchAddress'];
+            fields.forEach(field => {
+                const input = document.getElementById(field);
+                const feedback = document.getElementById(field + 'Feedback');
+                if (input) input.style.borderColor = '';
+                if (feedback) feedback.innerHTML = '';
+            });
         }
     });
 </script>

@@ -5,6 +5,9 @@ use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ToolsController;
 
+
+use App\Models\VariableGlobal;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -55,7 +58,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function(){
     })->name('cms.horarios-credencializacion.index');
 
     Route::get('terminales', function () {
-        return view('cms.terminales');
+        $data = VariableGlobal::where('nombre', 'APIKEY_MAPA')->first();
+        $apimapas = $data->valor;
+        return view('cms.terminales', compact('apimapas'));
     })->name('cms.terminales.index');
 
     Route::get('folios', function () {
@@ -99,7 +104,7 @@ Route::get('mapa', function(){
     return view('cms.tools.mapa_calor');
 });
 
-Route::get('selfie', function(){
+Route::get('selfie', function(){  
     return view('client.selfie');
 });
 
