@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Solicitud;
 use App\Models\SolicitudEstado;
 use App\Models\Terminal;
+use App\Models\VariableGlobal;
 use App\Services\EmailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -343,33 +344,80 @@ class SolicitudController extends Controller
             
             $terminales = Terminal::orderBy('id')
                             ->get(['id', 'nombre']);
-                            
 
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'estados' => $estados,
-                    'terminales' => $terminales,
-                    'perfiles_academicos' => [
-                        ['id' => 1, 'nombre' => 'Estudiante'],
-                        ['id' => 2, 'nombre' => 'Maestro'],                      
-                    ],
-                    'formas_pago' => [
-                        ['id' => 1, 'nombre' => 'Transferencia'],
-                        ['id' => 2, 'nombre' => 'Taquilla']
-                    ],
-                    'dias_semana' => [
-                        ['id' => 1, 'nombre' => 'Lunes'],
-                        ['id' => 2, 'nombre' => 'Martes'],
-                        ['id' => 3, 'nombre' => 'Miércoles'],
-                        ['id' => 4, 'nombre' => 'Jueves'],
-                        ['id' => 5, 'nombre' => 'Viernes'],
-                        ['id' => 6, 'nombre' => 'Sábado'],
-                        ['id' => 7, 'nombre' => 'Domingo']
-                    ]
-                ],
-                'message' => 'Datos para formulario obtenidos correctamente'
-            ]);
+
+             // Obtener variables globales
+        $variables = VariableGlobal::whereIn('nombre', ['dias_semana', 'formas_pago', 'perfiles_academicos'])
+                        ->get()
+                        ->keyBy('nombre');
+
+        // Función helper para procesar JSON
+        $processJsonData = function($variable) {
+            if (!$variable) {
+                return [];
+            }
+            
+            $data = json_decode($variable->valor, true);
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return [];
+            }
+            
+            // Si ya es un array con estructura id/nombre, devolver tal cual
+            if (isset($data[0]) && isset($data[0]['id']) && isset($data[0]['nombre'])) {
+                return $data;
+            }
+            
+            // Si es un array asociativo, convertirlo a estructura id/nombre
+            if (is_array($data)) {
+                $result = [];
+                foreach ($data as $id => $nombre) {
+                    $result[] = ['id' => $id, 'nombre' => $nombre];
+                }
+                return $result;
+            }
+            
+            return [];
+        };
+
+        // Procesar cada variable
+        $perfilesAcademicos = $processJsonData($variables['perfiles_academicos'] ?? null);
+        $formasPago = $processJsonData($variables['formas_pago'] ?? null);
+        $diasSemana = $processJsonData($variables['dias_semana'] ?? null);
+
+        // Valores por defecto si no hay datos
+        $perfilesAcademicos = empty($perfilesAcademicos) ? [
+            ['id' => 1, 'nombre' => 'Estudiante'],
+            ['id' => 2, 'nombre' => 'Maestro']
+        ] : $perfilesAcademicos;
+
+        $formasPago = empty($formasPago) ? [
+            ['id' => 1, 'nombre' => 'TRANSFERENCIA'],
+            ['id' => 2, 'nombre' => 'TAQUILLA']
+        ] : $formasPago;
+
+        $diasSemana = empty($diasSemana) ? [
+            ['id' => 1, 'nombre' => 'Lunes'],
+            ['id' => 2, 'nombre' => 'Martes'],
+            ['id' => 3, 'nombre' => 'Miércoles'],
+            ['id' => 4, 'nombre' => 'Jueves'],
+            ['id' => 5, 'nombre' => 'Viernes'],
+            ['id' => 6, 'nombre' => 'Sábado'],
+            ['id' => 7, 'nombre' => 'Domingo']
+        ] : $diasSemana;
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'estados' => $estados,
+                'terminales' => $terminales,
+                'perfiles_academicos' => $perfilesAcademicos,
+                'formas_pago' => $formasPago,
+                'dias_semana' => $diasSemana
+            ],
+            'message' => 'Datos para formulario obtenidos correctamente'
+        ]);
+          
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
