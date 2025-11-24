@@ -14,6 +14,10 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
 
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use App\Mail\EmailTimelineProceso;
+
 class SolicitudController extends Controller
 {
     protected $emailService;
@@ -92,7 +96,7 @@ class SolicitudController extends Controller
             DB::commit();
 
              // Enviar email de confirmación (fuera de la transacción)
-            $emailEnviado = $this->emailService->enviarConfirmacionRecepcion($solicitud);
+            $emailEnviado = $this->emailService->enviarConfirmacionPago($solicitud);
 
           
 
@@ -532,7 +536,7 @@ public function update(Request $request, string $id)
         'correo' => 'required|email|max:100',
         'telefono' => 'required|string|max:13',
         'formaPago' => 'required|integer',
-        'solicitudes_estadosId' => 'required|integer|exists:solicitudes_estados,id',
+        'solicitudes_estadosId' => 'sometimes|integer|exists:solicitudes_estados,id',
         'vigencia' => 'nullable|date',
         'id_credencial' => 'nullable|string|max:10'
     ]);
@@ -572,25 +576,55 @@ public function update(Request $request, string $id)
             'correo' => $request->correo,
             'telefono' => $request->telefono,
             'formaPago' => $request->formaPago,
-            'solicitudes_estadosId' => $request->solicitudes_estadosId,
             'usuarios_modificoId' => auth()->id(),
             'updated_at' => now(),
         ];
 
-        // Campos condicionales para estado PAGADO
-        if ($request->has('vigencia') && $request->vigencia) {
-            $updateData['vigencia'] = $request->vigencia;
+        // DETECTAR SI SE SUBIÓ UN VOUCHER
+        $voucherSubido = $request->hasFile('voucher_pago');
+        
+        // Si se subió un voucher, cambiar automáticamente al estado PAGADO
+        if ($voucherSubido) {
+            // Buscar el estado PAGADO en la base de datos
+            $estadoPagado = SolicitudEstado::where('nombre', 'like', '%PAGAD%')->first();
+            
+            if ($estadoPagado) {
+                $updateData['solicitudes_estadosId'] = $estadoPagado->id;
+                
+                // También enviar email de confirmación de pago si existe el servicio
+                //ver si se deja o se quita el envio de correo aqui
+                try {
+                    $solicitud->solicitudes_estadosId = $estadoPagado->id;
+                    $this->emailService->enviarConfirmacionPago($solicitud);
+                } catch (\Exception $e) {
+                    // No fallar si el email no se puede enviar, solo loggear
+                    \Log::error('Error enviando email de confirmación de pago: ' . $e->getMessage());
+                }
+            }
+        } else {
+            // Si no se subió voucher, mantener el estado que viene en el request o el actual
+            if ($request->has('solicitudes_estadosId')) {
+                $updateData['solicitudes_estadosId'] = $request->solicitudes_estadosId;
+            }
         }
 
-        if ($request->has('id_credencial') && $request->id_credencial) {
-            $updateData['id_credencial'] = $request->id_credencial;
+        // Campos condicionales para estado PAGADO
+        if (isset($updateData['solicitudes_estadosId'])) {
+            $estadoActual = SolicitudEstado::find($updateData['solicitudes_estadosId']);
+            if ($estadoActual && (strpos($estadoActual->nombre, 'PAGAD') !== false)) {
+                if ($request->has('vigencia') && $request->vigencia) {
+                    $updateData['vigencia'] = $request->vigencia;
+                }
+                if ($request->has('id_credencial') && $request->id_credencial) {
+                    $updateData['id_credencial'] = $request->id_credencial;
+                }
+            }
         }
 
         // Procesar archivos si se enviaron
         $archivosProcesados = [];
 
         if ($request->hasFile('curp')) {
-            // Eliminar archivo anterior si existe
             if ($solicitud->curp && Storage::disk('public')->exists($solicitud->curp)) {
                 Storage::disk('public')->delete($solicitud->curp);
             }
@@ -617,7 +651,7 @@ public function update(Request $request, string $id)
             $archivosProcesados[] = 'fotografia';
         }
 
-        if ($request->hasFile('voucher_pago')) {
+        if ($voucherSubido) {
             if ($solicitud->voucher_pago && Storage::disk('public')->exists($solicitud->voucher_pago)) {
                 Storage::disk('public')->delete($solicitud->voucher_pago);
             }
@@ -634,12 +668,20 @@ public function update(Request $request, string $id)
         // Cargar relaciones actualizadas
         $solicitud->load(['estado', 'terminal', 'usuarioModifico']);
 
+        $mensaje = 'Solicitud actualizada correctamente';
+        if ($voucherSubido) {
+            $mensaje .= ' y estado cambiado a PAGADO automáticamente';
+        }
+        if (count($archivosProcesados) > 0) {
+            $mensaje .= ' (archivos actualizados: ' . implode(', ', $archivosProcesados) . ')';
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Solicitud actualizada correctamente' . 
-                        (count($archivosProcesados) > 0 ? ' (archivos actualizados: ' . implode(', ', $archivosProcesados) . ')' : ''),
+            'message' => $mensaje,
             'data' => $solicitud,
-            'archivos_actualizados' => $archivosProcesados
+            'archivos_actualizados' => $archivosProcesados,
+            'estado_actualizado' => $voucherSubido
         ]);
 
     } catch (\Exception $e) {
@@ -659,6 +701,10 @@ public function update(Request $request, string $id)
         ], 500);
     }
 }
+
+
+
+
 
 
     

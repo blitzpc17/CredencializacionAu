@@ -1967,6 +1967,15 @@
                 return;
             }
 
+             // Detectar si se está subiendo un voucher
+            const voucherFile = document.getElementById('voucher_pago').files[0];
+            if (voucherFile) {
+                // Mostrar confirmación opcional
+                if (!confirm('Se detectó un voucher de pago. Al guardar, el estado se cambiará automáticamente a PAGADO. ¿Continuar?')) {
+                    return;
+                }
+            }
+
             // Agregar el método PUT para Laravel si es una actualización
             if (id) {
                 formData.append('_method', 'PUT');

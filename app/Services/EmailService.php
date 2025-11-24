@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Mail\NotificacionSolicitud;
+use App\Mail\EmailTimelineProceso;
 use App\Models\Solicitud;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
@@ -97,4 +98,28 @@ class EmailService
             return false;
         }
     }
+
+
+
+public function enviarConfirmacionPago(Solicitud $solicitud)
+{
+    try {
+        Mail::to($solicitud->correo)
+            ->send(new EmailTimelineProceso($solicitud, $solicitud->solicitudes_estadosId, $solicitud->motivo_baja));
+        
+        Log::info("Email de timeline enviado para solicitud {$solicitud->folio}, estado: {$estadoId}");
+        return true;
+        
+    } catch (\Exception $e) {
+        Log::error('Error enviando email de timeline: ' . $e->getMessage());
+        return false;
+    }
+        
+}
+
+
+
+
+
+
 }
