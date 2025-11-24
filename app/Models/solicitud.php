@@ -35,7 +35,12 @@ class Solicitud extends Model
         'usuarios_confirma_documentacionId',
         'usuarios_cancela_solicitudId',
         'usuarios_modifico_solicitudId',
-        'baja_at'
+        'baja_at',
+        'motivo_baja',
+	    'vigencia' ,
+	    'id_credencial',
+        'voucher_pago'
+
     ];
 
     protected $dates = [
@@ -99,9 +104,8 @@ class Solicitud extends Model
     public function getFormaPagoTextoAttribute()
     {
         $formasPago = [
-            1 => 'Efectivo',
-            2 => 'Tarjeta',
-            3 => 'Transferencia'
+            1 => 'Taquilla',
+            2 => 'Transferencia'
         ];
         
         return $formasPago[$this->formaPago] ?? 'Desconocido';

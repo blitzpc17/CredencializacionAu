@@ -442,7 +442,6 @@
                     <table class="table" id="usuariosTable">
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th>Usuario</th>
                                 <th>Perfil</th>
                                 <th>Estado</th>
@@ -672,7 +671,6 @@
             
             const html = usuariosList.map(usuario => `
                 <tr>
-                    <td>${usuario.id}</td>
                     <td>
                         <div>
                             <strong>${usuario.nombres} ${usuario.apellidos}</strong><br>

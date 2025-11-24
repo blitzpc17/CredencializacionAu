@@ -383,6 +383,91 @@ class SolicitudController extends Controller
     }
 
 
+    // En tu SolicitudController, agrega este método:
+
+public function getFile($id, $field)
+{
+    try {
+        $solicitud = Solicitud::findOrFail($id);
+        
+        // Validar que el campo existe y tiene un archivo
+        $validFields = ['curp', 'credencial', 'fotografia', 'voucher_pago'];
+        if (!in_array($field, $validFields) || empty($solicitud->$field)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Archivo no encontrado'
+            ], 404);
+        }
+
+        $filePath = storage_path('app/public/' . $solicitud->$field);
+        
+        if (!file_exists($filePath)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Archivo no encontrado en el servidor'
+            ], 404);
+        }
+
+        // Obtener el tipo MIME correcto
+        $mimeType = mime_content_type($filePath);
+        
+        // Obtener el nombre original del archivo
+        $fileName = basename($solicitud->$field);
+
+        return response()->file($filePath, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . $fileName . '"'
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al cargar el archivo: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+
+
+/**
+ * Display the specified resource.
+ */
+public function show(string $id): JsonResponse
+{
+    try {
+        // Buscar la solicitud por ID con relaciones
+        $solicitud = Solicitud::with([
+            'estado',
+            'terminal',
+            'usuarioConfirma',
+            'usuarioCancela',
+            'usuarioModifico'
+        ])->find($id);
+
+        if (!$solicitud) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se encontró la solicitud solicitada'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $solicitud,
+            'message' => 'Solicitud encontrada correctamente'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al consultar la solicitud: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+
+    
+
 
 
 

@@ -78,5 +78,7 @@ Route::prefix('variables-globales')->name('variables-globales.')->group(function
     Route::get('/configuracion/email', [VariableGlobalController::class, 'obtenerConfiguracionEmail'])->name('configuracion-email');
 });
 
+Route::get('/solicitudes/{id}/file/{field}', [SolicitudController::class, 'getFile']);
+
 
 

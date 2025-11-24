@@ -503,6 +503,175 @@
                 width: 280px;
             }
         }
+
+
+        /* CONVERSIÓN A MAYÚSCULAS */
+.form-control,
+.btn,
+.badge,
+.folio-badge,
+.menu-text,
+.menu-header,
+.section-title,
+.section-description,
+.page-title,
+.breadcrumb-item,
+.table th,
+.alert-title,
+.modal-title,
+.form-label,
+.detail-label,
+.pagination-info,
+.pagination-numbers .btn,
+.file-info,
+.empty-state h3,
+.empty-state p,
+.loading p {
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Ajustes específicos para mantener legibilidad */
+.form-control {
+    font-weight: 500;
+}
+
+.btn {
+    font-weight: 600;
+}
+
+.table th {
+    font-weight: 700;
+    font-size: 0.8rem;
+}
+
+.badge {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.folio-badge {
+    font-weight: 700;
+}
+
+/* Paginación */
+.pagination-container {
+    margin-top: 1.5rem;
+    padding: 1rem 0;
+    border-top: 1px solid #e9ecef;
+}
+
+.pagination-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.pagination-info {
+    color: var(--gray);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.pagination-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.pagination-numbers {
+    display: flex;
+    gap: 0.25rem;
+    margin: 0 0.5rem;
+}
+
+.pagination-size {
+    min-width: 150px;
+}
+
+.pagination-size .form-control.sm {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+}
+
+/* Asegurar que los inputs de texto mantengan el texto en mayúsculas */
+.form-control[type="text"],
+.form-control[type="email"],
+.form-control[type="tel"],
+.form-control[type="date"],
+.form-control[type="search"] {
+    text-transform: uppercase;
+}
+
+/* Excepciones para campos que no deben estar en mayúsculas */
+.form-control[type="email"] {
+    text-transform: lowercase; /* Los emails en minúsculas */
+}
+
+.form-control::placeholder {
+    text-transform: none; /* Placeholders en formato normal */
+    letter-spacing: normal;
+}
+
+/* Estilos para el select de paginación */
+.pagination-size select {
+    text-transform: none; /* Las opciones del select en formato normal */
+}
+
+/* Ajustes responsivos para paginación */
+@media (max-width: 768px) {
+    .pagination-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+    
+    .pagination-buttons {
+        justify-content: center;
+        order: 2;
+    }
+    
+    .pagination-info {
+        text-align: center;
+        order: 1;
+    }
+    
+    .pagination-size {
+        order: 3;
+        align-self: center;
+    }
+    
+    .pagination-numbers {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+/* Mantener iconos en su formato original */
+.btn i,
+.menu-icon,
+.alert-icon,
+.modal-close i,
+.fa {
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+/* Campos de texto largo (como textarea) */
+.form-control[type="textarea"] {
+    text-transform: none; /* Los textos largos en formato normal */
+    letter-spacing: normal;
+}
+
+/* Asegurar que los números se muestren normal */
+.folio-badge,
+.pagination-numbers .btn,
+.pagination-info span {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.5px;
+}
     </style>
     
     @stack('css')

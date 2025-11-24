@@ -444,7 +444,6 @@
                     <table class="table" id="estadosTable">
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th>Nombre</th>
                                 <th>Fecha Creación</th>
                                 <th>Fecha Actualización</th>
@@ -608,7 +607,6 @@
             
             const html = estadosList.map(estado => `
                 <tr>
-                    <td>${estado.id}</td>
                     <td>
                         <span class="badge ${getBadgeClass(estado.nombre)}">
                             ${estado.nombre}

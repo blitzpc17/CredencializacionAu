@@ -424,6 +424,128 @@
             grid-template-columns: 1fr;
         }
     }
+
+
+     /* Nuevos estilos para archivos y vista detalle */
+    .file-preview {
+        border: 2px dashed #e9ecef;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        margin-bottom: 1rem;
+        background: #f8f9fa;
+    }
+
+    .file-preview img {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 6px;
+    }
+
+    .file-info {
+        margin-top: 0.5rem;
+        font-size: 0.8rem;
+        color: var(--gray);
+    }
+
+    .file-actions {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-top: 0.5rem;
+    }
+
+    .file-input-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+    }
+
+    .file-input-wrapper input[type=file] {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    .document-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+
+    .document-item {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .status-badge {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .detail-section {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .detail-section:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+        color: var(--gray);
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 2rem;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-left: 2px solid var(--primary);
+        padding-left: 1rem;
+    }
+
+    .timeline-item:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -0.5rem;
+        top: 0;
+        width: 0.75rem;
+        height: 0.75rem;
+        border-radius: 50%;
+        background: var(--primary);
+    }
+
+    .conditional-field {
+        display: none;
+    }
+
+    .conditional-field.show {
+        display: block;
+    }
 </style>
 @endpush
 
@@ -475,6 +597,7 @@
                                 <th>Escuela</th>
                                 <th>Terminal</th>
                                 <th>Estado</th>
+                                <th>ID Credencial</th>
                                 <th>Fecha</th>
                                 <th>Acciones</th>
                             </tr>
@@ -507,7 +630,7 @@
 
 <!-- Modal para agregar/editar solicitud -->
 <div class="modal-overlay" id="solicitudModal">
-    <div class="modal">
+    <div class="modal" style="max-width: 900px;">
         <div class="modal-header">
             <h3 class="modal-title" id="modalTitle">Nueva Solicitud</h3>
             <button class="modal-close" data-modal="solicitudModal">
@@ -515,11 +638,15 @@
             </button>
         </div>
         <div class="modal-body">
-            <form id="solicitudForm">
+            <form id="solicitudForm" enctype="multipart/form-data">
                 <input type="hidden" id="solicitudId">
                 <input type="hidden" id="folio" readonly>
                 
                 <div class="form-grid">
+                    <!-- Información Personal -->
+                    <div class="form-group form-full-width">
+                        <h4 style="margin-bottom: 1rem; color: var(--primary);">Información Personal</h4>
+                    </div>
                     <div class="form-group">
                         <label class="form-label" for="nombres">Nombres *</label>
                         <input type="text" class="form-control" id="nombres" required>
@@ -533,6 +660,19 @@
                         <select class="form-control" id="perfil_academico" required>
                             <option value="">Seleccione perfil</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="correo">Correo *</label>
+                        <input type="email" class="form-control" id="correo" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="telefono">Teléfono *</label>
+                        <input type="text" class="form-control" id="telefono" required>
+                    </div>
+
+                    <!-- Información de Viaje -->
+                    <div class="form-group form-full-width">
+                        <h4 style="margin-bottom: 1rem; color: var(--primary);">Información de Viaje</h4>
                     </div>
                     <div class="form-group form-full-width">
                         <label class="form-label" for="escuela_procedencia">Escuela de Procedencia *</label>
@@ -566,25 +706,95 @@
                             <option value="">Seleccione día</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label" for="curp">CURP *</label>
-                        <input type="text" class="form-control" id="curp" required>
+
+                    <!-- Documentos -->
+                    <div class="form-group form-full-width">
+                        <h4 style="margin-bottom: 1rem; color: var(--primary);">Documentos</h4>
                     </div>
+                    
+                    <!-- CURP -->
                     <div class="form-group">
-                        <label class="form-label" for="credencial">Credencial *</label>
-                        <input type="text" class="form-control" id="credencial" required>
+                        <label class="form-label">CURP *</label>
+                        <div class="file-preview" id="curpPreview">
+                            <i class="fas fa-file-pdf fa-3x" style="color: #dc3545;"></i>
+                            <div class="file-info" id="curpInfo">No se ha cargado archivo</div>
+                            <div class="file-actions">
+                                <button type="button" class="btn sm primary view-file" data-field="curp">
+                                    <i class="fas fa-eye"></i> Ver
+                                </button>
+                                <div class="file-input-wrapper">
+                                    <button type="button" class="btn sm warning">
+                                        <i class="fas fa-upload"></i> Cambiar
+                                    </button>
+                                    <input type="file" class="form-control file-input" id="curp" name="curp" accept=".pdf,.jpg,.jpeg,.png">
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Credencial -->
                     <div class="form-group">
-                        <label class="form-label" for="fotografia">Fotografía *</label>
-                        <input type="text" class="form-control" id="fotografia" required>
+                        <label class="form-label">Credencial *</label>
+                        <div class="file-preview" id="credencialPreview">
+                            <i class="fas fa-file-image fa-3x" style="color: #28a745;"></i>
+                            <div class="file-info" id="credencialInfo">No se ha cargado archivo</div>
+                            <div class="file-actions">
+                                <button type="button" class="btn sm primary view-file" data-field="credencial">
+                                    <i class="fas fa-eye"></i> Ver
+                                </button>
+                                <div class="file-input-wrapper">
+                                    <button type="button" class="btn sm warning">
+                                        <i class="fas fa-upload"></i> Cambiar
+                                    </button>
+                                    <input type="file" class="form-control file-input" id="credencial" name="credencial" accept=".pdf,.jpg,.jpeg,.png">
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Fotografía -->
                     <div class="form-group">
-                        <label class="form-label" for="correo">Correo *</label>
-                        <input type="email" class="form-control" id="correo" required>
+                        <label class="form-label">Fotografía *</label>
+                        <div class="file-preview" id="fotografiaPreview">
+                            <i class="fas fa-camera fa-3x" style="color: #007bff;"></i>
+                            <div class="file-info" id="fotografiaInfo">No se ha cargado archivo</div>
+                            <div class="file-actions">
+                                <button type="button" class="btn sm primary view-file" data-field="fotografia">
+                                    <i class="fas fa-eye"></i> Ver
+                                </button>
+                                <div class="file-input-wrapper">
+                                    <button type="button" class="btn sm warning">
+                                        <i class="fas fa-upload"></i> Cambiar
+                                    </button>
+                                    <input type="file" class="form-control file-input" id="fotografia" name="fotografia" accept=".jpg,.jpeg,.png">
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Voucher de Pago -->
                     <div class="form-group">
-                        <label class="form-label" for="telefono">Teléfono *</label>
-                        <input type="text" class="form-control" id="telefono" required>
+                        <label class="form-label">Voucher de Pago</label>
+                        <div class="file-preview" id="voucherPreview">
+                            <i class="fas fa-receipt fa-3x" style="color: #6f42c1;"></i>
+                            <div class="file-info" id="voucherInfo">No se ha cargado archivo</div>
+                            <div class="file-actions">
+                                <button type="button" class="btn sm primary view-file" data-field="voucher_pago">
+                                    <i class="fas fa-eye"></i> Ver
+                                </button>
+                                <div class="file-input-wrapper">
+                                    <button type="button" class="btn sm warning">
+                                        <i class="fas fa-upload"></i> Cambiar
+                                    </button>
+                                    <input type="file" class="form-control file-input" id="voucher_pago" name="voucher_pago" accept=".pdf,.jpg,.jpeg,.png">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información de Pago y Estado -->
+                    <div class="form-group form-full-width">
+                        <h4 style="margin-bottom: 1rem; color: var(--primary);">Información de Pago y Estado</h4>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="formaPago">Forma de Pago *</label>
@@ -597,6 +807,17 @@
                         <select class="form-control" id="solicitudes_estadosId" required>
                             <option value="">Seleccione estado</option>
                         </select>
+                    </div>
+
+                    <!-- Campos condicionales para estado PAGADO -->
+                    <div class="form-group conditional-field" id="vigenciaField">
+                        <label class="form-label" for="vigencia">Vigencia</label>
+                        <input type="date" class="form-control" id="vigencia">
+                    </div>
+
+                    <div class="form-group conditional-field" id="idCredencialField">
+                        <label class="form-label" for="id_credencial">ID Credencial</label>
+                        <input type="text" class="form-control" id="id_credencial" maxlength="10" placeholder="Ingrese ID de credencial">
                     </div>
                 </div>
             </form>
@@ -612,7 +833,7 @@
 
 <!-- Modal de detalles de solicitud -->
 <div class="modal-overlay" id="detailModal">
-    <div class="modal" style="max-width: 700px;">
+    <div class="modal" style="max-width: 800px;">
         <div class="modal-header">
             <h3 class="modal-title">Detalles de Solicitud</h3>
             <button class="modal-close" data-modal="detailModal">
@@ -635,7 +856,7 @@
     <div class="modal">
         <div class="modal-header">
             <h3 class="modal-title" style="color: var(--warning);">
-                <i class="fas fa-exclamation-triangle"></i> Confirmar Acción
+                <i class="fas fa-exclamation-triangle"></i> Confirmar Baja
             </h3>
             <button class="modal-close" data-modal="confirmModal">
                 <i class="fas fa-times"></i>
@@ -646,17 +867,44 @@
                 <i class="fas fa-exclamation-circle alert-icon"></i>
                 <div class="alert-content">
                     <h4 class="alert-title">¡Atención!</h4>
-                    <p class="alert-message" id="confirmMessage">¿Estás seguro de que quieres realizar esta acción?</p>
+                    <p class="alert-message" id="confirmMessage">¿Estás seguro de que quieres dar de baja esta solicitud?</p>
                 </div>
             </div>
             <p>Solicitud: <strong id="solicitudToAction"></strong></p>
-            <p>Acción: <strong id="accionType"></strong></p>
+            
+            <div class="form-group">
+                <label class="form-label" for="motivo_baja">Motivo de la baja *</label>
+                <textarea class="form-control" id="motivo_baja" rows="4" placeholder="Ingrese el motivo por el cual se da de baja esta solicitud..." required></textarea>
+            </div>
         </div>
         <div class="modal-footer">
             <button class="btn light" data-modal="confirmModal">Cancelar</button>
             <button class="btn warning" id="confirmAction">
-                <i class="fas fa-check"></i> Confirmar
+                <i class="fas fa-check"></i> Confirmar Baja
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para visualizar archivos -->
+<div class="modal-overlay" id="fileModal">
+    <div class="modal" style="max-width: 90%; max-height: 90%;">
+        <div class="modal-header">
+            <h3 class="modal-title" id="fileModalTitle">Visualizar Archivo</h3>
+            <button class="modal-close" data-modal="fileModal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body" style="text-align: center; padding: 0;">
+            <div id="fileModalContent" style="max-height: 70vh; overflow: auto;">
+                <!-- Contenido del archivo se carga dinámicamente -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn light" data-modal="fileModal">Cerrar</button>
+            <a href="#" class="btn primary" id="downloadFile" download>
+                <i class="fas fa-download"></i> Descargar
+            </a>
         </div>
     </div>
 </div>
@@ -678,9 +926,9 @@
         const loadingSolicitudes = document.getElementById('loadingSolicitudes');
         const searchInput = document.getElementById('searchSolicitudes');
         const solicitudForm = document.getElementById('solicitudForm');
-        const solicitudModal = document.getElementById('solicitudModal');
-        const detailModal = document.getElementById('detailModal');
-        const confirmModal = document.getElementById('confirmModal');
+        const estadoSelect = document.getElementById('solicitudes_estadosId');
+        const vigenciaField = document.getElementById('vigenciaField');
+        const idCredencialField = document.getElementById('idCredencialField');
 
         // ===== INICIALIZACIÓN =====
         initializeSolicitudes();
@@ -688,30 +936,226 @@
         function initializeSolicitudes() {
             loadFormData();
             loadSolicitudes();
+              setupPagination();
             setupEventListeners();
+          
         }
 
-        // ===== CARGAR DATOS DEL FORMULARIO =====
-        function loadFormData() {
+        // ===== PAGINACIÓN =====
+        let currentPage = 1;
+        let perPage = 10;
+        let totalPages = 1;
+        let filteredSolicitudes = [];
+
+        // ===== PAGINACIÓN =====
+function setupPagination() {
+    const paginationContainer = document.createElement('div');
+    paginationContainer.className = 'pagination-container';
+    paginationContainer.innerHTML = `
+        <div class="pagination-controls">
+            <div class="pagination-info">
+                Mostrando <span id="paginationFrom">0</span>-<span id="paginationTo">0</span> de <span id="paginationTotal">0</span> registros
+            </div>
+            <div class="pagination-buttons">
+                <button class="btn sm light" id="firstPage" disabled>
+                    <i class="fas fa-angle-double-left"></i>
+                </button>
+                <button class="btn sm light" id="prevPage" disabled>
+                    <i class="fas fa-angle-left"></i>
+                </button>
+                <span class="pagination-numbers" id="paginationNumbers"></span>
+                <button class="btn sm light" id="nextPage" disabled>
+                    <i class="fas fa-angle-right"></i>
+                </button>
+                <button class="btn sm light" id="lastPage" disabled>
+                    <i class="fas fa-angle-double-right"></i>
+                </button>
+            </div>
+            <div class="pagination-size">
+                <select class="form-control sm" id="perPageSelect">
+                    <option value="5">5 por página</option>
+                    <option value="10" selected>10 por página</option>
+                    <option value="25">25 por página</option>
+                    <option value="50">50 por página</option>
+                    <option value="100">100 por página</option>
+                </select>
+            </div>
+        </div>
+    `;
+    
+    // Insertar después de la tabla
+    const tableContainer = document.querySelector('.table-responsive');
+    if (tableContainer && tableContainer.parentNode) {
+        tableContainer.parentNode.insertBefore(paginationContainer, tableContainer.nextSibling);
+    }
+    
+    // Event listeners para paginación
+    document.getElementById('firstPage').addEventListener('click', function() {
+        goToPage(1);
+    });
+    
+    document.getElementById('prevPage').addEventListener('click', function() {
+        goToPage(currentPage - 1);
+    });
+    
+    document.getElementById('nextPage').addEventListener('click', function() {
+        goToPage(currentPage + 1);
+    });
+    
+    document.getElementById('lastPage').addEventListener('click', function() {
+        goToPage(totalPages);
+    });
+    
+    document.getElementById('perPageSelect').addEventListener('change', function(e) {
+        perPage = parseInt(e.target.value);
+        currentPage = 1;
+        renderPagination();
+    });
+}
+
+function goToPage(page) {
+    if (page < 1 || page > totalPages) {
+        return;
+    }
+    
+    currentPage = page;
+    renderPagination();
+}
+
+function renderPagination() {
+    const startIndex = (currentPage - 1) * perPage;
+    const endIndex = Math.min(startIndex + perPage, filteredSolicitudes.length);
+    const pageData = filteredSolicitudes.slice(startIndex, endIndex);
+    
+    // Renderizar datos de la página actual
+    renderSolicitudes(pageData);
+    
+    // Actualizar información de paginación
+    const paginationFrom = document.getElementById('paginationFrom');
+    const paginationTo = document.getElementById('paginationTo');
+    const paginationTotal = document.getElementById('paginationTotal');
+    
+    if (paginationFrom) paginationFrom.textContent = startIndex + 1;
+    if (paginationTo) paginationTo.textContent = endIndex;
+    if (paginationTotal) paginationTotal.textContent = filteredSolicitudes.length;
+    
+    // Calcular total de páginas
+    totalPages = Math.ceil(filteredSolicitudes.length / perPage);
+    
+    // Actualizar botones
+    const firstPageBtn = document.getElementById('firstPage');
+    const prevPageBtn = document.getElementById('prevPage');
+    const nextPageBtn = document.getElementById('nextPage');
+    const lastPageBtn = document.getElementById('lastPage');
+    
+    if (firstPageBtn) firstPageBtn.disabled = (currentPage === 1);
+    if (prevPageBtn) prevPageBtn.disabled = (currentPage === 1);
+    if (nextPageBtn) nextPageBtn.disabled = (currentPage === totalPages);
+    if (lastPageBtn) lastPageBtn.disabled = (currentPage === totalPages);
+    
+    // Actualizar números de página
+    const paginationNumbers = document.getElementById('paginationNumbers');
+    if (paginationNumbers) {
+        paginationNumbers.innerHTML = '';
+        
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+        
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+        
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.className = `btn sm ${i === currentPage ? 'primary' : 'light'}`;
+            pageBtn.textContent = i;
+            pageBtn.addEventListener('click', function() {
+                goToPage(i);
+            });
+            paginationNumbers.appendChild(pageBtn);
+        }
+    }
+    
+    // Actualizar select de items por página
+    const perPageSelect = document.getElementById('perPageSelect');
+    if (perPageSelect) {
+        perPageSelect.value = perPage;
+    }
+}     
+
+        // Modificar la función de búsqueda para usar paginación
+        function setupSearch() {
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                filteredSolicitudes = solicitudes.filter(solicitud => 
+                    solicitud.folio.toLowerCase().includes(searchTerm) ||
+                    solicitud.nombres.toLowerCase().includes(searchTerm) ||
+                    solicitud.apellidos.toLowerCase().includes(searchTerm) ||
+                    solicitud.correo.toLowerCase().includes(searchTerm) ||
+                    solicitud.escuela_procedencia.toLowerCase().includes(searchTerm) ||
+                    (solicitud.id_credencial && solicitud.id_credencial.toLowerCase().includes(searchTerm))
+                );
+                currentPage = 1;
+                renderPagination();
+            });
+        }
+
+        function refreshData() {
+            loadSolicitudes();
+        }
+
+        // Modificar loadSolicitudes para inicializar la paginación
+        function loadSolicitudes() {
+            showLoading();
+            
             $.ajax({
-                url: '/api/solicitudes/form-data',
+                url: '/api/solicitudes',
                 method: 'GET',
                 success: function(response) {
                     if (response.success) {
-                        formData = response.data;
-                        renderFormSelects();
+                        solicitudes = response.data;
+                        filteredSolicitudes = [...solicitudes]; // Copia para filtrado
+                        currentPage = 1;
+                        renderPagination();
                     } else {
-                        showAlert('error', 'Error al cargar los datos del formulario: ' + response.message);
+                        showAlert('error', 'Error al cargar las solicitudes: ' + response.message);
                     }
                 },
                 error: function(xhr) {
-                    let errorMessage = 'Error al cargar datos del formulario';
+                    let errorMessage = 'Error al cargar las solicitudes';
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         errorMessage += ': ' + xhr.responseJSON.message;
                     }
                     showAlert('error', errorMessage);
+                },
+                complete: function() {
+                    hideLoading();
                 }
             });
+        }
+
+        // ===== CARGAR DATOS DEL FORMULARIO =====
+        function loadFormData() {
+                    $.ajax({
+                        url: '/api/solicitudes/form-data',
+                        method: 'GET',
+                        success: function(response) {
+                            if (response.success) {
+                                formData = response.data;
+                                renderFormSelects();
+                            } else {
+                                showAlert('error', 'Error al cargar los datos del formulario: ' + response.message);
+                            }
+                        },
+                        error: function(xhr) {
+                            let errorMessage = 'Error al cargar datos del formulario';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage += ': ' + xhr.responseJSON.message;
+                            }
+                            showAlert('error', errorMessage);
+                        }
+                    });
         }
 
         function renderFormSelects() {
@@ -752,13 +1196,16 @@
             });
 
             // Estados
-            const estadoSelect = document.getElementById('solicitudes_estadosId');
             formData.estados.forEach(estado => {
                 const option = document.createElement('option');
                 option.value = estado.id;
                 option.textContent = estado.nombre;
                 estadoSelect.appendChild(option);
             });
+        }
+
+        function refreshData() {
+            loadSolicitudes();
         }
 
         // ===== CARGAR SOLICITUDES =====
@@ -791,70 +1238,92 @@
 
         // ===== RENDERIZAR SOLICITUDES =====
         function renderSolicitudes(solicitudesList) {
-            if (solicitudesList.length === 0) {
-                solicitudesTableBody.innerHTML = '';
-                emptyState.style.display = 'block';
-                return;
-            }
-
-            emptyState.style.display = 'none';
-            
-            const html = solicitudesList.map(solicitud => `
-                <tr>
-                    <td>
-                        <span class="folio-badge">${solicitud.folio}</span>
-                    </td>
-                    <td>
-                        <div>
-                            <strong>${solicitud.nombres} ${solicitud.apellidos}</strong><br>
-                            <small class="text-muted">${solicitud.correo}</small>
-                        </div>
-                    </td>
-                    <td>${solicitud.escuela_procedencia}</td>
-                    <td>${solicitud.terminal?.nombre || 'N/A'}</td>
-                    <td>
-                        <span class="badge ${getEstadoBadgeClass(solicitud.estado?.nombre)}">
-                            ${solicitud.estado?.nombre || 'Pendiente'}
-                        </span>
-                    </td>
-                    <td>${formatDate(solicitud.created_at)}</td>
-                    <td>
-                        <button class="btn-icon primary view-solicitud" data-id="${solicitud.id}">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn-icon edit-solicitud" 
-                                data-id="${solicitud.id}"
-                                data-folio="${solicitud.folio}"
-                                data-nombres="${solicitud.nombres}"
-                                data-apellidos="${solicitud.apellidos}"
-                                data-perfil_academico="${solicitud.perfil_academico}"
-                                data-escuela_procedencia="${solicitud.escuela_procedencia}"
-                                data-lugar_residencia="${solicitud.lugar_residencia}"
-                                data-lugar_origen="${solicitud.lugar_origen}"
-                                data-lugar_viaja_frecuente="${solicitud.lugar_viaja_frecuente}"
-                                data-terminalesid="${solicitud.terminalesId}"
-                                data-veces_semana="${solicitud.veces_semana}"
-                                data-dia_semana_viaja="${solicitud.dia_semana_viaja}"
-                                data-curp="${solicitud.curp}"
-                                data-credencial="${solicitud.credencial}"
-                                data-fotografia="${solicitud.fotografia}"
-                                data-correo="${solicitud.correo}"
-                                data-telefono="${solicitud.telefono}"
-                                data-formapago="${solicitud.formaPago}"
-                                data-solicitudes_estadosid="${solicitud.solicitudes_estadosId}">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn-icon danger delete-solicitud" 
-                                data-id="${solicitud.id}" 
-                                data-folio="${solicitud.folio}">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-
-            solicitudesTableBody.innerHTML = html;
+    if (solicitudesList.length === 0) {
+        solicitudesTableBody.innerHTML = '';
+        emptyState.style.display = 'block';
+        
+        // Verificación tradicional en lugar de encadenamiento opcional
+        const paginationContainer = document.querySelector('.pagination-container');
+        if (paginationContainer) {
+            paginationContainer.style.display = 'none';
         }
+        
+        return;
+    }
+
+    emptyState.style.display = 'none';
+    
+    // Mostrar paginación si existe
+    const paginationContainer = document.querySelector('.pagination-container');
+    if (paginationContainer) {
+        paginationContainer.style.display = 'block';
+    }
+    
+    const html = solicitudesList.map(solicitud => `
+        <tr>
+            <td>
+                <span class="folio-badge">${solicitud.folio}</span>
+            </td>
+            <td>
+                <div>
+                    <strong>${solicitud.nombres} ${solicitud.apellidos}</strong><br>
+                    <small class="text-muted">${solicitud.correo}</small>
+                </div>
+            </td>
+            <td>${solicitud.escuela_procedencia}</td>
+            <td>${(solicitud.terminal && solicitud.terminal.nombre) || 'N/A'}</td>
+            <td>
+                <span class="badge ${getEstadoBadgeClass(solicitud.estado ? solicitud.estado.nombre : '')}">
+                    ${(solicitud.estado && solicitud.estado.nombre) || 'Pendiente'}
+                </span>
+            </td>
+            <td>
+                ${solicitud.id_credencial ? 
+                    `<span class="badge success">${solicitud.id_credencial}</span>` : 
+                    '<span class="badge warning">Sin asignar</span>'
+                }
+            </td>
+            <td>${formatDate(solicitud.created_at)}</td>
+            <td>
+                <button class="btn-icon primary view-solicitud" data-id="${solicitud.id}">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn-icon edit-solicitud" 
+                        data-id="${solicitud.id}"
+                        data-folio="${solicitud.folio}"
+                        data-nombres="${solicitud.nombres}"
+                        data-apellidos="${solicitud.apellidos}"
+                        data-perfil_academico="${solicitud.perfil_academico}"
+                        data-escuela_procedencia="${solicitud.escuela_procedencia}"
+                        data-lugar_residencia="${solicitud.lugar_residencia}"
+                        data-lugar_origen="${solicitud.lugar_origen}"
+                        data-lugar_viaja_frecuente="${solicitud.lugar_viaja_frecuente}"
+                        data-terminalesid="${solicitud.terminalesId}"
+                        data-veces_semana="${solicitud.veces_semana}"
+                        data-dia_semana_viaja="${solicitud.dia_semana_viaja}"
+                        data-curp="${solicitud.curp}"
+                        data-credencial="${solicitud.credencial}"
+                        data-fotografia="${solicitud.fotografia}"
+                        data-voucher_pago="${solicitud.voucher_pago || ''}"
+                        data-correo="${solicitud.correo}"
+                        data-telefono="${solicitud.telefono}"
+                        data-formapago="${solicitud.formaPago}"
+                        data-solicitudes_estadosid="${solicitud.solicitudes_estadosId}"
+                        data-vigencia="${solicitud.vigencia ? solicitud.vigencia.split('T')[0] : ''}"
+                        data-id_credencial="${solicitud.id_credencial || ''}">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-icon danger delete-solicitud" 
+                        data-id="${solicitud.id}" 
+                        data-folio="${solicitud.folio}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `).join('');
+
+    solicitudesTableBody.innerHTML = html;
+}
 
         function getEstadoBadgeClass(estadoNombre) {
             if (!estadoNombre) return 'warning';
@@ -862,7 +1331,7 @@
             const estado = estadoNombre.toLowerCase();
             if (estado.includes('pendiente') || estado.includes('espera')) {
                 return 'warning';
-            } else if (estado.includes('aprobado') || estado.includes('aprobada') || estado.includes('completado') || estado.includes('completada')) {
+            } else if (estado.includes('pagado') || estado.includes('aprobado') || estado.includes('aprobada') || estado.includes('completado') || estado.includes('completada')) {
                 return 'success';
             } else if (estado.includes('rechazado') || estado.includes('rechazada') || estado.includes('cancelado') || estado.includes('cancelada')) {
                 return 'danger';
@@ -873,27 +1342,201 @@
             }
         }
 
-        // ===== BÚSQUEDA =====
-        function setupSearch() {
-            searchInput.addEventListener('input', function(e) {
-                const searchTerm = e.target.value.toLowerCase();
-                const filteredSolicitudes = solicitudes.filter(solicitud => 
-                    solicitud.folio.toLowerCase().includes(searchTerm) ||
-                    solicitud.nombres.toLowerCase().includes(searchTerm) ||
-                    solicitud.apellidos.toLowerCase().includes(searchTerm) ||
-                    solicitud.correo.toLowerCase().includes(searchTerm) ||
-                    solicitud.escuela_procedencia.toLowerCase().includes(searchTerm)
-                );
-                renderSolicitudes(filteredSolicitudes);
-            });
+        // ===== MANEJO DE CAMPOS CONDICIONALES =====
+        function toggleConditionalFields(estadoId) {
+            // Buscar si el estado seleccionado es "PAGADO"
+            const estadoPagado = formData.estados.find(e => e.nombre.toLowerCase().includes('pagado'));
+            
+            if (estadoPagado && estadoId == estadoPagado.id) {
+                vigenciaField.classList.add('show');
+                idCredencialField.classList.add('show');
+            } else {
+                vigenciaField.classList.remove('show');
+                idCredencialField.classList.remove('show');
+            }
+        }
+
+        // ===== MANEJO DE ARCHIVOS =====
+        function setupFileInputs() {
+    // Configurar inputs de archivo
+    document.querySelectorAll('.file-input').forEach(input => {
+        input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                updateFilePreview(this.id, file);
+                
+                // Mostrar botón de ver archivo
+                const preview = document.getElementById(this.id + 'Preview');
+                preview.querySelector('.view-file').style.display = 'inline-block';
+            }
+        });
+    });
+
+    // Configurar botones para ver archivos
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.view-file')) {
+            const button = e.target.closest('.view-file');
+            const field = button.getAttribute('data-field');
+            const solicitudId = document.getElementById('solicitudId').value;
+            
+            if (solicitudId) {
+                viewFile(solicitudId, field);
+            }
+        }
+    });
+}
+
+function updateFilePreview(fieldId, file) {
+    const preview = document.getElementById(fieldId + 'Preview');
+    const info = document.getElementById(fieldId + 'Info');
+    
+    if (file) {
+        info.textContent = `${file.name} (${formatFileSize(file.size)})`;
+        
+        // Mostrar preview de imagen si es una imagen
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Buscar si ya existe una imagen preview
+                let img = preview.querySelector('img');
+                if (!img) {
+                    img = document.createElement('img');
+                    preview.insertBefore(img, preview.firstChild);
+                }
+                img.src = e.target.result;
+                img.style.maxWidth = '100%';
+                img.style.maxHeight = '200px';
+                img.style.borderRadius = '6px';
+                img.style.marginBottom = '0.5rem';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            // Remover imagen preview si existe
+            const img = preview.querySelector('img');
+            if (img) {
+                img.remove();
+            }
+        }
+    }
+}
+
+        function viewFile(solicitudId, field) {
+    $.ajax({
+        url: `/api/solicitudes/${solicitudId}/file/${field}`,
+        method: 'GET',
+        xhrFields: {
+            responseType: 'blob'
+        },
+        success: function(blob, status, xhr) {
+            // Verificar si el blob está vacío o es inválido
+            if (blob.size === 0) {
+                showAlert('error', 'El archivo está vacío o no se pudo cargar');
+                return;
+            }
+            
+            const url = URL.createObjectURL(blob);
+            const fileModal = document.getElementById('fileModal');
+            const fileModalContent = document.getElementById('fileModalContent');
+            const fileModalTitle = document.getElementById('fileModalTitle');
+            const downloadLink = document.getElementById('downloadFile');
+            
+            // Obtener el nombre real del archivo del header Content-Disposition si está disponible
+            let fileName = `${field}_${solicitudId}`;
+            const disposition = xhr.getResponseHeader('Content-Disposition');
+            if (disposition && disposition.includes('filename=')) {
+                const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+                if (matches != null && matches[1]) {
+                    fileName = matches[1].replace(/['"]/g, '');
+                }
+            }
+            
+            fileModalTitle.textContent = `Visualizar ${getFieldName(field)}`;
+            downloadLink.href = url;
+            downloadLink.download = fileName;
+            
+            if (blob.type.includes('pdf')) {
+                fileModalContent.innerHTML = `
+                    <embed src="${url}" type="application/pdf" width="100%" height="600px">
+                `;
+            } else if (blob.type.includes('image')) {
+                fileModalContent.innerHTML = `
+                    <img src="${url}" style="max-width: 100%; max-height: 70vh;" alt="${field}">
+                `;
+            } else {
+                fileModalContent.innerHTML = `
+                    <div class="alert info">
+                        <i class="fas fa-info-circle"></i>
+                        <p>No se puede previsualizar este tipo de archivo. Por favor descárguelo para verlo.</p>
+                    </div>
+                `;
+            }
+            
+            openModal('fileModal');
+        },
+        error: function(xhr) {
+            let errorMessage = 'Error al cargar el archivo';
+            if (xhr.status === 404) {
+                errorMessage = 'Archivo no encontrado';
+            } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage += ': ' + xhr.responseJSON.message;
+            }
+            showAlert('error', errorMessage);
+        }
+    });
+}
+
+        function getFieldName(field) {
+            const names = {
+                'curp': 'CURP',
+                'credencial': 'Credencial',
+                'fotografia': 'Fotografía',
+                'voucher_pago': 'Voucher de Pago'
+            };
+            return names[field] || field;
+        }
+
+        function getAcceptTypes(field) {
+            const types = {
+                'curp': '.pdf,.jpg,.jpeg,.png',
+                'credencial': '.pdf,.jpg,.jpeg,.png',
+                'fotografia': '.jpg,.jpeg,.png',
+                'voucher_pago': '.pdf,.jpg,.jpeg,.png'
+            };
+            return types[field] || '*';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
         // ===== CRUD OPERATIONS =====
         function createSolicitud(solicitudData) {
+            const formData = new FormData();
+            
+            // Agregar campos del formulario
+            Object.keys(solicitudData).forEach(key => {
+                if (key !== 'files') {
+                    formData.append(key, solicitudData[key]);
+                }
+            });
+            
+            // Agregar archivos
+            document.querySelectorAll('.file-input').forEach(input => {
+                if (input.files[0]) {
+                    formData.append(input.id, input.files[0]);
+                }
+            });
+
             $.ajax({
                 url: '/api/solicitudes',
                 method: 'POST',
-                data: solicitudData,
+                data: formData,
+                processData: false,
+                contentType: false,
                 success: function(response) {
                     if (response.success) {
                         showAlert('success', 'Solicitud creada correctamente');
@@ -917,10 +1560,31 @@
         }
 
         function updateSolicitud(id, solicitudData) {
+            const formData = new FormData();
+            
+            // Agregar campos del formulario
+            Object.keys(solicitudData).forEach(key => {
+                if (key !== 'files') {
+                    formData.append(key, solicitudData[key]);
+                }
+            });
+            
+            // Agregar archivos (solo si se cambiaron)
+            document.querySelectorAll('.file-input').forEach(input => {
+                if (input.files[0]) {
+                    formData.append(input.id, input.files[0]);
+                }
+            });
+
+            // Agregar método PUT para Laravel
+            formData.append('_method', 'PUT');
+
             $.ajax({
                 url: `/api/solicitudes/${id}`,
-                method: 'PUT',
-                data: solicitudData,
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
                 success: function(response) {
                     if (response.success) {
                         showAlert('success', 'Solicitud actualizada correctamente');
@@ -943,10 +1607,13 @@
             });
         }
 
-        function deleteSolicitud(id) {
+        function deleteSolicitud(id, motivo) {
             $.ajax({
                 url: `/api/solicitudes/${id}`,
                 method: 'DELETE',
+                data: {
+                    motivo_baja: motivo
+                },
                 success: function(response) {
                     if (response.success) {
                         showAlert('success', 'Solicitud dada de baja correctamente');
@@ -994,35 +1661,97 @@
             document.getElementById('folio').value = 'Se generará automáticamente';
             document.getElementById('solicitudForm').reset();
             clearFormFeedback();
+            resetFilePreviews();
+            toggleConditionalFields('');
             openModal('solicitudModal');
         }
 
-        function openEditModal(solicitud) {
+       function openEditModal(solicitud) {
             document.getElementById('modalTitle').textContent = 'Editar Solicitud';
             document.getElementById('solicitudId').value = solicitud.id;
             document.getElementById('folio').value = solicitud.folio;
             
-            // Llenar formulario con datos
+            // Llenar formulario con datos, excluyendo inputs de archivo
             Object.keys(solicitud).forEach(key => {
                 const element = document.getElementById(key);
-                if (element) {
+                if (element && element.type !== 'file') { // Excluir inputs de archivo
                     if (element.type === 'checkbox') {
                         element.checked = solicitud[key];
                     } else {
-                        element.value = solicitud[key];
+                        element.value = solicitud[key] || '';
                     }
                 }
             });
+            
+            // Actualizar previews de archivos
+            updateFilePreviews(solicitud);
+            
+            // Mostrar/ocultar campos condicionales
+            toggleConditionalFields(solicitud.solicitudes_estadosId);
             
             clearFormFeedback();
             openModal('solicitudModal');
         }
 
+
+        function updateFilePreviews(solicitud) {
+            // CURP
+            if (solicitud.curp) {
+                const fileName = solicitud.curp.split('/').pop(); // Obtener solo el nombre del archivo
+                document.getElementById('curpInfo').textContent = fileName;
+                document.getElementById('curpPreview').querySelector('.view-file').style.display = 'inline-block';
+            } else {
+                document.getElementById('curpInfo').textContent = 'No se ha cargado archivo';
+                document.getElementById('curpPreview').querySelector('.view-file').style.display = 'none';
+            }
+            
+            // Credencial
+            if (solicitud.credencial) {
+                const fileName = solicitud.credencial.split('/').pop();
+                document.getElementById('credencialInfo').textContent = fileName;
+                document.getElementById('credencialPreview').querySelector('.view-file').style.display = 'inline-block';
+            } else {
+                document.getElementById('credencialInfo').textContent = 'No se ha cargado archivo';
+                document.getElementById('credencialPreview').querySelector('.view-file').style.display = 'none';
+            }
+            
+            // Fotografía
+            if (solicitud.fotografia) {
+                const fileName = solicitud.fotografia.split('/').pop();
+                document.getElementById('fotografiaInfo').textContent = fileName;
+                document.getElementById('fotografiaPreview').querySelector('.view-file').style.display = 'inline-block';
+            } else {
+                document.getElementById('fotografiaInfo').textContent = 'No se ha cargado archivo';
+                document.getElementById('fotografiaPreview').querySelector('.view-file').style.display = 'none';
+            }
+            
+            // Voucher
+            if (solicitud.voucher_pago) {
+                const fileName = solicitud.voucher_pago.split('/').pop();
+                document.getElementById('voucherInfo').textContent = fileName;
+                document.getElementById('voucherPreview').querySelector('.view-file').style.display = 'inline-block';
+            } else {
+                document.getElementById('voucherInfo').textContent = 'No se ha cargado archivo';
+                document.getElementById('voucherPreview').querySelector('.view-file').style.display = 'none';
+            }
+        }
+
+        function resetFilePreviews() {
+            document.querySelectorAll('.file-info').forEach(info => {
+                info.textContent = 'No se ha cargado archivo';
+            });
+            
+            // Ocultar botones de ver archivo
+            document.querySelectorAll('.view-file').forEach(btn => {
+                btn.style.display = 'none';
+            });
+        }
+
         function openDeleteModal(id, folio) {
             document.getElementById('solicitudToAction').textContent = folio;
-            document.getElementById('accionType').textContent = 'Dar de baja';
             document.getElementById('confirmMessage').textContent = 
                 `¿Estás seguro de que quieres dar de baja la solicitud ${folio}?`;
+            document.getElementById('motivo_baja').value = '';
             currentSolicitudId = id;
             currentAction = 'delete';
             openModal('confirmModal');
@@ -1032,63 +1761,159 @@
             const modalContent = document.getElementById('modalContent');
             
             modalContent.innerHTML = `
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">Folio</label>
-                        <div class="form-control" style="background: #f8f9fa;">${solicitud.folio}</div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Estado</label>
-                        <div>
-                            <span class="badge ${getEstadoBadgeClass(solicitud.estado?.nombre)}">
-                                ${solicitud.estado?.nombre || 'Pendiente'}
-                            </span>
+                <div class="detail-section">
+                    <h4 style="color: var(--primary); margin-bottom: 1rem;">Información General</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <div class="detail-label">Folio</div>
+                            <div class="detail-value">
+                                <span class="folio-badge">${solicitud.folio}</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Solicitante</label>
-                        <div class="form-control" style="background: #f8f9fa;">
-                            ${solicitud.nombres} ${solicitud.apellidos}
+                        <div class="form-group">
+                            <div class="detail-label">Estado</div>
+                            <div class="detail-value">
+                                <span class="badge ${getEstadoBadgeClass(solicitud.estado?.nombre)}">
+                                    ${solicitud.estado?.nombre || 'Pendiente'}
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Perfil Académico</label>
-                        <div class="form-control" style="background: #f8f9fa;">
-                            ${getPerfilAcademicoTexto(solicitud.perfil_academico)}
+                        <div class="form-group">
+                            <div class="detail-label">Fecha de Solicitud</div>
+                            <div class="detail-value">${formatDateTime(solicitud.created_at)}</div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Escuela de Procedencia</label>
-                        <div class="form-control" style="background: #f8f9fa;">${solicitud.escuela_procedencia}</div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Terminal</label>
-                        <div class="form-control" style="background: #f8f9fa;">
-                            ${solicitud.terminal?.nombre || 'No asignada'}
+                        ${solicitud.vigencia ? `
+                        <div class="form-group">
+                            <div class="detail-label">Vigencia</div>
+                            <div class="detail-value">${formatDate(solicitud.vigencia)}</div>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Correo</label>
-                        <div class="form-control" style="background: #f8f9fa;">${solicitud.correo}</div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Teléfono</label>
-                        <div class="form-control" style="background: #f8f9fa;">${solicitud.telefono}</div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Forma de Pago</label>
-                        <div class="form-control" style="background: #f8f9fa;">
-                            ${getFormaPagoTexto(solicitud.formaPago)}
+                        ` : ''}
+                        ${solicitud.id_credencial ? `
+                        <div class="form-group">
+                            <div class="detail-label">ID Credencial</div>
+                            <div class="detail-value">
+                                <span class="badge success">${solicitud.id_credencial}</span>
+                            </div>
                         </div>
+                        ` : ''}
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Fecha de Solicitud</label>
-                        <div class="form-control" style="background: #f8f9fa;">
-                            ${formatDateTime(solicitud.created_at)}
+                </div>
+
+                <div class="detail-section">
+                    <h4 style="color: var(--primary); margin-bottom: 1rem;">Información Personal</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <div class="detail-label">Solicitante</div>
+                            <div class="detail-value">${solicitud.nombres} ${solicitud.apellidos}</div>
+                        </div>
+                        <div class="form-group">
+                            <div class="detail-label">Perfil Académico</div>
+                            <div class="detail-value">${getPerfilAcademicoTexto(solicitud.perfil_academico)}</div>
+                        </div>
+                        <div class="form-group">
+                            <div class="detail-label">Correo</div>
+                            <div class="detail-value">${solicitud.correo}</div>
+                        </div>
+                        <div class="form-group">
+                            <div class="detail-label">Teléfono</div>
+                            <div class="detail-value">${solicitud.telefono}</div>
                         </div>
                     </div>
                 </div>
+
+                <div class="detail-section">
+                    <h4 style="color: var(--primary); margin-bottom: 1rem;">Información de Viaje</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <div class="detail-label">Escuela de Procedencia</div>
+                            <div class="detail-value">${solicitud.escuela_procedencia}</div>
+                        </div>
+                        <div class="form-group">
+                            <div class="detail-label">Terminal</div>
+                            <div class="detail-value">${solicitud.terminal?.nombre || 'No asignada'}</div>
+                        </div>
+                        <div class="form-group">
+                            <div class="detail-label">Lugar de Residencia</div>
+                            <div class="detail-value">${solicitud.lugar_residencia}</div>
+                        </div>
+                        <div class="form-group">
+                            <div class="detail-label">Lugar de Origen</div>
+                            <div class="detail-value">${solicitud.lugar_origen}</div>
+                        </div>
+                        <div class="form-group">
+                            <div class="detail-label">Lugar que Viaja Frecuente</div>
+                            <div class="detail-value">${solicitud.lugar_viaja_frecuente}</div>
+                        </div>
+                        <div class="form-group">
+                            <div class="detail-label">Veces por Semana</div>
+                            <div class="detail-value">${solicitud.veces_semana}</div>
+                        </div>
+                        <div class="form-group">
+                            <div class="detail-label">Día de la Semana</div>
+                            <div class="detail-value">${getDiaSemanaTexto(solicitud.dia_semana_viaja)}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h4 style="color: var(--primary); margin-bottom: 1rem;">Documentos Adjuntos</h4>
+                    <div class="document-grid">
+                        <div class="document-item">
+                            <i class="fas fa-file-pdf fa-2x" style="color: #dc3545;"></i>
+                            <div class="detail-label">CURP</div>
+                            <button class="btn sm primary view-detail-file" data-field="curp" data-id="${solicitud.id}">
+                                <i class="fas fa-eye"></i> Ver Documento
+                            </button>
+                        </div>
+                        <div class="document-item">
+                            <i class="fas fa-file-image fa-2x" style="color: #28a745;"></i>
+                            <div class="detail-label">Credencial</div>
+                            <button class="btn sm primary view-detail-file" data-field="credencial" data-id="${solicitud.id}">
+                                <i class="fas fa-eye"></i> Ver Documento
+                            </button>
+                        </div>
+                        <div class="document-item">
+                            <i class="fas fa-camera fa-2x" style="color: #007bff;"></i>
+                            <div class="detail-label">Fotografía</div>
+                            <button class="btn sm primary view-detail-file" data-field="fotografia" data-id="${solicitud.id}">
+                                <i class="fas fa-eye"></i> Ver Documento
+                            </button>
+                        </div>
+                        ${solicitud.voucher_pago ? `
+                        <div class="document-item">
+                            <i class="fas fa-receipt fa-2x" style="color: #6f42c1;"></i>
+                            <div class="detail-label">Voucher de Pago</div>
+                            <button class="btn sm primary view-detail-file" data-field="voucher_pago" data-id="${solicitud.id}">
+                                <i class="fas fa-eye"></i> Ver Documento
+                            </button>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+
+                ${solicitud.motivo_baja ? `
+                <div class="detail-section">
+                    <h4 style="color: var(--danger); margin-bottom: 1rem;">Información de Baja</h4>
+                    <div class="form-group">
+                        <div class="detail-label">Motivo de Baja</div>
+                        <div class="detail-value">${solicitud.motivo_baja}</div>
+                    </div>
+                    <div class="form-group">
+                        <div class="detail-label">Fecha de Baja</div>
+                        <div class="detail-value">${formatDateTime(solicitud.baja_at)}</div>
+                    </div>
+                </div>
+                ` : ''}
             `;
+
+            // Agregar event listeners para los botones de ver archivos en el detalle
+            modalContent.querySelectorAll('.view-detail-file').forEach(button => {
+                button.addEventListener('click', function() {
+                    const field = this.getAttribute('data-field');
+                    const id = this.getAttribute('data-id');
+                    viewFile(id, field);
+                });
+            });
 
             openModal('detailModal');
         }
@@ -1097,10 +1922,10 @@
             const id = document.getElementById('solicitudId').value;
             const formData = new FormData(document.getElementById('solicitudForm'));
             
-            // Convertir FormData a objeto
+            // Convertir FormData a objeto para validación
             const solicitudData = {};
             for (let [key, value] of formData.entries()) {
-                if (key !== 'solicitudId' && key !== 'folio') {
+                if (key !== 'solicitudId' && key !== 'folio' && !(value instanceof File)) {
                     solicitudData[key] = value;
                 }
             }
@@ -1125,20 +1950,35 @@
             document.getElementById('addFirstSolicitud').addEventListener('click', openCreateModal);
 
             // Botón refrescar
-            document.getElementById('refreshSolicitudes').addEventListener('click', loadSolicitudes);
+           // document.getElementById('refreshSolicitudes').addEventListener('click', loadSolicitudes);
+            document.getElementById('refreshSolicitudes').addEventListener('click', refreshData);
 
             // Guardar solicitud
             document.getElementById('saveSolicitud').addEventListener('click', handleFormSubmit);
 
             // Confirmar acción
             document.getElementById('confirmAction').addEventListener('click', function() {
-                if (currentAction === 'delete' && currentSolicitudId) {
-                    deleteSolicitud(currentSolicitudId);
+                const motivo = document.getElementById('motivo_baja').value;
+                if (!motivo.trim()) {
+                    showAlert('error', 'Debe ingresar el motivo de la baja');
+                    return;
                 }
+                
+                if (currentAction === 'delete' && currentSolicitudId) {
+                    deleteSolicitud(currentSolicitudId, motivo);
+                }
+            });
+
+            // Cambio de estado para mostrar/ocultar campos condicionales
+            estadoSelect.addEventListener('change', function() {
+                toggleConditionalFields(this.value);
             });
 
             // Búsqueda
             setupSearch();
+
+            // Configurar manejo de archivos
+            setupFileInputs();
 
             // Cerrar modales
             document.querySelectorAll('.modal-close, .modal-overlay, .btn[data-modal]').forEach(btn => {
@@ -1173,10 +2013,13 @@
                         curp: target.getAttribute('data-curp'),
                         credencial: target.getAttribute('data-credencial'),
                         fotografia: target.getAttribute('data-fotografia'),
+                        voucher_pago: target.getAttribute('data-voucher_pago'),
                         correo: target.getAttribute('data-correo'),
                         telefono: target.getAttribute('data-telefono'),
                         formaPago: target.getAttribute('data-formapago'),
-                        solicitudes_estadosId: target.getAttribute('data-solicitudes_estadosid')
+                        solicitudes_estadosId: target.getAttribute('data-solicitudes_estadosid'),
+                        vigencia: target.getAttribute('data-vigencia'),
+                        id_credencial: target.getAttribute('data-id_credencial')
                     };
                     openEditModal(solicitud);
                 } else if (target.classList.contains('delete-solicitud')) {
@@ -1236,6 +2079,11 @@
             return perfil ? perfil.nombre : 'Desconocido';
         }
 
+        function getDiaSemanaTexto(diaId) {
+            const dia = formData.dias_semana.find(d => d.id == diaId);
+            return dia ? dia.nombre : 'Desconocido';
+        }
+
         function getFormaPagoTexto(pagoId) {
             const pago = formData.formas_pago.find(p => p.id == pagoId);
             return pago ? pago.nombre : 'Desconocido';
@@ -1289,6 +2137,21 @@
             const inputs = document.querySelectorAll('#solicitudForm .form-control');
             inputs.forEach(input => {
                 input.style.borderColor = '';
+            });
+        }
+
+        function setupSearch() {
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const filteredSolicitudes = solicitudes.filter(solicitud => 
+                    solicitud.folio.toLowerCase().includes(searchTerm) ||
+                    solicitud.nombres.toLowerCase().includes(searchTerm) ||
+                    solicitud.apellidos.toLowerCase().includes(searchTerm) ||
+                    solicitud.correo.toLowerCase().includes(searchTerm) ||
+                    solicitud.escuela_procedencia.toLowerCase().includes(searchTerm) ||
+                    (solicitud.id_credencial && solicitud.id_credencial.toLowerCase().includes(searchTerm))
+                );
+                renderSolicitudes(filteredSolicitudes);
             });
         }
     });

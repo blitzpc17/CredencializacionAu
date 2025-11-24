@@ -436,7 +436,6 @@
                     <table class="table" id="perfilesTable">
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th>Nombre</th>
                                 <th>Fecha Creación</th>
                                 <th>Fecha Actualización</th>
@@ -594,7 +593,6 @@
             
             const html = perfilesList.map(perfil => `
                 <tr>
-                    <td>${perfil.id}</td>
                     <td>${perfil.nombre}</td>
                     <td>${formatDate(perfil.created_at)}</td>
                     <td>${formatDate(perfil.updated_at)}</td>

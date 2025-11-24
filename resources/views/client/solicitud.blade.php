@@ -980,10 +980,8 @@
                         <label for="formaPago">FORMA DE PAGO:</label>
                         <select id="formaPago" class="form-control form-select" required>
                             <option value="">Seleccione una opción</option>
-                            <option value="1">TRANSFERENCIA</option>
-                            <option value="2">PAGO EN TAQUILLA</option>
-                            <option value="3">TARJETA CRÉDITO/DÉBITO</option>
-                            <option value="4">EFECTIVO</option>
+                            <option value="1">PAGO EN TAQUILLA</option>
+                            <option value="2">TRANSFERENCIA</option>
                         </select>
                     </div>
                 </div>
@@ -1025,7 +1023,18 @@
                         <input type="file" id="fotoSolicitante" accept="image/*" required style="display: none;">
                     </div>
                     <div class="file-preview" id="fotoPreview"></div>
-                </div>                                    
+                </div>  
+                
+                  <div class="form-group">
+                    <label>EN CASO DE HABER RALIZADO SU PAGO, ADJUNTE SU VOUCHER DE PAGO</label>
+                    <div class="file-upload">
+                        <div class="file-upload-btn">
+                            <i class="fas fa-file-pdf"></i> Subir PDF o Imagen
+                        </div>
+                        <input type="file" id="voucher" accept=".pdf,.jpg,.jpeg,.png" >
+                    </div>
+                    <div class="file-preview" id="voucherPreview"></div>
+                </div>
                
             </div>
 
@@ -1418,6 +1427,7 @@
     setupFilePreview('fotoSolicitante', 'fotoPreview');
     setupFilePreview('licencia', 'licenciaPreview');
     setupFilePreview('tarjetaCirculacion', 'tarjetaPreview');
+    setupFilePreview('voucher', 'voucherPreview')
 
     // Manejar el envío del formulario
     document.getElementById('registroForm').addEventListener('submit', function(e) {
@@ -1456,6 +1466,7 @@
         
         // Agregar archivos
         formData.append('curp', document.getElementById('licencia').files[0]);
+        formData.append('voucher', document.getElementById('voucher'.files[0]));
         formData.append('credencial', document.getElementById('tarjetaCirculacion').files[0]);
         formData.append('fotografia', document.getElementById('fotoSolicitante').files[0]);
 
@@ -2045,6 +2056,9 @@
         detectionResults.innerHTML = `<p class="detection-error"><i class="fas fa-exclamation-triangle"></i> ${message}</p>`;
         uploadArea.style.display = 'block';
     }
+
+
+    
     
 </script>
 @endpush
