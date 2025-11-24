@@ -544,7 +544,7 @@
     }
 
     .conditional-field.show {
-        display: block;
+        display: flex;
     }
 </style>
 @endpush
@@ -649,25 +649,25 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="nombres">Nombres *</label>
-                        <input type="text" class="form-control" id="nombres" required>
+                        <input type="text" class="form-control" id="nombres" name="nombres" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="apellidos">Apellidos *</label>
-                        <input type="text" class="form-control" id="apellidos" required>
+                        <input type="text" class="form-control" id="apellidos" name="apellidos" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="perfil_academico">Perfil Académico *</label>
-                        <select class="form-control" id="perfil_academico" required>
+                        <select class="form-control" id="perfil_academico" name="perfil_academico" required>
                             <option value="">Seleccione perfil</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="correo">Correo *</label>
-                        <input type="email" class="form-control" id="correo" required>
+                        <input type="email" class="form-control" id="correo" name="correo" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="telefono">Teléfono *</label>
-                        <input type="text" class="form-control" id="telefono" required>
+                        <input type="text" class="form-control" id="telefono" name="telefono" required>
                     </div>
 
                     <!-- Información de Viaje -->
@@ -676,33 +676,33 @@
                     </div>
                     <div class="form-group form-full-width">
                         <label class="form-label" for="escuela_procedencia">Escuela de Procedencia *</label>
-                        <input type="text" class="form-control" id="escuela_procedencia" required>
+                        <input type="text" class="form-control" id="escuela_procedencia" name="escuela_procedencia" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="lugar_residencia">Lugar de Residencia *</label>
-                        <input type="text" class="form-control" id="lugar_residencia" required>
+                        <input type="text" class="form-control" id="lugar_residencia" name="lugar_residencia" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="lugar_origen">Lugar de Origen *</label>
-                        <input type="text" class="form-control" id="lugar_origen" required>
+                        <input type="text" class="form-control" id="lugar_origen" name="lugar_origen" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="lugar_viaja_frecuente">Lugar que Viaja Frecuente *</label>
-                        <input type="text" class="form-control" id="lugar_viaja_frecuente" required>
+                        <input type="text" class="form-control" id="lugar_viaja_frecuente" name="lugar_viaja_frecuente" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="terminalesId">Terminal *</label>
-                        <select class="form-control" id="terminalesId" required>
+                        <select class="form-control" id="terminalesId" name="terminalesId" required>
                             <option value="">Seleccione terminal</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="veces_semana">Veces por Semana *</label>
-                        <input type="text" class="form-control" id="veces_semana" required>
+                        <input type="text" class="form-control" id="veces_semana" name="veces_semana" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="dia_semana_viaja">Día de la Semana *</label>
-                        <select class="form-control" id="dia_semana_viaja" required>
+                        <select class="form-control" id="dia_semana_viaja" name="dia_semana_viaja" required>
                             <option value="">Seleccione día</option>
                         </select>
                     </div>
@@ -798,13 +798,13 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="formaPago">Forma de Pago *</label>
-                        <select class="form-control" id="formaPago" required>
+                        <select class="form-control" id="formaPago" name="formaPago" required>
                             <option value="">Seleccione forma de pago</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="solicitudes_estadosId">Estado *</label>
-                        <select class="form-control" id="solicitudes_estadosId" required>
+                        <select class="form-control" id="solicitudes_estadosId" name="solicitudes_estadosId" required>
                             <option value="">Seleccione estado</option>
                         </select>
                     </div>
@@ -812,12 +812,12 @@
                     <!-- Campos condicionales para estado PAGADO -->
                     <div class="form-group conditional-field" id="vigenciaField">
                         <label class="form-label" for="vigencia">Vigencia</label>
-                        <input type="date" class="form-control" id="vigencia">
+                        <input type="date" class="form-control" id="vigencia" name="vigencia">
                     </div>
 
                     <div class="form-group conditional-field" id="idCredencialField">
                         <label class="form-label" for="id_credencial">ID Credencial</label>
-                        <input type="text" class="form-control" id="id_credencial" maxlength="10" placeholder="Ingrese ID de credencial">
+                        <input type="text" class="form-control" id="id_credencial" name="id_credencial" maxlength="10" placeholder="Ingrese ID de credencial">
                     </div>
                 </div>
             </form>
@@ -934,11 +934,20 @@
         initializeSolicitudes();
 
         function initializeSolicitudes() {
-            loadFormData();
-            loadSolicitudes();
-              setupPagination();
-            setupEventListeners();
-          
+            // Cargar formData primero, luego las solicitudes
+            loadFormData().then(() => {
+                console.log("FormData cargado, estados disponibles:", formData.estados);
+                loadSolicitudes();
+                setupPagination();
+                setupEventListeners();
+            }).catch(error => {
+                console.error("Error cargando formData:", error);
+                // Continuar de todos modos pero mostrar alerta
+                showAlert('warning', 'Algunos datos del formulario no se pudieron cargar. Los campos condicionales podrían no funcionar correctamente.');
+                loadSolicitudes();
+                setupPagination();
+                setupEventListeners();
+            });
         }
 
         // ===== PAGINACIÓN =====
@@ -948,141 +957,141 @@
         let filteredSolicitudes = [];
 
         // ===== PAGINACIÓN =====
-function setupPagination() {
-    const paginationContainer = document.createElement('div');
-    paginationContainer.className = 'pagination-container';
-    paginationContainer.innerHTML = `
-        <div class="pagination-controls">
-            <div class="pagination-info">
-                Mostrando <span id="paginationFrom">0</span>-<span id="paginationTo">0</span> de <span id="paginationTotal">0</span> registros
-            </div>
-            <div class="pagination-buttons">
-                <button class="btn sm light" id="firstPage" disabled>
-                    <i class="fas fa-angle-double-left"></i>
-                </button>
-                <button class="btn sm light" id="prevPage" disabled>
-                    <i class="fas fa-angle-left"></i>
-                </button>
-                <span class="pagination-numbers" id="paginationNumbers"></span>
-                <button class="btn sm light" id="nextPage" disabled>
-                    <i class="fas fa-angle-right"></i>
-                </button>
-                <button class="btn sm light" id="lastPage" disabled>
-                    <i class="fas fa-angle-double-right"></i>
-                </button>
-            </div>
-            <div class="pagination-size">
-                <select class="form-control sm" id="perPageSelect">
-                    <option value="5">5 por página</option>
-                    <option value="10" selected>10 por página</option>
-                    <option value="25">25 por página</option>
-                    <option value="50">50 por página</option>
-                    <option value="100">100 por página</option>
-                </select>
-            </div>
-        </div>
-    `;
-    
-    // Insertar después de la tabla
-    const tableContainer = document.querySelector('.table-responsive');
-    if (tableContainer && tableContainer.parentNode) {
-        tableContainer.parentNode.insertBefore(paginationContainer, tableContainer.nextSibling);
-    }
-    
-    // Event listeners para paginación
-    document.getElementById('firstPage').addEventListener('click', function() {
-        goToPage(1);
-    });
-    
-    document.getElementById('prevPage').addEventListener('click', function() {
-        goToPage(currentPage - 1);
-    });
-    
-    document.getElementById('nextPage').addEventListener('click', function() {
-        goToPage(currentPage + 1);
-    });
-    
-    document.getElementById('lastPage').addEventListener('click', function() {
-        goToPage(totalPages);
-    });
-    
-    document.getElementById('perPageSelect').addEventListener('change', function(e) {
-        perPage = parseInt(e.target.value);
-        currentPage = 1;
-        renderPagination();
-    });
-}
-
-function goToPage(page) {
-    if (page < 1 || page > totalPages) {
-        return;
-    }
-    
-    currentPage = page;
-    renderPagination();
-}
-
-function renderPagination() {
-    const startIndex = (currentPage - 1) * perPage;
-    const endIndex = Math.min(startIndex + perPage, filteredSolicitudes.length);
-    const pageData = filteredSolicitudes.slice(startIndex, endIndex);
-    
-    // Renderizar datos de la página actual
-    renderSolicitudes(pageData);
-    
-    // Actualizar información de paginación
-    const paginationFrom = document.getElementById('paginationFrom');
-    const paginationTo = document.getElementById('paginationTo');
-    const paginationTotal = document.getElementById('paginationTotal');
-    
-    if (paginationFrom) paginationFrom.textContent = startIndex + 1;
-    if (paginationTo) paginationTo.textContent = endIndex;
-    if (paginationTotal) paginationTotal.textContent = filteredSolicitudes.length;
-    
-    // Calcular total de páginas
-    totalPages = Math.ceil(filteredSolicitudes.length / perPage);
-    
-    // Actualizar botones
-    const firstPageBtn = document.getElementById('firstPage');
-    const prevPageBtn = document.getElementById('prevPage');
-    const nextPageBtn = document.getElementById('nextPage');
-    const lastPageBtn = document.getElementById('lastPage');
-    
-    if (firstPageBtn) firstPageBtn.disabled = (currentPage === 1);
-    if (prevPageBtn) prevPageBtn.disabled = (currentPage === 1);
-    if (nextPageBtn) nextPageBtn.disabled = (currentPage === totalPages);
-    if (lastPageBtn) lastPageBtn.disabled = (currentPage === totalPages);
-    
-    // Actualizar números de página
-    const paginationNumbers = document.getElementById('paginationNumbers');
-    if (paginationNumbers) {
-        paginationNumbers.innerHTML = '';
-        
-        const maxVisiblePages = 5;
-        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-        
-        if (endPage - startPage + 1 < maxVisiblePages) {
-            startPage = Math.max(1, endPage - maxVisiblePages + 1);
-        }
-        
-        for (let i = startPage; i <= endPage; i++) {
-            const pageBtn = document.createElement('button');
-            pageBtn.className = `btn sm ${i === currentPage ? 'primary' : 'light'}`;
-            pageBtn.textContent = i;
-            pageBtn.addEventListener('click', function() {
-                goToPage(i);
+        function setupPagination() {
+            const paginationContainer = document.createElement('div');
+            paginationContainer.className = 'pagination-container';
+            paginationContainer.innerHTML = `
+                <div class="pagination-controls">
+                    <div class="pagination-info">
+                        Mostrando <span id="paginationFrom">0</span>-<span id="paginationTo">0</span> de <span id="paginationTotal">0</span> registros
+                    </div>
+                    <div class="pagination-buttons">
+                        <button class="btn sm light" id="firstPage" disabled>
+                            <i class="fas fa-angle-double-left"></i>
+                        </button>
+                        <button class="btn sm light" id="prevPage" disabled>
+                            <i class="fas fa-angle-left"></i>
+                        </button>
+                        <span class="pagination-numbers" id="paginationNumbers"></span>
+                        <button class="btn sm light" id="nextPage" disabled>
+                            <i class="fas fa-angle-right"></i>
+                        </button>
+                        <button class="btn sm light" id="lastPage" disabled>
+                            <i class="fas fa-angle-double-right"></i>
+                        </button>
+                    </div>
+                    <div class="pagination-size">
+                        <select class="form-control sm" id="perPageSelect">
+                            <option value="5">5 por página</option>
+                            <option value="10" selected>10 por página</option>
+                            <option value="25">25 por página</option>
+                            <option value="50">50 por página</option>
+                            <option value="100">100 por página</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            
+            // Insertar después de la tabla
+            const tableContainer = document.querySelector('.table-responsive');
+            if (tableContainer && tableContainer.parentNode) {
+                tableContainer.parentNode.insertBefore(paginationContainer, tableContainer.nextSibling);
+            }
+            
+            // Event listeners para paginación
+            document.getElementById('firstPage').addEventListener('click', function() {
+                goToPage(1);
             });
-            paginationNumbers.appendChild(pageBtn);
+            
+            document.getElementById('prevPage').addEventListener('click', function() {
+                goToPage(currentPage - 1);
+            });
+            
+            document.getElementById('nextPage').addEventListener('click', function() {
+                goToPage(currentPage + 1);
+            });
+            
+            document.getElementById('lastPage').addEventListener('click', function() {
+                goToPage(totalPages);
+            });
+            
+            document.getElementById('perPageSelect').addEventListener('change', function(e) {
+                perPage = parseInt(e.target.value);
+                currentPage = 1;
+                renderPagination();
+            });
         }
-    }
-    
-    // Actualizar select de items por página
-    const perPageSelect = document.getElementById('perPageSelect');
-    if (perPageSelect) {
-        perPageSelect.value = perPage;
-    }
-}     
+
+        function goToPage(page) {
+            if (page < 1 || page > totalPages) {
+                return;
+            }
+            
+            currentPage = page;
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const startIndex = (currentPage - 1) * perPage;
+            const endIndex = Math.min(startIndex + perPage, filteredSolicitudes.length);
+            const pageData = filteredSolicitudes.slice(startIndex, endIndex);
+            
+            // Renderizar datos de la página actual
+            renderSolicitudes(pageData);
+            
+            // Actualizar información de paginación
+            const paginationFrom = document.getElementById('paginationFrom');
+            const paginationTo = document.getElementById('paginationTo');
+            const paginationTotal = document.getElementById('paginationTotal');
+            
+            if (paginationFrom) paginationFrom.textContent = startIndex + 1;
+            if (paginationTo) paginationTo.textContent = endIndex;
+            if (paginationTotal) paginationTotal.textContent = filteredSolicitudes.length;
+            
+            // Calcular total de páginas
+            totalPages = Math.ceil(filteredSolicitudes.length / perPage);
+            
+            // Actualizar botones
+            const firstPageBtn = document.getElementById('firstPage');
+            const prevPageBtn = document.getElementById('prevPage');
+            const nextPageBtn = document.getElementById('nextPage');
+            const lastPageBtn = document.getElementById('lastPage');
+            
+            if (firstPageBtn) firstPageBtn.disabled = (currentPage === 1);
+            if (prevPageBtn) prevPageBtn.disabled = (currentPage === 1);
+            if (nextPageBtn) nextPageBtn.disabled = (currentPage === totalPages);
+            if (lastPageBtn) lastPageBtn.disabled = (currentPage === totalPages);
+            
+            // Actualizar números de página
+            const paginationNumbers = document.getElementById('paginationNumbers');
+            if (paginationNumbers) {
+                paginationNumbers.innerHTML = '';
+                
+                const maxVisiblePages = 5;
+                let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                
+                if (endPage - startPage + 1 < maxVisiblePages) {
+                    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                }
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    const pageBtn = document.createElement('button');
+                    pageBtn.className = `btn sm ${i === currentPage ? 'primary' : 'light'}`;
+                    pageBtn.textContent = i;
+                    pageBtn.addEventListener('click', function() {
+                        goToPage(i);
+                    });
+                    paginationNumbers.appendChild(pageBtn);
+                }
+            }
+            
+            // Actualizar select de items por página
+            const perPageSelect = document.getElementById('perPageSelect');
+            if (perPageSelect) {
+                perPageSelect.value = perPage;
+            }
+        }     
 
         // Modificar la función de búsqueda para usar paginación
         function setupSearch() {
@@ -1137,28 +1146,36 @@ function renderPagination() {
 
         // ===== CARGAR DATOS DEL FORMULARIO =====
         function loadFormData() {
-                    $.ajax({
-                        url: '/api/solicitudes/form-data',
-                        method: 'GET',
-                        success: function(response) {
-                            if (response.success) {
-                                formData = response.data;
-                                renderFormSelects();
-                            } else {
-                                showAlert('error', 'Error al cargar los datos del formulario: ' + response.message);
-                            }
-                        },
-                        error: function(xhr) {
-                            let errorMessage = 'Error al cargar datos del formulario';
-                            if (xhr.responseJSON && xhr.responseJSON.message) {
-                                errorMessage += ': ' + xhr.responseJSON.message;
-                            }
-                            showAlert('error', errorMessage);
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    url: '/api/solicitudes/form-data',
+                    method: 'GET',
+                    success: function(response) {
+                        if (response.success) {
+                            formData = response.data;
+                            renderFormSelects();
+                            console.log("FormData cargado exitosamente. Estados:", formData.estados);
+                            resolve(formData);
+                        } else {
+                            showAlert('error', 'Error al cargar los datos del formulario: ' + response.message);
+                            reject(response.message);
                         }
-                    });
+                    },
+                    error: function(xhr) {
+                        let errorMessage = 'Error al cargar datos del formulario';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage += ': ' + xhr.responseJSON.message;
+                        }
+                        showAlert('error', errorMessage);
+                        reject(errorMessage);
+                    }
+                });
+            });
         }
 
         function renderFormSelects() {
+            console.log("Iniciando renderFormSelects...");
+            
             // Perfiles académicos
             const perfilSelect = document.getElementById('perfil_academico');
             formData.perfiles_academicos.forEach(perfil => {
@@ -1196,12 +1213,15 @@ function renderPagination() {
             });
 
             // Estados
+            const estadoSelect = document.getElementById('solicitudes_estadosId');
             formData.estados.forEach(estado => {
                 const option = document.createElement('option');
                 option.value = estado.id;
                 option.textContent = estado.nombre;
                 estadoSelect.appendChild(option);
             });
+
+            console.log("FormSelects renderizados. Estados cargados:", formData.estados);
         }
 
         function refreshData() {
@@ -1238,92 +1258,92 @@ function renderPagination() {
 
         // ===== RENDERIZAR SOLICITUDES =====
         function renderSolicitudes(solicitudesList) {
-    if (solicitudesList.length === 0) {
-        solicitudesTableBody.innerHTML = '';
-        emptyState.style.display = 'block';
-        
-        // Verificación tradicional en lugar de encadenamiento opcional
-        const paginationContainer = document.querySelector('.pagination-container');
-        if (paginationContainer) {
-            paginationContainer.style.display = 'none';
-        }
-        
-        return;
-    }
-
-    emptyState.style.display = 'none';
-    
-    // Mostrar paginación si existe
-    const paginationContainer = document.querySelector('.pagination-container');
-    if (paginationContainer) {
-        paginationContainer.style.display = 'block';
-    }
-    
-    const html = solicitudesList.map(solicitud => `
-        <tr>
-            <td>
-                <span class="folio-badge">${solicitud.folio}</span>
-            </td>
-            <td>
-                <div>
-                    <strong>${solicitud.nombres} ${solicitud.apellidos}</strong><br>
-                    <small class="text-muted">${solicitud.correo}</small>
-                </div>
-            </td>
-            <td>${solicitud.escuela_procedencia}</td>
-            <td>${(solicitud.terminal && solicitud.terminal.nombre) || 'N/A'}</td>
-            <td>
-                <span class="badge ${getEstadoBadgeClass(solicitud.estado ? solicitud.estado.nombre : '')}">
-                    ${(solicitud.estado && solicitud.estado.nombre) || 'Pendiente'}
-                </span>
-            </td>
-            <td>
-                ${solicitud.id_credencial ? 
-                    `<span class="badge success">${solicitud.id_credencial}</span>` : 
-                    '<span class="badge warning">Sin asignar</span>'
+            if (solicitudesList.length === 0) {
+                solicitudesTableBody.innerHTML = '';
+                emptyState.style.display = 'block';
+                
+                // Verificación tradicional en lugar de encadenamiento opcional
+                const paginationContainer = document.querySelector('.pagination-container');
+                if (paginationContainer) {
+                    paginationContainer.style.display = 'none';
                 }
-            </td>
-            <td>${formatDate(solicitud.created_at)}</td>
-            <td>
-                <button class="btn-icon primary view-solicitud" data-id="${solicitud.id}">
-                    <i class="fas fa-eye"></i>
-                </button>
-                <button class="btn-icon edit-solicitud" 
-                        data-id="${solicitud.id}"
-                        data-folio="${solicitud.folio}"
-                        data-nombres="${solicitud.nombres}"
-                        data-apellidos="${solicitud.apellidos}"
-                        data-perfil_academico="${solicitud.perfil_academico}"
-                        data-escuela_procedencia="${solicitud.escuela_procedencia}"
-                        data-lugar_residencia="${solicitud.lugar_residencia}"
-                        data-lugar_origen="${solicitud.lugar_origen}"
-                        data-lugar_viaja_frecuente="${solicitud.lugar_viaja_frecuente}"
-                        data-terminalesid="${solicitud.terminalesId}"
-                        data-veces_semana="${solicitud.veces_semana}"
-                        data-dia_semana_viaja="${solicitud.dia_semana_viaja}"
-                        data-curp="${solicitud.curp}"
-                        data-credencial="${solicitud.credencial}"
-                        data-fotografia="${solicitud.fotografia}"
-                        data-voucher_pago="${solicitud.voucher_pago || ''}"
-                        data-correo="${solicitud.correo}"
-                        data-telefono="${solicitud.telefono}"
-                        data-formapago="${solicitud.formaPago}"
-                        data-solicitudes_estadosid="${solicitud.solicitudes_estadosId}"
-                        data-vigencia="${solicitud.vigencia ? solicitud.vigencia.split('T')[0] : ''}"
-                        data-id_credencial="${solicitud.id_credencial || ''}">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn-icon danger delete-solicitud" 
-                        data-id="${solicitud.id}" 
-                        data-folio="${solicitud.folio}">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        </tr>
-    `).join('');
+                
+                return;
+            }
 
-    solicitudesTableBody.innerHTML = html;
-}
+            emptyState.style.display = 'none';
+            
+            // Mostrar paginación si existe
+            const paginationContainer = document.querySelector('.pagination-container');
+            if (paginationContainer) {
+                paginationContainer.style.display = 'block';
+            }
+            
+            const html = solicitudesList.map(solicitud => `
+                <tr>
+                    <td>
+                        <span class="folio-badge">${solicitud.folio}</span>
+                    </td>
+                    <td>
+                        <div>
+                            <strong>${solicitud.nombres} ${solicitud.apellidos}</strong><br>
+                            <small class="text-muted">${solicitud.correo}</small>
+                        </div>
+                    </td>
+                    <td>${solicitud.escuela_procedencia}</td>
+                    <td>${(solicitud.terminal && solicitud.terminal.nombre) || 'N/A'}</td>
+                    <td>
+                        <span class="badge ${getEstadoBadgeClass(solicitud.estado ? solicitud.estado.nombre : '')}">
+                            ${(solicitud.estado && solicitud.estado.nombre) || 'Pendiente'}
+                        </span>
+                    </td>
+                    <td>
+                        ${solicitud.id_credencial ? 
+                            `<span class="badge success">${solicitud.id_credencial}</span>` : 
+                            '<span class="badge warning">Sin asignar</span>'
+                        }
+                    </td>
+                    <td>${formatDate(solicitud.created_at)}</td>
+                    <td>
+                        <button class="btn-icon primary view-solicitud" data-id="${solicitud.id}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn-icon edit-solicitud" 
+                                data-id="${solicitud.id}"
+                                data-folio="${solicitud.folio}"
+                                data-nombres="${solicitud.nombres}"
+                                data-apellidos="${solicitud.apellidos}"
+                                data-perfil_academico="${solicitud.perfil_academico}"
+                                data-escuela_procedencia="${solicitud.escuela_procedencia}"
+                                data-lugar_residencia="${solicitud.lugar_residencia}"
+                                data-lugar_origen="${solicitud.lugar_origen}"
+                                data-lugar_viaja_frecuente="${solicitud.lugar_viaja_frecuente}"
+                                data-terminalesid="${solicitud.terminalesId}"
+                                data-veces_semana="${solicitud.veces_semana}"
+                                data-dia_semana_viaja="${solicitud.dia_semana_viaja}"
+                                data-curp="${solicitud.curp}"
+                                data-credencial="${solicitud.credencial}"
+                                data-fotografia="${solicitud.fotografia}"
+                                data-voucher_pago="${solicitud.voucher_pago || ''}"
+                                data-correo="${solicitud.correo}"
+                                data-telefono="${solicitud.telefono}"
+                                data-formapago="${solicitud.formaPago}"
+                                data-solicitudes_estadosid="${solicitud.solicitudes_estadosId}"
+                                data-vigencia="${solicitud.vigencia ? solicitud.vigencia.split('T')[0] : ''}"
+                                data-id_credencial="${solicitud.id_credencial || ''}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon danger delete-solicitud" 
+                                data-id="${solicitud.id}" 
+                                data-folio="${solicitud.folio}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            solicitudesTableBody.innerHTML = html;
+        }
 
         function getEstadoBadgeClass(estadoNombre) {
             if (!estadoNombre) return 'warning';
@@ -1344,146 +1364,176 @@ function renderPagination() {
 
         // ===== MANEJO DE CAMPOS CONDICIONALES =====
         function toggleConditionalFields(estadoId) {
-            // Buscar si el estado seleccionado es "PAGADO"
-            const estadoPagado = formData.estados.find(e => e.nombre.toLowerCase().includes('pagado'));
+            console.log("Estado ID recibido:", estadoId);
+            console.log("FormData estados disponibles:", formData.estados);
             
-            if (estadoPagado && estadoId == estadoPagado.id) {
-                vigenciaField.classList.add('show');
-                idCredencialField.classList.add('show');
-            } else {
+            // Si formData no está cargado o estadoId es null/empty, ocultar campos
+            if (!formData.estados || !formData.estados.length || !estadoId) {
+                console.log("Datos no disponibles, ocultando campos condicionales");
                 vigenciaField.classList.remove('show');
                 idCredencialField.classList.remove('show');
+                
+                // Quitar required
+                document.getElementById('vigencia').required = false;
+                document.getElementById('id_credencial').required = false;
+                return;
+            }
+
+            // Buscar estados que contengan "PAGADO" o "PAGADA" (case insensitive)
+            const estadoPagado = formData.estados.find(e => {
+                const nombre = e.nombre.toLowerCase();
+                return nombre.includes('pagado') || nombre.includes('pagada');
+            });
+
+            console.log("Estado pagado encontrado:", estadoPagado);
+            
+            if (estadoPagado && estadoId == estadoPagado.id) {
+                console.log("Mostrando campos condicionales para estado pagado");
+                vigenciaField.classList.add('show');
+                idCredencialField.classList.add('show');
+                
+                // Hacer required los campos solo si estamos en estado pagado
+                document.getElementById('vigencia').required = true;
+                document.getElementById('id_credencial').required = true;
+            } else {
+                console.log("Ocultando campos condicionales");
+                vigenciaField.classList.remove('show');
+                idCredencialField.classList.remove('show');
+                
+                // Quitar required si no es estado pagado
+                document.getElementById('vigencia').required = false;
+                document.getElementById('id_credencial').required = false;
             }
         }
 
         // ===== MANEJO DE ARCHIVOS =====
         function setupFileInputs() {
-    // Configurar inputs de archivo
-    document.querySelectorAll('.file-input').forEach(input => {
-        input.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                updateFilePreview(this.id, file);
-                
-                // Mostrar botón de ver archivo
-                const preview = document.getElementById(this.id + 'Preview');
-                preview.querySelector('.view-file').style.display = 'inline-block';
-            }
-        });
-    });
+            // Configurar inputs de archivo
+            document.querySelectorAll('.file-input').forEach(input => {
+                input.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        updateFilePreview(this.id, file);
+                        
+                        // Mostrar botón de ver archivo
+                        const preview = document.getElementById(this.id + 'Preview');
+                        preview.querySelector('.view-file').style.display = 'inline-block';
+                    }
+                });
+            });
 
-    // Configurar botones para ver archivos
-    document.addEventListener('click', function(e) {
-        if (e.target.closest('.view-file')) {
-            const button = e.target.closest('.view-file');
-            const field = button.getAttribute('data-field');
-            const solicitudId = document.getElementById('solicitudId').value;
-            
-            if (solicitudId) {
-                viewFile(solicitudId, field);
-            }
-        }
-    });
-}
-
-function updateFilePreview(fieldId, file) {
-    const preview = document.getElementById(fieldId + 'Preview');
-    const info = document.getElementById(fieldId + 'Info');
-    
-    if (file) {
-        info.textContent = `${file.name} (${formatFileSize(file.size)})`;
-        
-        // Mostrar preview de imagen si es una imagen
-        if (file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                // Buscar si ya existe una imagen preview
-                let img = preview.querySelector('img');
-                if (!img) {
-                    img = document.createElement('img');
-                    preview.insertBefore(img, preview.firstChild);
+            // Configurar botones para ver archivos
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.view-file')) {
+                    const button = e.target.closest('.view-file');
+                    const field = button.getAttribute('data-field');
+                    const solicitudId = document.getElementById('solicitudId').value;
+                    
+                    if (solicitudId) {
+                        viewFile(solicitudId, field);
+                    }
                 }
-                img.src = e.target.result;
-                img.style.maxWidth = '100%';
-                img.style.maxHeight = '200px';
-                img.style.borderRadius = '6px';
-                img.style.marginBottom = '0.5rem';
-            };
-            reader.readAsDataURL(file);
-        } else {
-            // Remover imagen preview si existe
-            const img = preview.querySelector('img');
-            if (img) {
-                img.remove();
+            });
+        }
+
+        function updateFilePreview(fieldId, file) {
+            const preview = document.getElementById(fieldId + 'Preview');
+            const info = document.getElementById(fieldId + 'Info');
+            
+            if (file) {
+                info.textContent = `${file.name} (${formatFileSize(file.size)})`;
+                
+                // Mostrar preview de imagen si es una imagen
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Buscar si ya existe una imagen preview
+                        let img = preview.querySelector('img');
+                        if (!img) {
+                            img = document.createElement('img');
+                            preview.insertBefore(img, preview.firstChild);
+                        }
+                        img.src = e.target.result;
+                        img.style.maxWidth = '100%';
+                        img.style.maxHeight = '200px';
+                        img.style.borderRadius = '6px';
+                        img.style.marginBottom = '0.5rem';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    // Remover imagen preview si existe
+                    const img = preview.querySelector('img');
+                    if (img) {
+                        img.remove();
+                    }
+                }
             }
         }
-    }
-}
 
         function viewFile(solicitudId, field) {
-    $.ajax({
-        url: `/api/solicitudes/${solicitudId}/file/${field}`,
-        method: 'GET',
-        xhrFields: {
-            responseType: 'blob'
-        },
-        success: function(blob, status, xhr) {
-            // Verificar si el blob está vacío o es inválido
-            if (blob.size === 0) {
-                showAlert('error', 'El archivo está vacío o no se pudo cargar');
-                return;
-            }
-            
-            const url = URL.createObjectURL(blob);
-            const fileModal = document.getElementById('fileModal');
-            const fileModalContent = document.getElementById('fileModalContent');
-            const fileModalTitle = document.getElementById('fileModalTitle');
-            const downloadLink = document.getElementById('downloadFile');
-            
-            // Obtener el nombre real del archivo del header Content-Disposition si está disponible
-            let fileName = `${field}_${solicitudId}`;
-            const disposition = xhr.getResponseHeader('Content-Disposition');
-            if (disposition && disposition.includes('filename=')) {
-                const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
-                if (matches != null && matches[1]) {
-                    fileName = matches[1].replace(/['"]/g, '');
+            $.ajax({
+                url: `/api/solicitudes/${solicitudId}/file/${field}`,
+                method: 'GET',
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function(blob, status, xhr) {
+                    // Verificar si el blob está vacío o es inválido
+                    if (blob.size === 0) {
+                        showAlert('error', 'El archivo está vacío o no se pudo cargar');
+                        return;
+                    }
+                    
+                    const url = URL.createObjectURL(blob);
+                    const fileModal = document.getElementById('fileModal');
+                    const fileModalContent = document.getElementById('fileModalContent');
+                    const fileModalTitle = document.getElementById('fileModalTitle');
+                    const downloadLink = document.getElementById('downloadFile');
+                    
+                    // Obtener el nombre real del archivo del header Content-Disposition si está disponible
+                    let fileName = `${field}_${solicitudId}`;
+                    const disposition = xhr.getResponseHeader('Content-Disposition');
+                    if (disposition && disposition.includes('filename=')) {
+                        const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+                        if (matches != null && matches[1]) {
+                            fileName = matches[1].replace(/['"]/g, '');
+                        }
+                    }
+                    
+                    fileModalTitle.textContent = `Visualizar ${getFieldName(field)}`;
+                    downloadLink.href = url;
+                    downloadLink.download = fileName;
+                    
+                    if (blob.type.includes('pdf')) {
+                        fileModalContent.innerHTML = `
+                            <embed src="${url}" type="application/pdf" width="100%" height="600px">
+                        `;
+                    } else if (blob.type.includes('image')) {
+                        fileModalContent.innerHTML = `
+                            <img src="${url}" style="max-width: 100%; max-height: 70vh;" alt="${field}">
+                        `;
+                    } else {
+                        fileModalContent.innerHTML = `
+                            <div class="alert info">
+                                <i class="fas fa-info-circle"></i>
+                                <p>No se puede previsualizar este tipo de archivo. Por favor descárguelo para verlo.</p>
+                            </div>
+                        `;
+                    }
+                    
+                    openModal('fileModal');
+                },
+                error: function(xhr) {
+                    let errorMessage = 'Error al cargar el archivo';
+                    if (xhr.status === 404) {
+                        errorMessage = 'Archivo no encontrado';
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage += ': ' + xhr.responseJSON.message;
+                    }
+                    showAlert('error', errorMessage);
                 }
-            }
-            
-            fileModalTitle.textContent = `Visualizar ${getFieldName(field)}`;
-            downloadLink.href = url;
-            downloadLink.download = fileName;
-            
-            if (blob.type.includes('pdf')) {
-                fileModalContent.innerHTML = `
-                    <embed src="${url}" type="application/pdf" width="100%" height="600px">
-                `;
-            } else if (blob.type.includes('image')) {
-                fileModalContent.innerHTML = `
-                    <img src="${url}" style="max-width: 100%; max-height: 70vh;" alt="${field}">
-                `;
-            } else {
-                fileModalContent.innerHTML = `
-                    <div class="alert info">
-                        <i class="fas fa-info-circle"></i>
-                        <p>No se puede previsualizar este tipo de archivo. Por favor descárguelo para verlo.</p>
-                    </div>
-                `;
-            }
-            
-            openModal('fileModal');
-        },
-        error: function(xhr) {
-            let errorMessage = 'Error al cargar el archivo';
-            if (xhr.status === 404) {
-                errorMessage = 'Archivo no encontrado';
-            } else if (xhr.responseJSON && xhr.responseJSON.message) {
-                errorMessage += ': ' + xhr.responseJSON.message;
-            }
-            showAlert('error', errorMessage);
+            });
         }
-    });
-}
 
         function getFieldName(field) {
             const names = {
@@ -1514,23 +1564,7 @@ function updateFilePreview(fieldId, file) {
         }
 
         // ===== CRUD OPERATIONS =====
-        function createSolicitud(solicitudData) {
-            const formData = new FormData();
-            
-            // Agregar campos del formulario
-            Object.keys(solicitudData).forEach(key => {
-                if (key !== 'files') {
-                    formData.append(key, solicitudData[key]);
-                }
-            });
-            
-            // Agregar archivos
-            document.querySelectorAll('.file-input').forEach(input => {
-                if (input.files[0]) {
-                    formData.append(input.id, input.files[0]);
-                }
-            });
-
+        function createSolicitud(formData) {
             $.ajax({
                 url: '/api/solicitudes',
                 method: 'POST',
@@ -1559,29 +1593,10 @@ function updateFilePreview(fieldId, file) {
             });
         }
 
-        function updateSolicitud(id, solicitudData) {
-            const formData = new FormData();
-            
-            // Agregar campos del formulario
-            Object.keys(solicitudData).forEach(key => {
-                if (key !== 'files') {
-                    formData.append(key, solicitudData[key]);
-                }
-            });
-            
-            // Agregar archivos (solo si se cambiaron)
-            document.querySelectorAll('.file-input').forEach(input => {
-                if (input.files[0]) {
-                    formData.append(input.id, input.files[0]);
-                }
-            });
-
-            // Agregar método PUT para Laravel
-            formData.append('_method', 'PUT');
-
+        function updateSolicitud(id, formData) {
             $.ajax({
                 url: `/api/solicitudes/${id}`,
-                method: 'POST',
+                method: 'POST', // Laravel requiere POST para FormData con _method PUT
                 data: formData,
                 processData: false,
                 contentType: false,
@@ -1657,12 +1672,17 @@ function updateFilePreview(fieldId, file) {
         // ===== MANEJO DE FORMULARIOS =====
         function openCreateModal() {
             document.getElementById('modalTitle').textContent = 'Nueva Solicitud';
-            document.getElementById('solicitudId').value = '';
-            document.getElementById('folio').value = 'Se generará automáticamente';
-            document.getElementById('solicitudForm').reset();
+            resetFormAndPreviews();
+            
+            // Asegurar que campos condicionales estén ocultos al crear
+            vigenciaField.classList.remove('show');
+            idCredencialField.classList.remove('show');
+            
+            // Quitar required por defecto
+            document.getElementById('vigencia').required = false;
+            document.getElementById('id_credencial').required = false;
+            
             clearFormFeedback();
-            resetFilePreviews();
-            toggleConditionalFields('');
             openModal('solicitudModal');
         }
 
@@ -1674,7 +1694,7 @@ function updateFilePreview(fieldId, file) {
             // Llenar formulario con datos, excluyendo inputs de archivo
             Object.keys(solicitud).forEach(key => {
                 const element = document.getElementById(key);
-                if (element && element.type !== 'file') { // Excluir inputs de archivo
+                if (element && element.type !== 'file') {
                     if (element.type === 'checkbox') {
                         element.checked = solicitud[key];
                     } else {
@@ -1686,8 +1706,23 @@ function updateFilePreview(fieldId, file) {
             // Actualizar previews de archivos
             updateFilePreviews(solicitud);
             
-            // Mostrar/ocultar campos condicionales
-            toggleConditionalFields(solicitud.solicitudes_estadosId);
+            // Manejar campos condicionales - esperar a que formData esté listo
+            if (formData.estados && formData.estados.length > 0) {
+                // formData ya está cargado, podemos usar toggleConditionalFields inmediatamente
+                toggleConditionalFields(solicitud.solicitudes_estadosId);
+            } else {
+                // formData no está cargado, cargarlo primero
+                console.log("FormData no disponible, cargando...");
+                loadFormData().then(() => {
+                    // Una vez cargado, aplicar campos condicionales
+                    toggleConditionalFields(solicitud.solicitudes_estadosId);
+                }).catch(error => {
+                    console.error("Error cargando formData para modal:", error);
+                    // Ocultar campos por seguridad
+                    vigenciaField.classList.remove('show');
+                    idCredencialField.classList.remove('show');
+                });
+            }
             
             clearFormFeedback();
             openModal('solicitudModal');
@@ -1920,26 +1955,39 @@ function updateFilePreview(fieldId, file) {
 
         function handleFormSubmit() {
             const id = document.getElementById('solicitudId').value;
-            const formData = new FormData(document.getElementById('solicitudForm'));
+            const formElement = document.getElementById('solicitudForm');
+            const formData = new FormData(formElement);
             
-            // Convertir FormData a objeto para validación
-            const solicitudData = {};
-            for (let [key, value] of formData.entries()) {
-                if (key !== 'solicitudId' && key !== 'folio' && !(value instanceof File)) {
-                    solicitudData[key] = value;
-                }
-            }
-
-            // Validación básica
-            if (!solicitudData.nombres || !solicitudData.apellidos) {
+            // Validación básica de campos requeridos
+            const nombres = document.getElementById('nombres').value;
+            const apellidos = document.getElementById('apellidos').value;
+            
+            if (!nombres.trim() || !apellidos.trim()) {
                 showAlert('error', 'Los nombres y apellidos son obligatorios');
                 return;
             }
 
+            // Agregar el método PUT para Laravel si es una actualización
             if (id) {
-                updateSolicitud(id, solicitudData);
+                formData.append('_method', 'PUT');
+            }
+
+            // Validar archivos requeridos para nuevas solicitudes
+            if (!id) {
+                const curpFile = document.getElementById('curp').files[0];
+                const credencialFile = document.getElementById('credencial').files[0];
+                const fotografiaFile = document.getElementById('fotografia').files[0];
+                
+                if (!curpFile || !credencialFile || !fotografiaFile) {
+                    showAlert('error', 'Los archivos de CURP, Credencial y Fotografía son obligatorios para nuevas solicitudes');
+                    return;
+                }
+            }
+
+            if (id) {
+                updateSolicitud(id, formData);
             } else {
-                createSolicitud(solicitudData);
+                createSolicitud(formData);
             }
         }
 
@@ -1971,9 +2019,14 @@ function updateFilePreview(fieldId, file) {
 
             // Cambio de estado para mostrar/ocultar campos condicionales
             estadoSelect.addEventListener('change', function() {
-                toggleConditionalFields(this.value);
+                const selectedEstadoId = this.value;
+                console.log("Select de estado cambiado a:", selectedEstadoId);
+                
+                // Pequeño delay para asegurar que el valor se actualizó
+                setTimeout(() => {
+                    toggleConditionalFields(selectedEstadoId);
+                }, 10);
             });
-
             // Búsqueda
             setupSearch();
 
@@ -2154,6 +2207,34 @@ function updateFilePreview(fieldId, file) {
                 renderSolicitudes(filteredSolicitudes);
             });
         }
+
+        function resetFormAndPreviews() {
+            document.getElementById('solicitudForm').reset();
+            document.getElementById('solicitudId').value = '';
+            document.getElementById('folio').value = 'Se generará automáticamente';
+            
+            // Resetear previews de archivos
+            document.querySelectorAll('.file-info').forEach(info => {
+                info.textContent = 'No se ha cargado archivo';
+            });
+            
+            // Ocultar botones de ver archivo
+            document.querySelectorAll('.view-file').forEach(btn => {
+                btn.style.display = 'none';
+            });
+            
+            // Remover previews de imágenes
+            document.querySelectorAll('.file-preview img').forEach(img => {
+                img.remove();
+            });
+            
+            // Resetear campos condicionales
+            document.getElementById('vigenciaField').classList.remove('show');
+            document.getElementById('idCredencialField').classList.remove('show');
+        }
+
+
+
     });
 </script>
 @endpush

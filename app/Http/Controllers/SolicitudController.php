@@ -341,9 +341,9 @@ class SolicitudController extends Controller
                             orderBy('nombre')
                             ->get(['id', 'nombre']);
             
-            $terminales = Terminal::where('baja', true)
-                            ->orderBy('nombre')
+            $terminales = Terminal::orderBy('id')
                             ->get(['id', 'nombre']);
+                            
 
             return response()->json([
                 'success' => true,
@@ -352,15 +352,11 @@ class SolicitudController extends Controller
                     'terminales' => $terminales,
                     'perfiles_academicos' => [
                         ['id' => 1, 'nombre' => 'Estudiante'],
-                        ['id' => 2, 'nombre' => 'Maestro'],
-                        ['id' => 3, 'nombre' => 'Investigador'],
-                        ['id' => 4, 'nombre' => 'Personal Administrativo'],
-                        ['id' => 5, 'nombre' => 'Otro']
+                        ['id' => 2, 'nombre' => 'Maestro'],                      
                     ],
                     'formas_pago' => [
-                        ['id' => 1, 'nombre' => 'Efectivo'],
-                        ['id' => 2, 'nombre' => 'Tarjeta'],
-                        ['id' => 3, 'nombre' => 'Transferencia']
+                        ['id' => 1, 'nombre' => 'Transferencia'],
+                        ['id' => 2, 'nombre' => 'Taquilla']
                     ],
                     'dias_semana' => [
                         ['id' => 1, 'nombre' => 'Lunes'],
@@ -461,6 +457,157 @@ public function show(string $id): JsonResponse
         return response()->json([
             'success' => false,
             'message' => 'Error al consultar la solicitud: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+
+
+public function update(Request $request, string $id)
+{
+    // Validación de datos para actualización
+    $validator = Validator::make($request->all(), [
+        'nombres' => 'required|string|max:100',
+        'apellidos' => 'required|string|max:100',
+        'perfil_academico' => 'required|integer',
+        'escuela_procedencia' => 'required|string|max:125',
+        'lugar_residencia' => 'required|string|max:100',
+        'lugar_origen' => 'required|string|max:100',
+        'lugar_viaja_frecuente' => 'required|string|max:100',
+        'terminalesId' => 'required|integer',
+        'veces_semana' => 'required|string|max:10',
+        'dia_semana_viaja' => 'required|integer',
+        'curp' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        'credencial' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        'fotografia' => 'sometimes|file|mimes:jpg,jpeg,png|max:2048',
+        'voucher_pago' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        'correo' => 'required|email|max:100',
+        'telefono' => 'required|string|max:13',
+        'formaPago' => 'required|integer',
+        'solicitudes_estadosId' => 'required|integer|exists:solicitudes_estados,id',
+        'vigencia' => 'nullable|date',
+        'id_credencial' => 'nullable|string|max:10'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Errores de validación',
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    DB::beginTransaction();
+
+    try {
+        $solicitud = Solicitud::find($id);
+        
+        if (!$solicitud) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Solicitud no encontrada'
+            ], 404);
+        }
+
+        // Preparar datos para actualización
+        $updateData = [
+            'nombres' => $request->nombres,
+            'apellidos' => $request->apellidos,
+            'perfil_academico' => $request->perfil_academico,
+            'escuela_procedencia' => $request->escuela_procedencia,
+            'lugar_residencia' => $request->lugar_residencia,
+            'lugar_origen' => $request->lugar_origen,
+            'lugar_viaja_frecuente' => $request->lugar_viaja_frecuente,
+            'terminalesId' => $request->terminalesId,
+            'veces_semana' => $request->veces_semana,
+            'dia_semana_viaja' => $request->dia_semana_viaja,
+            'correo' => $request->correo,
+            'telefono' => $request->telefono,
+            'formaPago' => $request->formaPago,
+            'solicitudes_estadosId' => $request->solicitudes_estadosId,
+            'usuarios_modificoId' => auth()->id(),
+            'updated_at' => now(),
+        ];
+
+        // Campos condicionales para estado PAGADO
+        if ($request->has('vigencia') && $request->vigencia) {
+            $updateData['vigencia'] = $request->vigencia;
+        }
+
+        if ($request->has('id_credencial') && $request->id_credencial) {
+            $updateData['id_credencial'] = $request->id_credencial;
+        }
+
+        // Procesar archivos si se enviaron
+        $archivosProcesados = [];
+
+        if ($request->hasFile('curp')) {
+            // Eliminar archivo anterior si existe
+            if ($solicitud->curp && Storage::disk('public')->exists($solicitud->curp)) {
+                Storage::disk('public')->delete($solicitud->curp);
+            }
+            $curpPath = $request->file('curp')->store('documentos/curp', 'public');
+            $updateData['curp'] = $curpPath;
+            $archivosProcesados[] = 'curp';
+        }
+
+        if ($request->hasFile('credencial')) {
+            if ($solicitud->credencial && Storage::disk('public')->exists($solicitud->credencial)) {
+                Storage::disk('public')->delete($solicitud->credencial);
+            }
+            $credencialPath = $request->file('credencial')->store('documentos/credenciales', 'public');
+            $updateData['credencial'] = $credencialPath;
+            $archivosProcesados[] = 'credencial';
+        }
+
+        if ($request->hasFile('fotografia')) {
+            if ($solicitud->fotografia && Storage::disk('public')->exists($solicitud->fotografia)) {
+                Storage::disk('public')->delete($solicitud->fotografia);
+            }
+            $fotografiaPath = $request->file('fotografia')->store('documentos/fotografias', 'public');
+            $updateData['fotografia'] = $fotografiaPath;
+            $archivosProcesados[] = 'fotografia';
+        }
+
+        if ($request->hasFile('voucher_pago')) {
+            if ($solicitud->voucher_pago && Storage::disk('public')->exists($solicitud->voucher_pago)) {
+                Storage::disk('public')->delete($solicitud->voucher_pago);
+            }
+            $voucherPath = $request->file('voucher_pago')->store('documentos/vouchers', 'public');
+            $updateData['voucher_pago'] = $voucherPath;
+            $archivosProcesados[] = 'voucher_pago';
+        }
+
+        // Actualizar la solicitud
+        $solicitud->update($updateData);
+
+        DB::commit();
+
+        // Cargar relaciones actualizadas
+        $solicitud->load(['estado', 'terminal', 'usuarioModifico']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Solicitud actualizada correctamente' . 
+                        (count($archivosProcesados) > 0 ? ' (archivos actualizados: ' . implode(', ', $archivosProcesados) . ')' : ''),
+            'data' => $solicitud,
+            'archivos_actualizados' => $archivosProcesados
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        // Eliminar archivos subidos en caso de error
+        foreach ($archivosProcesados as $archivo) {
+            if (isset(${$archivo . 'Path'}) && Storage::disk('public')->exists(${$archivo . 'Path'})) {
+                Storage::disk('public')->delete(${$archivo . 'Path'});
+            }
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al actualizar la solicitud',
+            'error' => $e->getMessage()
         ], 500);
     }
 }

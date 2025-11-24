@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Responsivo</title>
+    <title>DASHBORAD</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -685,8 +685,7 @@
         <aside class="sidebar">
             <div class="logo-container">
                 <div class="logo">
-                    <div class="logo-img">DA</div>
-                    <span class="logo-text">Dashboard Au</span>
+                    <span class="logo-text">CPANEL {{date('Y')}}</span>
                 </div>
                 <button class="toggle-btn" id="toggleSidebar">
                     <i class="fas fa-bars"></i>
@@ -715,7 +714,7 @@
                                 <span class="menu-text">Solicitudes</span>
                             </a>
                         </li>
-                        <li class="menu-item">
+                        <!--<li class="menu-item">
                             <a href="#" class="menu-link">
                                 <span class="menu-text">Item 1</span>
                             </a>
@@ -724,7 +723,7 @@
                             <a href="#" class="menu-link">
                                 <span class="menu-text">Item 2</span>
                             </a>
-                        </li>
+                        </li>-->
                     </ul>
                 </li>
                 <li class="menu-item dropdown">
