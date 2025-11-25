@@ -325,7 +325,7 @@ class SolicitudController extends Controller
 
             $solicitud->update([
                 'baja_at' => now(),
-                'usuarios_cancela_solicitudId' => auth()->id()
+                'usuarios_cancela_solicitudId' => auth()->id(),
             ]);
 
             return response()->json([
@@ -554,7 +554,7 @@ public function update(Request $request, string $id)
     DB::beginTransaction();
 
     try {
-        $solicitud = Solicitud::find($id);
+        $solicitud = Solicitud::with(['estado'])->find($id);
         
         if (!$solicitud) {
             return response()->json([
@@ -562,6 +562,10 @@ public function update(Request $request, string $id)
                 'message' => 'Solicitud no encontrada'
             ], 404);
         }
+
+        // Guardar el estado anterior para comparar cambios
+        $estadoAnterior = $solicitud->solicitudes_estadosId;
+        $estadoNuevo = $request->solicitudes_estadosId ?? $estadoAnterior;
 
         // Preparar datos para actualización
         $updateData = [
@@ -582,54 +586,63 @@ public function update(Request $request, string $id)
             'updated_at' => now(),
         ];
 
-        // DETECTAR SI SE SUBIÓ UN VOUCHER
+        // Variables para controlar cambios de estado automáticos
+        $cambioAutomaticoEstado = false;
+        $nuevoEstadoId = null;
+        $mensajeEstado = '';
+
+        // 1. DETECTAR SI SE SUBIÓ UN VOUCHER - Cambiar automáticamente a PAGADO
         $voucherSubido = $request->hasFile('voucher_pago');
-        
-        // Si se subió un voucher, cambiar automáticamente al estado PAGADO
         if ($voucherSubido) {
-            // Buscar el estado PAGADO en la base de datos
             $estadoPagado = SolicitudEstado::where('nombre', 'like', '%PAGAD%')->first();
             
-            if ($estadoPagado) {
-                $updateData['solicitudes_estadosId'] = $estadoPagado->id;
-            }
-        } else {
-            // Si no se subió voucher, mantener el estado que viene en el request o el actual
-            if ($request->has('solicitudes_estadosId')) {
-                $updateData['solicitudes_estadosId'] = $request->solicitudes_estadosId;
+            if ($estadoPagado && $solicitud->solicitudes_estadosId != $estadoPagado->id) {
+                $nuevoEstadoId = $estadoPagado->id;
+                $cambioAutomaticoEstado = true;
+                $mensajeEstado = 'Estado cambiado a PAGADO automáticamente por subida de voucher';
             }
         }
 
-        // DETECTAR SI SE COMPLETARON ID_CREDENCIAL Y VIGENCIA
+        // 2. DETECTAR SI SE COMPLETARON ID_CREDENCIAL Y VIGENCIA - Cambiar automáticamente a IMPRESO
         $idCredencialCompleto = $request->has('id_credencial') && !empty($request->id_credencial);
         $vigenciaCompleta = $request->has('vigencia') && !empty($request->vigencia);
         
-        // Si se completaron ambos campos, cambiar automáticamente al estado IMPRESO
         if ($idCredencialCompleto && $vigenciaCompleta) {
             $estadoImpreso = SolicitudEstado::where('nombre', 'like', '%IMPRES%')->first();
             
-            if ($estadoImpreso) {
-                $updateData['solicitudes_estadosId'] = $estadoImpreso->id;
-                
-                // Enviar email de credencial lista
-                try {
-                //    $this->emailService->enviarTimelineProceso($solicitud, $estadoImpreso->id);
-                      $this->emailService->enviarConfirmacionPago($solicitud);
-                } catch (\Exception $e) {
-                    \Log::error('Error enviando email de credencial impresa: ' . $e->getMessage());
-                }
+            if ($estadoImpreso && $solicitud->solicitudes_estadosId != $estadoImpreso->id) {
+                $nuevoEstadoId = $estadoImpreso->id;
+                $cambioAutomaticoEstado = true;
+                $mensajeEstado = 'Estado cambiado a IMPRESO automáticamente por completar ID credencial y vigencia';
             }
         }
 
-        // Campos condicionales para estado PAGADO
+        // 3. Si hay cambio automático de estado, usar ese estado
+        if ($cambioAutomaticoEstado) {
+            $updateData['solicitudes_estadosId'] = $nuevoEstadoId;
+            $estadoNuevo = $nuevoEstadoId;
+        } else {
+            // Si no hay cambio automático, usar el estado del request si viene
+            if ($request->has('solicitudes_estadosId')) {
+                $updateData['solicitudes_estadosId'] = $request->solicitudes_estadosId;
+                $estadoNuevo = $request->solicitudes_estadosId;
+            }
+        }
+
+        // Campos condicionales para estado PAGADO o IMPRESO
         if (isset($updateData['solicitudes_estadosId'])) {
             $estadoActual = SolicitudEstado::find($updateData['solicitudes_estadosId']);
-            if ($estadoActual && (strpos($estadoActual->nombre, 'PAGAD') !== false)) {
-                if ($request->has('vigencia') && $request->vigencia) {
-                    $updateData['vigencia'] = $request->vigencia;
-                }
-                if ($request->has('id_credencial') && $request->id_credencial) {
-                    $updateData['id_credencial'] = $request->id_credencial;
+            if ($estadoActual) {
+                $nombreEstado = strtoupper($estadoActual->nombre);
+                
+                // Si el estado es PAGADO o IMPRESO, actualizar campos adicionales si vienen en el request
+                if (strpos($nombreEstado, 'PAGAD') !== false || strpos($nombreEstado, 'IMPRES') !== false) {
+                    if ($request->has('vigencia') && $request->vigencia) {
+                        $updateData['vigencia'] = $request->vigencia;
+                    }
+                    if ($request->has('id_credencial') && $request->id_credencial) {
+                        $updateData['id_credencial'] = $request->id_credencial;
+                    }
                 }
             }
         }
@@ -684,20 +697,46 @@ public function update(Request $request, string $id)
         // Actualizar la solicitud
         $solicitud->update($updateData);
 
+        // ENVÍO DE CORREOS SEGÚN CAMBIO DE ESTADO
+        $emailEnviado = false;
+        $emailMensaje = '';
+        
+        // Solo enviar correo si el estado cambió
+        if ($estadoAnterior != $estadoNuevo) {
+            try {
+                // Recargar la solicitud con las relaciones actualizadas
+                $solicitudActualizada = Solicitud::with(['estado'])->find($id);
+                
+                // Enviar correo según el nuevo estado
+                $emailEnviado = $this->emailService->enviarConfirmacionPago($solicitudActualizada);
+                $emailMensaje = $emailEnviado ? ' y correo enviado' : ' pero error al enviar correo';
+                
+                \Log::info("Correo enviado para solicitud {$solicitud->folio}: Estado {$estadoAnterior} -> {$estadoNuevo}");
+                
+            } catch (\Exception $e) {
+                \Log::error('Error enviando email de cambio de estado: ' . $e->getMessage());
+                $emailMensaje = ' pero error al enviar correo: ' . $e->getMessage();
+            }
+        }
+
         DB::commit();
 
         // Cargar relaciones actualizadas
         $solicitud->load(['estado', 'terminal', 'usuarioModifico']);
 
+        // Construir mensaje de respuesta
         $mensaje = 'Solicitud actualizada correctamente';
-        if ($voucherSubido) {
-            $mensaje .= ' y estado cambiado a PAGADO automáticamente';
+        
+        if ($cambioAutomaticoEstado) {
+            $mensaje .= ', ' . $mensajeEstado;
         }
-        if ($idCredencialCompleto && $vigenciaCompleta) {
-            $mensaje .= ' y estado cambiado a IMPRESO automáticamente';
-        }
+        
         if (count($archivosProcesados) > 0) {
             $mensaje .= ' (archivos actualizados: ' . implode(', ', $archivosProcesados) . ')';
+        }
+        
+        if ($emailMensaje) {
+            $mensaje .= $emailMensaje;
         }
 
         return response()->json([
@@ -705,7 +744,9 @@ public function update(Request $request, string $id)
             'message' => $mensaje,
             'data' => $solicitud,
             'archivos_actualizados' => $archivosProcesados,
-            'estado_actualizado' => $voucherSubido || ($idCredencialCompleto && $vigenciaCompleta)
+            'estado_actualizado' => $estadoAnterior != $estadoNuevo,
+            'email_enviado' => $emailEnviado,
+            'cambio_automatico_estado' => $cambioAutomaticoEstado
         ]);
 
     } catch (\Exception $e) {
@@ -725,7 +766,6 @@ public function update(Request $request, string $id)
         ], 500);
     }
 }
-
 
 public function descargarCredencial($id)
 {

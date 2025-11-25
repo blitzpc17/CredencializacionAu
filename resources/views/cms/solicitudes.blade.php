@@ -546,6 +546,75 @@
     .conditional-field.show {
         display: flex;
     }
+
+     /* Estilos para errores en formularios */
+    .form-control.error {
+        border-color: var(--danger);
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+    }
+
+    .error-message {
+        color: var(--danger);
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+        display: none;
+    }
+
+    .error-message.show {
+        display: block;
+    }
+
+    /* Alertas dentro del modal */
+    .modal-alert {
+        margin-bottom: 1.5rem;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Paginación */
+    .pagination-container {
+        margin-top: 1.5rem;
+        padding: 1rem 0;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .pagination-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .pagination-info {
+        color: var(--gray);
+        font-size: 0.9rem;
+    }
+
+    .pagination-buttons {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .pagination-numbers {
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    .pagination-size {
+        min-width: 150px;
+    }
 </style>
 @endpush
 
@@ -638,6 +707,9 @@
             </button>
         </div>
         <div class="modal-body">
+            <!-- Contenedor para alertas dentro del modal -->
+            <div id="modalAlerts"></div>
+            
             <form id="solicitudForm" enctype="multipart/form-data">
                 <input type="hidden" id="solicitudId">
                 <input type="hidden" id="folio" readonly>
@@ -650,24 +722,29 @@
                     <div class="form-group">
                         <label class="form-label" for="nombres">Nombres *</label>
                         <input type="text" class="form-control" id="nombres" name="nombres" required>
+                        <div class="error-message" id="nombresError"></div>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="apellidos">Apellidos *</label>
                         <input type="text" class="form-control" id="apellidos" name="apellidos" required>
+                        <div class="error-message" id="apellidosError"></div>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="perfil_academico">Perfil Académico *</label>
                         <select class="form-control" id="perfil_academico" name="perfil_academico" required>
                             <option value="">Seleccione perfil</option>
                         </select>
+                        <div class="error-message" id="perfil_academicoError"></div>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="correo">Correo *</label>
                         <input type="email" class="form-control" id="correo" name="correo" required>
+                        <div class="error-message" id="correoError"></div>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="telefono">Teléfono *</label>
                         <input type="text" class="form-control" id="telefono" name="telefono" required>
+                        <div class="error-message" id="telefonoError"></div>
                     </div>
 
                     <!-- Información de Viaje -->
@@ -677,34 +754,41 @@
                     <div class="form-group form-full-width">
                         <label class="form-label" for="escuela_procedencia">Escuela de Procedencia *</label>
                         <input type="text" class="form-control" id="escuela_procedencia" name="escuela_procedencia" required>
+                        <div class="error-message" id="escuela_procedenciaError"></div>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="lugar_residencia">Lugar de Residencia *</label>
                         <input type="text" class="form-control" id="lugar_residencia" name="lugar_residencia" required>
+                        <div class="error-message" id="lugar_residenciaError"></div>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="lugar_origen">Lugar de Origen *</label>
                         <input type="text" class="form-control" id="lugar_origen" name="lugar_origen" required>
+                        <div class="error-message" id="lugar_origenError"></div>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="lugar_viaja_frecuente">Lugar que Viaja Frecuente *</label>
                         <input type="text" class="form-control" id="lugar_viaja_frecuente" name="lugar_viaja_frecuente" required>
+                        <div class="error-message" id="lugar_viaja_frecuenteError"></div>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="terminalesId">Terminal *</label>
                         <select class="form-control" id="terminalesId" name="terminalesId" required>
                             <option value="">Seleccione terminal</option>
                         </select>
+                        <div class="error-message" id="terminalesIdError"></div>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="veces_semana">Veces por Semana *</label>
                         <input type="text" class="form-control" id="veces_semana" name="veces_semana" required>
+                        <div class="error-message" id="veces_semanaError"></div>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="dia_semana_viaja">Día de la Semana *</label>
                         <select class="form-control" id="dia_semana_viaja" name="dia_semana_viaja" required>
                             <option value="">Seleccione día</option>
                         </select>
+                        <div class="error-message" id="dia_semana_viajaError"></div>
                     </div>
 
                     <!-- Documentos -->
@@ -730,6 +814,7 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="error-message" id="curpError"></div>
                     </div>
 
                     <!-- Credencial -->
@@ -750,6 +835,7 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="error-message" id="credencialError"></div>
                     </div>
 
                     <!-- Fotografía -->
@@ -770,6 +856,7 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="error-message" id="fotografiaError"></div>
                     </div>
 
                     <!-- Voucher de Pago -->
@@ -790,6 +877,7 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="error-message" id="voucher_pagoError"></div>
                     </div>
 
                     <!-- Información de Pago y Estado -->
@@ -801,23 +889,27 @@
                         <select class="form-control" id="formaPago" name="formaPago" required>
                             <option value="">Seleccione forma de pago</option>
                         </select>
+                        <div class="error-message" id="formaPagoError"></div>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="solicitudes_estadosId">Estado *</label>
                         <select class="form-control" id="solicitudes_estadosId" name="solicitudes_estadosId" required>
                             <option value="">Seleccione estado</option>
                         </select>
+                        <div class="error-message" id="solicitudes_estadosIdError"></div>
                     </div>
 
                     <!-- Campos condicionales para estado PAGADO -->
                     <div class="form-group conditional-field" id="vigenciaField">
                         <label class="form-label" for="vigencia">Vigencia</label>
                         <input type="date" class="form-control" id="vigencia" name="vigencia">
+                        <div class="error-message" id="vigenciaError"></div>
                     </div>
 
                     <div class="form-group conditional-field" id="idCredencialField">
                         <label class="form-label" for="id_credencial">ID Credencial</label>
                         <input type="text" class="form-control" id="id_credencial" name="id_credencial" maxlength="10" placeholder="Ingrese ID de credencial">
+                        <div class="error-message" id="id_credencialError"></div>
                     </div>
                 </div>
             </form>
@@ -929,6 +1021,99 @@
         const estadoSelect = document.getElementById('solicitudes_estadosId');
         const vigenciaField = document.getElementById('vigenciaField');
         const idCredencialField = document.getElementById('idCredencialField');
+        const modalAlerts = document.getElementById('modalAlerts');
+
+
+               // ===== FUNCIONES NUEVAS PARA MANEJO DE ERRORES EN MODAL =====
+        
+        function clearModalErrors() {
+            // Limpiar alertas del modal
+            modalAlerts.innerHTML = '';
+            
+            // Limpiar errores de campos
+            document.querySelectorAll('.error-message').forEach(error => {
+                error.classList.remove('show');
+                error.textContent = '';
+            });
+            
+            // Limpiar estilos de error en inputs
+            document.querySelectorAll('.form-control.error').forEach(input => {
+                input.classList.remove('error');
+            });
+        }
+
+        function showModalAlert(type, message, title = null) {
+            const alertTypes = {
+                info: { class: 'primary', icon: 'fa-info-circle', defaultTitle: 'Información' },
+                success: { class: 'success', icon: 'fa-check-circle', defaultTitle: 'Éxito' },
+                warning: { class: 'warning', icon: 'fa-exclamation-triangle', defaultTitle: 'Advertencia' },
+                error: { class: 'danger', icon: 'fa-times-circle', defaultTitle: 'Error' }
+            };
+
+            const alertConfig = alertTypes[type] || alertTypes.info;
+            const alertTitle = title || alertConfig.defaultTitle;
+
+            const alertHTML = `
+                <div class="alert ${alertConfig.class} modal-alert">
+                    <i class="fas ${alertConfig.icon} alert-icon"></i>
+                    <div class="alert-content">
+                        <h4 class="alert-title">${alertTitle}</h4>
+                        <p class="alert-message">${message}</p>
+                    </div>
+                    <button class="alert-close" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+
+            modalAlerts.insertAdjacentHTML('afterbegin', alertHTML);
+        }
+
+        function showFieldErrors(errors) {
+            // Limpiar errores previos
+            clearModalErrors();
+            
+            // Mostrar errores por campo
+            Object.keys(errors).forEach(field => {
+                const errorElement = document.getElementById(field + 'Error');
+                const inputElement = document.getElementById(field);
+                
+                if (errorElement && inputElement) {
+                    errorElement.textContent = errors[field].join(', ');
+                    errorElement.classList.add('show');
+                    inputElement.classList.add('error');
+                }
+            });
+            
+            // Mostrar alerta general
+            if (Object.keys(errors).length > 0) {
+                showModalAlert('error', 'Por favor corrige los errores en el formulario', 'Errores de Validación');
+                
+                // Hacer scroll al primer error
+                const firstError = document.querySelector('.error-message.show');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        // ===== FUNCIONES NUEVAS PARA MANEJO DE ERRORES EN MODAL =====
+        
+        function clearModalErrors() {
+            // Limpiar alertas del modal
+            modalAlerts.innerHTML = '';
+            
+            // Limpiar errores de campos
+            document.querySelectorAll('.error-message').forEach(error => {
+                error.classList.remove('show');
+                error.textContent = '';
+            });
+            
+            // Limpiar estilos de error en inputs
+            document.querySelectorAll('.form-control.error').forEach(input => {
+                input.classList.remove('error');
+            });
+        }
 
         // ===== INICIALIZACIÓN =====
         initializeSolicitudes();
@@ -942,7 +1127,6 @@
                 setupEventListeners();
             }).catch(error => {
                 console.error("Error cargando formData:", error);
-                // Continuar de todos modos pero mostrar alerta
                 showAlert('warning', 'Algunos datos del formulario no se pudieron cargar. Los campos condicionales podrían no funcionar correctamente.');
                 loadSolicitudes();
                 setupPagination();
@@ -1575,7 +1759,7 @@
         }
 
         // ===== CRUD OPERATIONS =====
-        function createSolicitud(formData) {
+         function createSolicitud(formData) {
             $.ajax({
                 url: '/api/solicitudes',
                 method: 'POST',
@@ -1584,27 +1768,30 @@
                 contentType: false,
                 success: function(response) {
                     if (response.success) {
-                        showAlert('success', 'Solicitud creada correctamente');
+                        showAlert('success', 'Solicitud creada correctamente' + (response.email_enviado ? ' y correo enviado' : ''));
                         closeModal('solicitudModal');
                         loadSolicitudes();
                     } else {
-                        showAlert('error', 'Error al crear la solicitud: ' + response.message);
+                        showModalAlert('error', 'Error al crear la solicitud: ' + response.message);
                     }
                 },
                 error: function(xhr) {
                     let errorMessage = 'Error al crear la solicitud';
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMessage += ': ' + xhr.responseJSON.message;
-                    }
+                    
                     if (xhr.responseJSON && xhr.responseJSON.errors) {
-                        errorMessage += ': ' + Object.values(xhr.responseJSON.errors).flat().join(', ');
+                        // Mostrar errores de validación en el modal
+                        showFieldErrors(xhr.responseJSON.errors);
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage += ': ' + xhr.responseJSON.message;
+                        showModalAlert('error', errorMessage);
+                    } else {
+                        showModalAlert('error', errorMessage);
                     }
-                    showAlert('error', errorMessage);
                 }
             });
         }
 
-        function updateSolicitud(id, formData) {
+         function updateSolicitud(id, formData) {
             $.ajax({
                 url: `/api/solicitudes/${id}`,
                 method: 'POST', // Laravel requiere POST para FormData con _method PUT
@@ -1613,22 +1800,39 @@
                 contentType: false,
                 success: function(response) {
                     if (response.success) {
-                        showAlert('success', 'Solicitud actualizada correctamente');
+                        let mensajeExito = 'Solicitud actualizada correctamente';
+                        
+                        if (response.cambio_automatico_estado) {
+                            mensajeExito += ' (cambio automático de estado aplicado)';
+                        }
+                        
+                        if (response.email_enviado) {
+                            mensajeExito += ' y correo enviado';
+                        }
+                        
+                        if (response.archivos_actualizados && response.archivos_actualizados.length > 0) {
+                            mensajeExito += ' - Archivos actualizados: ' + response.archivos_actualizados.join(', ');
+                        }
+                        
+                        showAlert('success', mensajeExito);
                         closeModal('solicitudModal');
                         loadSolicitudes();
                     } else {
-                        showAlert('error', 'Error al actualizar la solicitud: ' + response.message);
+                        showModalAlert('error', 'Error al actualizar la solicitud: ' + response.message);
                     }
                 },
                 error: function(xhr) {
                     let errorMessage = 'Error al actualizar la solicitud';
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMessage += ': ' + xhr.responseJSON.message;
-                    }
+                    
                     if (xhr.responseJSON && xhr.responseJSON.errors) {
-                        errorMessage += ': ' + Object.values(xhr.responseJSON.errors).flat().join(', ');
+                        // Mostrar errores de validación en el modal
+                        showFieldErrors(xhr.responseJSON.errors);
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage += ': ' + xhr.responseJSON.message;
+                        showModalAlert('error', errorMessage);
+                    } else {
+                        showModalAlert('error', errorMessage);
                     }
-                    showAlert('error', errorMessage);
                 }
             });
         }
@@ -1681,9 +1885,12 @@
         }
 
         // ===== MANEJO DE FORMULARIOS =====
-        function openCreateModal() {
+                function openCreateModal() {
             document.getElementById('modalTitle').textContent = 'Nueva Solicitud';
             resetFormAndPreviews();
+            
+            // Limpiar errores
+            clearModalErrors();
             
             // Asegurar que campos condicionales estén ocultos al crear
             vigenciaField.classList.remove('show');
@@ -1693,14 +1900,16 @@
             document.getElementById('vigencia').required = false;
             document.getElementById('id_credencial').required = false;
             
-            clearFormFeedback();
             openModal('solicitudModal');
         }
 
-       function openEditModal(solicitud) {
+        function openEditModal(solicitud) {
             document.getElementById('modalTitle').textContent = 'Editar Solicitud';
             document.getElementById('solicitudId').value = solicitud.id;
             document.getElementById('folio').value = solicitud.folio;
+            
+            // Limpiar errores
+            clearModalErrors();
             
             // Llenar formulario con datos, excluyendo inputs de archivo
             Object.keys(solicitud).forEach(key => {
@@ -1717,25 +1926,19 @@
             // Actualizar previews de archivos
             updateFilePreviews(solicitud);
             
-            // Manejar campos condicionales - esperar a que formData esté listo
+            // Manejar campos condicionales
             if (formData.estados && formData.estados.length > 0) {
-                // formData ya está cargado, podemos usar toggleConditionalFields inmediatamente
                 toggleConditionalFields(solicitud.solicitudes_estadosId);
             } else {
-                // formData no está cargado, cargarlo primero
-                console.log("FormData no disponible, cargando...");
                 loadFormData().then(() => {
-                    // Una vez cargado, aplicar campos condicionales
                     toggleConditionalFields(solicitud.solicitudes_estadosId);
                 }).catch(error => {
                     console.error("Error cargando formData para modal:", error);
-                    // Ocultar campos por seguridad
                     vigenciaField.classList.remove('show');
                     idCredencialField.classList.remove('show');
                 });
             }
             
-            clearFormFeedback();
             openModal('solicitudModal');
         }
 
@@ -1969,19 +2172,24 @@
             const formElement = document.getElementById('solicitudForm');
             const formData = new FormData(formElement);
             
-            // Validación básica de campos requeridos
-            const nombres = document.getElementById('nombres').value;
-            const apellidos = document.getElementById('apellidos').value;
-            
-            if (!nombres.trim() || !apellidos.trim()) {
-                showAlert('error', 'Los nombres y apellidos son obligatorios');
-                return;
+            // Limpiar errores previos
+            clearModalErrors();
+
+            // Validación básica de campos requeridos para nuevas solicitudes
+            if (!id) {
+                const curpFile = document.getElementById('curp').files[0];
+                const credencialFile = document.getElementById('credencial').files[0];
+                const fotografiaFile = document.getElementById('fotografia').files[0];
+                
+                if (!curpFile || !credencialFile || !fotografiaFile) {
+                    showModalAlert('error', 'Los archivos de CURP, Credencial y Fotografía son obligatorios para nuevas solicitudes');
+                    return;
+                }
             }
 
-             // Detectar si se está subiendo un voucher
+            // Detectar si se está subiendo un voucher
             const voucherFile = document.getElementById('voucher_pago').files[0];
             if (voucherFile) {
-                // Mostrar confirmación opcional
                 if (!confirm('Se detectó un voucher de pago. Al guardar, el estado se cambiará automáticamente a PAGADO. ¿Continuar?')) {
                     return;
                 }
@@ -1990,18 +2198,6 @@
             // Agregar el método PUT para Laravel si es una actualización
             if (id) {
                 formData.append('_method', 'PUT');
-            }
-
-            // Validar archivos requeridos para nuevas solicitudes
-            if (!id) {
-                const curpFile = document.getElementById('curp').files[0];
-                const credencialFile = document.getElementById('credencial').files[0];
-                const fotografiaFile = document.getElementById('fotografia').files[0];
-                
-                if (!curpFile || !credencialFile || !fotografiaFile) {
-                    showAlert('error', 'Los archivos de CURP, Credencial y Fotografía son obligatorios para nuevas solicitudes');
-                    return;
-                }
             }
 
             if (id) {
