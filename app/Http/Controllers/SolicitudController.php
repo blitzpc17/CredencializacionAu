@@ -311,7 +311,7 @@ class SolicitudController extends Controller
     }
 
 
-     public function destroy(string $id): JsonResponse
+    public function destroy(string $id): JsonResponse
     {
         try {
             $solicitud = Solicitud::find($id);
@@ -323,10 +323,40 @@ class SolicitudController extends Controller
                 ], 404);
             }
 
+            // Validar que venga el motivo de baja en el request
+            $motivo_baja = request('motivo_baja');
+            
+            if (!$motivo_baja || empty(trim($motivo_baja))) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El motivo de la baja es obligatorio'
+                ], 422);
+            }
+
+            // Buscar el estado de "CANCELADA" o "RECHAZADA" (ajusta según tus estados)
+            $estadoCancelado = SolicitudEstado::where(function($query) {
+                $query->where('nombre', 'like', '%CANCELAD%')
+                    ->orWhere('nombre', 'like', '%RECHAZAD%')
+                    ->orWhere('nombre', 'like', '%BAJA%');
+            })->first();
+
+            // Si no encuentra un estado específico para cancelación, usa el ID 5 (rechazadas)
+            $estadoId = $estadoCancelado ? $estadoCancelado->id : 5;
+
+            // Actualizar la solicitud con estado de cancelación y motivo
             $solicitud->update([
+                'solicitudes_estadosId' => $estadoId,
                 'baja_at' => now(),
                 'usuarios_cancela_solicitudId' => auth()->id(),
+                'motivo_baja' => $motivo_baja
             ]);
+
+            // Opcional: Enviar email de notificación de baja
+            try {
+                $this->emailService->enviarConfirmacionPago($solicitud);
+            } catch (\Exception $e) {
+                \Log::error('Error enviando email de baja: ' . $e->getMessage());
+            }
 
             return response()->json([
                 'success' => true,

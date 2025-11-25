@@ -966,7 +966,8 @@
             
             <div class="form-group">
                 <label class="form-label" for="motivo_baja">Motivo de la baja *</label>
-                <textarea class="form-control" id="motivo_baja" rows="4" placeholder="Ingrese el motivo por el cual se da de baja esta solicitud..." required></textarea>
+                <textarea class="form-control" id="motivo_baja" name="motivo_baja" rows="4" 
+                        placeholder="Ingrese el motivo por el cual se da de baja esta solicitud..." required></textarea>
             </div>
         </div>
         <div class="modal-footer">
@@ -1838,30 +1839,30 @@
         }
 
         function deleteSolicitud(id, motivo) {
-            $.ajax({
-                url: `/api/solicitudes/${id}`,
-                method: 'DELETE',
-                data: {
-                    motivo_baja: motivo
-                },
-                success: function(response) {
-                    if (response.success) {
-                        showAlert('success', 'Solicitud dada de baja correctamente');
-                        closeModal('confirmModal');
-                        loadSolicitudes();
-                    } else {
-                        showAlert('error', 'Error al dar de baja la solicitud: ' + response.message);
-                    }
-                },
-                error: function(xhr) {
-                    let errorMessage = 'Error al dar de baja la solicitud';
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMessage += ': ' + xhr.responseJSON.message;
-                    }
-                    showAlert('error', errorMessage);
-                }
-            });
+    $.ajax({
+        url: `/api/solicitudes/${id}`,
+        method: 'DELETE',
+        data: {
+            motivo_baja: motivo
+        },
+        success: function(response) {
+            if (response.success) {
+                showAlert('success', 'Solicitud dada de baja correctamente');
+                closeModal('confirmModal');
+                loadSolicitudes();
+            } else {
+                showAlert('error', 'Error al dar de baja la solicitud: ' + response.message);
+            }
+        },
+        error: function(xhr) {
+            let errorMessage = 'Error al dar de baja la solicitud';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage += ': ' + xhr.responseJSON.message;
+            }
+            showAlert('error', errorMessage);
         }
+    });
+}
 
         function viewSolicitud(id) {
             $.ajax({
