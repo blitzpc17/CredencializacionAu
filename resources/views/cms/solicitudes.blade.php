@@ -1338,6 +1338,14 @@
                                 data-folio="${solicitud.folio}">
                             <i class="fas fa-trash"></i>
                         </button>
+                           ${solicitud.solicitudes_estadosId === 9 ? `
+                        <button class="btn-icon success download-credencial" 
+                                data-id="${solicitud.id}"
+                                data-folio="${solicitud.folio}"
+                                title="Descargar Credencial">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        ` : ''}
                     </td>
                 </tr>
             `).join('');
@@ -1349,6 +1357,7 @@
             if (!estadoNombre) return 'warning';
             
             const estado = estadoNombre.toLowerCase();
+            
             if (estado.includes('pendiente') || estado.includes('espera')) {
                 return 'warning';
             } else if (estado.includes('pagado') || estado.includes('aprobado') || estado.includes('aprobada') || estado.includes('completado') || estado.includes('completada')) {
@@ -1357,6 +1366,8 @@
                 return 'danger';
             } else if (estado.includes('proceso') || estado.includes('procesando')) {
                 return 'info';
+            } else if (estado.includes('impresa') || estado.includes('impreso')) {
+                return 'primary'; // Color diferente para estado IMPRESA
             } else {
                 return 'primary';
             }
@@ -2088,6 +2099,10 @@
                     const id = target.getAttribute('data-id');
                     const folio = target.getAttribute('data-folio');
                     openDeleteModal(id, folio);
+                }  else if (target.classList.contains('download-credencial')) {
+                    const id = target.getAttribute('data-id');
+                    const folio = target.getAttribute('data-folio');
+                    descargarCredencial(id, folio);
                 }
             });
 
@@ -2240,6 +2255,10 @@
             // Resetear campos condicionales
             document.getElementById('vigenciaField').classList.remove('show');
             document.getElementById('idCredencialField').classList.remove('show');
+        }
+
+        function descargarCredencial(id, folio) {
+            window.open(`/api/solicitudes/${id}/descargar-credencial`, '_blank');
         }
 
 

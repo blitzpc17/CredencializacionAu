@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
+use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
 
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
@@ -590,21 +592,32 @@ public function update(Request $request, string $id)
             
             if ($estadoPagado) {
                 $updateData['solicitudes_estadosId'] = $estadoPagado->id;
-                
-                // También enviar email de confirmación de pago si existe el servicio
-                //ver si se deja o se quita el envio de correo aqui
-                try {
-                    $solicitud->solicitudes_estadosId = $estadoPagado->id;
-                    $this->emailService->enviarConfirmacionPago($solicitud);
-                } catch (\Exception $e) {
-                    // No fallar si el email no se puede enviar, solo loggear
-                    \Log::error('Error enviando email de confirmación de pago: ' . $e->getMessage());
-                }
             }
         } else {
             // Si no se subió voucher, mantener el estado que viene en el request o el actual
             if ($request->has('solicitudes_estadosId')) {
                 $updateData['solicitudes_estadosId'] = $request->solicitudes_estadosId;
+            }
+        }
+
+        // DETECTAR SI SE COMPLETARON ID_CREDENCIAL Y VIGENCIA
+        $idCredencialCompleto = $request->has('id_credencial') && !empty($request->id_credencial);
+        $vigenciaCompleta = $request->has('vigencia') && !empty($request->vigencia);
+        
+        // Si se completaron ambos campos, cambiar automáticamente al estado IMPRESO
+        if ($idCredencialCompleto && $vigenciaCompleta) {
+            $estadoImpreso = SolicitudEstado::where('nombre', 'like', '%IMPRES%')->first();
+            
+            if ($estadoImpreso) {
+                $updateData['solicitudes_estadosId'] = $estadoImpreso->id;
+                
+                // Enviar email de credencial lista
+                try {
+                //    $this->emailService->enviarTimelineProceso($solicitud, $estadoImpreso->id);
+                      $this->emailService->enviarConfirmacionPago($solicitud);
+                } catch (\Exception $e) {
+                    \Log::error('Error enviando email de credencial impresa: ' . $e->getMessage());
+                }
             }
         }
 
@@ -619,6 +632,14 @@ public function update(Request $request, string $id)
                     $updateData['id_credencial'] = $request->id_credencial;
                 }
             }
+        }
+
+        // Siempre actualizar vigencia e id_credencial si vienen en el request
+        if ($request->has('vigencia')) {
+            $updateData['vigencia'] = $request->vigencia;
+        }
+        if ($request->has('id_credencial')) {
+            $updateData['id_credencial'] = $request->id_credencial;
         }
 
         // Procesar archivos si se enviaron
@@ -672,6 +693,9 @@ public function update(Request $request, string $id)
         if ($voucherSubido) {
             $mensaje .= ' y estado cambiado a PAGADO automáticamente';
         }
+        if ($idCredencialCompleto && $vigenciaCompleta) {
+            $mensaje .= ' y estado cambiado a IMPRESO automáticamente';
+        }
         if (count($archivosProcesados) > 0) {
             $mensaje .= ' (archivos actualizados: ' . implode(', ', $archivosProcesados) . ')';
         }
@@ -681,7 +705,7 @@ public function update(Request $request, string $id)
             'message' => $mensaje,
             'data' => $solicitud,
             'archivos_actualizados' => $archivosProcesados,
-            'estado_actualizado' => $voucherSubido
+            'estado_actualizado' => $voucherSubido || ($idCredencialCompleto && $vigenciaCompleta)
         ]);
 
     } catch (\Exception $e) {
@@ -703,6 +727,210 @@ public function update(Request $request, string $id)
 }
 
 
+public function descargarCredencial($id)
+{
+    try {
+        $solicitud = Solicitud::with(['terminal'])->find($id);
+        
+        if (!$solicitud) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Solicitud no encontrada'
+            ], 404);
+        }
+
+        // Verificar que tenga los datos necesarios
+        if ($solicitud->solicitudes_estadosId != 9) {
+            return response()->json([
+                'success' => false,
+                'message' => 'La credencial solo puede descargarse cuando la solicitud está en estado IMPRESA'
+            ], 400);
+        }
+
+         // Verificar que tenga los datos necesarios
+        if (!$solicitud->id_credencial || !$solicitud->vigencia || !$solicitud->fotografia) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Faltan datos necesarios para generar la credencial (ID credencial, vigencia o fotografía)'
+            ], 400);
+        }
+
+        // Crear imagen usando GD
+        $width = 320;
+        $height = 200;
+        
+        $image = imagecreate($width, $height);
+        
+        // Colores
+        $white = imagecolorallocate($image, 255, 255, 255);
+        $lightGray = imagecolorallocate($image, 248, 249, 250);
+        $borderColor = imagecolorallocate($image, 222, 226, 230);
+        $black = imagecolorallocate($image, 0, 0, 0);
+        $gray = imagecolorallocate($image, 102, 102, 102);
+        $darkGray = imagecolorallocate($image, 153, 153, 153);
+
+        // Fondo blanco
+        imagefill($image, 0, 0, $white);
+
+        // Dividir en 3 partes
+        $parte1Width = 105;
+        $parte2Width = 113;  
+        $parte3Width = 102;
+
+        // Parte 1: Nombre y apellido
+        imagefilledrectangle($image, 0, 0, $parte1Width, $height, $lightGray);
+        imagerectangle($image, 0, 0, $parte1Width, $height, $borderColor);
+
+        $nombreCompleto = trim($solicitud->nombres . ' ' . $solicitud->apellidos);
+        
+        // Usar una fuente TrueType para mejor calidad
+        $fontPath = public_path('fonts/arial.ttf');
+        
+        if (file_exists($fontPath)) {
+            // Calcular tamaño de fuente basado en la longitud del texto
+            $fontSize = 12;
+            $maxWidth = $parte1Width - 20; // Margen de 10px cada lado
+            
+            // Ajustar tamaño si el texto es muy largo
+            $bbox = imagettfbbox($fontSize, 0, $fontPath, $nombreCompleto);
+            $textWidth = $bbox[2] - $bbox[0];
+            
+            if ($textWidth > $maxWidth) {
+                $fontSize = max(8, $fontSize * ($maxWidth / $textWidth));
+            }
+            
+            // Centrar texto vertical y horizontalmente
+            $bbox = imagettfbbox($fontSize, 0, $fontPath, $nombreCompleto);
+            $textWidth = $bbox[2] - $bbox[0];
+            $textHeight = $bbox[1] - $bbox[7];
+            
+            $x = ($parte1Width - $textWidth) / 2;
+            $y = ($height + $textHeight) / 2;
+            
+            imagettftext($image, $fontSize, 0, $x, $y, $black, $fontPath, $nombreCompleto);
+        } else {
+            // Fallback a fuente GD básica
+            $lines = explode(' ', $nombreCompleto);
+            $currentLine = '';
+            $formattedLines = [];
+            
+            foreach ($lines as $word) {
+                $testLine = $currentLine . ($currentLine ? ' ' : '') . $word;
+                if (strlen($testLine) <= 15) {
+                    $currentLine = $testLine;
+                } else {
+                    if ($currentLine) $formattedLines[] = $currentLine;
+                    $currentLine = $word;
+                }
+            }
+            if ($currentLine) $formattedLines[] = $currentLine;
+            
+            $lineHeight = 15;
+            $startY = ($height - (count($formattedLines) * $lineHeight)) / 2;
+            
+            foreach ($formattedLines as $index => $line) {
+                $textWidth = imagefontwidth(3) * strlen($line);
+                $x = ($parte1Width - $textWidth) / 2;
+                $y = $startY + ($index * $lineHeight);
+                imagestring($image, 3, $x, $y, $line, $black);
+            }
+        }
+
+        // Parte 2: Fotografía
+        imagefilledrectangle($image, $parte1Width, 0, $parte1Width + $parte2Width, $height, $white);
+        imagerectangle($image, $parte1Width, 0, $parte1Width + $parte2Width, $height, $borderColor);
+
+        // Cargar fotografía
+        $fotoPath = storage_path('app/public/' . $solicitud->fotografia);
+        if (file_exists($fotoPath)) {
+            $fotoInfo = getimagesize($fotoPath);
+            if ($fotoInfo) {
+                $fotoType = $fotoInfo[2];
+                
+                switch ($fotoType) {
+                    case IMAGETYPE_JPEG:
+                        $sourceImage = imagecreatefromjpeg($fotoPath);
+                        break;
+                    case IMAGETYPE_PNG:
+                        $sourceImage = imagecreatefrompng($fotoPath);
+                        break;
+                    default:
+                        $sourceImage = null;
+                }
+                
+                if ($sourceImage) {
+                    $fotoSize = 85;
+                    $srcWidth = imagesx($sourceImage);
+                    $srcHeight = imagesy($sourceImage);
+                    
+                    // Redimensionar manteniendo aspecto
+                    $ratio = min($fotoSize / $srcWidth, $fotoSize / $srcHeight);
+                    $newWidth = $srcWidth * $ratio;
+                    $newHeight = $srcHeight * $ratio;
+                    
+                    $x = $parte1Width + ($parte2Width - $newWidth) / 2;
+                    $y = ($height - $newHeight) / 2;
+                    
+                    imagecopyresampled($image, $sourceImage, $x, $y, 0, 0, $newWidth, $newHeight, $srcWidth, $srcHeight);
+                    imagedestroy($sourceImage);
+                }
+            }
+        }
+
+        // Parte 3: Vigencia
+        imagefilledrectangle($image, $parte1Width + $parte2Width, 0, $width, $height, $lightGray);
+        imagerectangle($image, $parte1Width + $parte2Width, 0, $width, $height, $borderColor);
+
+        $vigenciaFormateada = \Carbon\Carbon::parse($solicitud->vigencia)->format('d/m/Y');
+        
+        if (file_exists($fontPath)) {
+            // "VIGENCIA"
+            $bbox = imagettfbbox(10, 0, $fontPath, 'VIGENCIA');
+            $textWidth = $bbox[2] - $bbox[0];
+            $x = $parte1Width + $parte2Width + ($parte3Width - $textWidth) / 2;
+            $y = $height / 2 - 5;
+            imagettftext($image, 10, 0, $x, $y, $black, $fontPath, 'VIGENCIA');
+            
+            // Fecha
+            $bbox = imagettfbbox(9, 0, $fontPath, $vigenciaFormateada);
+            $textWidth = $bbox[2] - $bbox[0];
+            $x = $parte1Width + $parte2Width + ($parte3Width - $textWidth) / 2;
+            $y = $height / 2 + 15;
+            imagettftext($image, 9, 0, $x, $y, $gray, $fontPath, $vigenciaFormateada);
+        } else {
+            // Fallback GD
+            $vigenciaWidth = imagefontwidth(3) * strlen('VIGENCIA');
+            $vigenciaX = $parte1Width + $parte2Width + ($parte3Width - $vigenciaWidth) / 2;
+            imagestring($image, 3, $vigenciaX, $height / 2 - 15, 'VIGENCIA', $black);
+            
+            $fechaWidth = imagefontwidth(2) * strlen($vigenciaFormateada);
+            $fechaX = $parte1Width + $parte2Width + ($parte3Width - $fechaWidth) / 2;
+            imagestring($image, 2, $fechaX, $height / 2, $vigenciaFormateada, $gray);
+        }
+
+        // ID credencial
+        $idText = 'ID: ' . $solicitud->id_credencial;
+        if (file_exists($fontPath)) {
+            imagettftext($image, 8, 0, $width - 10, $height - 10, $darkGray, $fontPath, $idText);
+        } else {
+            $idWidth = imagefontwidth(1) * strlen($idText);
+            imagestring($image, 1, $width - $idWidth - 5, $height - 15, $idText, $darkGray);
+        }
+
+        // Devolver la imagen
+        header('Content-Type: image/png');
+        imagepng($image);
+        imagedestroy($image);
+        
+        exit;
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al generar la credencial: ' . $e->getMessage()
+        ], 500);
+    }
+}
 
 
 

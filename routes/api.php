@@ -60,6 +60,7 @@ Route::prefix('solicitudes')->name('solicitudes.')->group(function () {
     Route::put('/{id}', [SolicitudController::class, 'update'])->name('update');
     Route::put('/{id}/cambiar-estado', [SolicitudController::class, 'cambiarEstado'])->name('cambiar-estado');
     Route::delete('/{id}', [SolicitudController::class, 'destroy'])->name('destroy');
+    Route::get('/{id}/descargar-credencial', [SolicitudController::class, 'descargarCredencial']);
 });
 
 
