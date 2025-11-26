@@ -61,6 +61,7 @@ Route::prefix('solicitudes')->name('solicitudes.')->group(function () {
     Route::put('/{id}/cambiar-estado', [SolicitudController::class, 'cambiarEstado'])->name('cambiar-estado')->middleware('web');
     Route::delete('/{id}', [SolicitudController::class, 'destroy'])->name('destroy')->middleware('web');
     Route::get('/{id}/descargar-credencial', [SolicitudController::class, 'descargarCredencial']);
+    Route::get('/export/excel', [SolicitudController::class, 'exportExcel']);
 });
 
 

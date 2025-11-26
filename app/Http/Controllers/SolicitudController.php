@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
 use Intervention\Image\Facades\Image;
 use Intervention\Image\ImageManager;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\SolicitudesExport;
 
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
@@ -997,6 +999,64 @@ public function descargarCredencial($id)
         return response()->json([
             'success' => false,
             'message' => 'Error al generar la credencial: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+
+public function exportExcel(Request $request)
+{
+    try {
+        $tipo = $request->get('tipo', 'general');
+        
+        $query = Solicitud::with(['estado', 'terminal']);
+        
+        switch ($tipo) {
+            case 'vencimientos':
+                // Credenciales que vencen en los próximos 30 días
+                $fechaLimite = now()->addDays(30);
+                $query->whereNotNull('vigencia')
+                      ->where('vigencia', '<=', $fechaLimite)
+                      ->where('vigencia', '>=', now());
+                break;
+                    
+            case 'personalizado':
+                // Aplicar filtros personalizados
+                if ($request->has('estado') && $request->estado) {
+                    $query->where('solicitudes_estadosId', $request->estado);
+                }
+                
+                if ($request->has('terminal') && $request->terminal) {
+                    $query->where('terminalesId', $request->terminal);
+                }
+                
+                if ($request->has('fecha_desde') && $request->fecha_desde) {
+                    $query->where('created_at', '>=', $request->fecha_desde);
+                }
+                
+                if ($request->has('fecha_hasta') && $request->fecha_hasta) {
+                    $query->where('created_at', '<=', $request->fecha_hasta . ' 23:59:59');
+                }
+                break;
+                
+            case 'general':
+            default:
+                // Sin filtros adicionales para reporte general
+                break;
+        }
+        
+        $solicitudes = $query->orderBy('created_at', 'desc')->get();
+        
+        // Generar nombre del archivo
+        $fileName = 'solicitudes_' . $tipo . '_' . now()->format('Y-m-d_H-i') . '.xlsx';
+        
+        return Excel::download(new SolicitudesExport($solicitudes), $fileName);
+        
+    } catch (\Exception $e) {
+        \Log::error('Error al exportar Excel: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al generar el archivo Excel: ' . $e->getMessage()
         ], 500);
     }
 }

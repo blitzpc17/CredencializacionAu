@@ -615,6 +615,57 @@
     .pagination-size {
         min-width: 150px;
     }
+
+    /* Estilos para el modal de exportación */
+.export-progress {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    display: none;
+}
+
+.progress-bar {
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--success);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.export-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--gray);
+    margin-top: 0.25rem;
+}
 </style>
 @endpush
 
@@ -652,6 +703,18 @@
                         </button>
                         <button class="btn success sm" id="addSolicitud">
                             <i class="fas fa-plus"></i> Nueva Solicitud
+                        </button>
+                    </div>
+                    <div class="datatable-actions">
+                        <button class="btn primary sm" id="refreshSolicitudes">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                        <button class="btn success sm" id="addSolicitud">
+                            <i class="fas fa-plus"></i> Nueva Solicitud
+                        </button>
+                        <!-- Botón para abrir modal de exportación -->
+                        <button class="btn info sm" id="exportExcel">
+                            <i class="fas fa-file-excel"></i> Exportar Excel
                         </button>
                     </div>
                 </div>
@@ -1001,6 +1064,70 @@
         </div>
     </div>
 </div>
+
+<!-- Modal para exportación Excel -->
+<div class="modal-overlay" id="exportModal">
+    <div class="modal" style="max-width: 600px;">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="fas fa-file-excel"></i> Exportar a Excel
+            </h3>
+            <button class="modal-close" data-modal="exportModal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">Tipo de Reporte</label>
+                <select class="form-control" id="tipoReporte">
+                    <option value="general">Reporte General</option>
+                    <option value="vencimientos">Vencimientos Próximos (1 mes)</option>
+                    <option value="personalizado">Filtros Personalizados</option>
+                </select>
+            </div>
+
+            <!-- Filtros personalizados (se muestran solo cuando se selecciona esa opción) -->
+            <div id="filtrosPersonalizados" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">Estado</label>
+                    <select class="form-control" id="filtroEstado">
+                        <option value="">Todos los estados</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Terminal</label>
+                    <select class="form-control" id="filtroTerminal">
+                        <option value="">Todas las terminales</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Fecha Desde</label>
+                    <input type="date" class="form-control" id="filtroFechaDesde">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Fecha Hasta</label>
+                    <input type="date" class="form-control" id="filtroFechaHasta">
+                </div>
+            </div>
+
+            <div class="alert info">
+                <i class="fas fa-info-circle"></i>
+                <div class="alert-content">
+                    <h4 class="alert-title">Información</h4>
+                    <p class="alert-message" id="infoExportacion">
+                        Se exportará un reporte general con todas las solicitudes.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn light" data-modal="exportModal">Cancelar</button>
+            <button class="btn success" id="confirmExport">
+                <i class="fas fa-download"></i> Generar Excel
+            </button>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('js')
@@ -1143,46 +1270,50 @@
 
         // ===== PAGINACIÓN =====
         function setupPagination() {
-            const paginationContainer = document.createElement('div');
-            paginationContainer.className = 'pagination-container';
-            paginationContainer.innerHTML = `
-                <div class="pagination-controls">
-                    <div class="pagination-info">
-                        Mostrando <span id="paginationFrom">0</span>-<span id="paginationTo">0</span> de <span id="paginationTotal">0</span> registros
+            // Verificar si ya existe el contenedor de paginación
+            let paginationContainer = document.querySelector('.pagination-container');
+            if (!paginationContainer) {
+                paginationContainer = document.createElement('div');
+                paginationContainer.className = 'pagination-container';
+                paginationContainer.innerHTML = `
+                    <div class="pagination-controls">
+                        <div class="pagination-info">
+                            Mostrando <span id="paginationFrom">0</span>-<span id="paginationTo">0</span> de <span id="paginationTotal">0</span> registros
+                        </div>
+                        <div class="pagination-buttons">
+                            <button class="btn sm light" id="firstPage" disabled>
+                                <i class="fas fa-angle-double-left"></i>
+                            </button>
+                            <button class="btn sm light" id="prevPage" disabled>
+                                <i class="fas fa-angle-left"></i>
+                            </button>
+                            <span class="pagination-numbers" id="paginationNumbers"></span>
+                            <button class="btn sm light" id="nextPage" disabled>
+                                <i class="fas fa-angle-right"></i>
+                            </button>
+                            <button class="btn sm light" id="lastPage" disabled>
+                                <i class="fas fa-angle-double-right"></i>
+                            </button>
+                        </div>
+                        <div class="pagination-size">
+                            <select class="form-control sm" id="perPageSelect">
+                                <option value="5">5 por página</option>
+                                <option value="10" selected>10 por página</option>
+                                <option value="25">25 por página</option>
+                                <option value="50">50 por página</option>
+                                <option value="100">100 por página</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="pagination-buttons">
-                        <button class="btn sm light" id="firstPage" disabled>
-                            <i class="fas fa-angle-double-left"></i>
-                        </button>
-                        <button class="btn sm light" id="prevPage" disabled>
-                            <i class="fas fa-angle-left"></i>
-                        </button>
-                        <span class="pagination-numbers" id="paginationNumbers"></span>
-                        <button class="btn sm light" id="nextPage" disabled>
-                            <i class="fas fa-angle-right"></i>
-                        </button>
-                        <button class="btn sm light" id="lastPage" disabled>
-                            <i class="fas fa-angle-double-right"></i>
-                        </button>
-                    </div>
-                    <div class="pagination-size">
-                        <select class="form-control sm" id="perPageSelect">
-                            <option value="5">5 por página</option>
-                            <option value="10" selected>10 por página</option>
-                            <option value="25">25 por página</option>
-                            <option value="50">50 por página</option>
-                            <option value="100">100 por página</option>
-                        </select>
-                    </div>
-                </div>
-            `;
-            
-            // Insertar después de la tabla
-            const tableContainer = document.querySelector('.table-responsive');
-            if (tableContainer && tableContainer.parentNode) {
-                tableContainer.parentNode.insertBefore(paginationContainer, tableContainer.nextSibling);
+                `;
+                
+                // Insertar después de la tabla
+                const tableContainer = document.querySelector('.table-responsive');
+                if (tableContainer && tableContainer.parentNode) {
+                    tableContainer.parentNode.insertBefore(paginationContainer, tableContainer.nextSibling);
+                }
             }
-            
+
             // Event listeners para paginación
             document.getElementById('firstPage').addEventListener('click', function() {
                 goToPage(1);
@@ -1207,6 +1338,7 @@
             });
         }
 
+
         function goToPage(page) {
             if (page < 1 || page > totalPages) {
                 return;
@@ -1222,7 +1354,7 @@
             const pageData = filteredSolicitudes.slice(startIndex, endIndex);
             
             // Renderizar datos de la página actual
-            renderSolicitudes(pageData);
+            renderSolicitudesTable(pageData);
             
             // Actualizar información de paginación
             const paginationFrom = document.getElementById('paginationFrom');
@@ -1244,8 +1376,8 @@
             
             if (firstPageBtn) firstPageBtn.disabled = (currentPage === 1);
             if (prevPageBtn) prevPageBtn.disabled = (currentPage === 1);
-            if (nextPageBtn) nextPageBtn.disabled = (currentPage === totalPages);
-            if (lastPageBtn) lastPageBtn.disabled = (currentPage === totalPages);
+            if (nextPageBtn) nextPageBtn.disabled = (currentPage === totalPages || totalPages === 0);
+            if (lastPageBtn) lastPageBtn.disabled = (currentPage === totalPages || totalPages === 0);
             
             // Actualizar números de página
             const paginationNumbers = document.getElementById('paginationNumbers');
@@ -1327,6 +1459,96 @@
                     hideLoading();
                 }
             });
+        }
+
+        // Función separada para renderizar solo la tabla
+        function renderSolicitudesTable(solicitudesList) {
+            if (solicitudesList.length === 0) {
+                solicitudesTableBody.innerHTML = '';
+                emptyState.style.display = 'block';
+                
+                const paginationContainer = document.querySelector('.pagination-container');
+                if (paginationContainer) {
+                    paginationContainer.style.display = 'block';
+                }
+                
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            
+            const html = solicitudesList.map(solicitud => `
+                <tr>
+                    <td>
+                        <span class="folio-badge">${solicitud.folio}</span>
+                    </td>
+                    <td>
+                        <div>
+                            <strong>${solicitud.nombres} ${solicitud.apellidos}</strong><br>
+                            <small class="text-muted">${solicitud.correo}</small>
+                        </div>
+                    </td>
+                    <td>${solicitud.escuela_procedencia}</td>
+                    <td>${(solicitud.terminal && solicitud.terminal.nombre) || 'N/A'}</td>
+                    <td>
+                        <span class="badge ${getEstadoBadgeClass(solicitud.estado ? solicitud.estado.nombre : '')}">
+                            ${(solicitud.estado && solicitud.estado.nombre) || 'Pendiente'}
+                        </span>
+                    </td>
+                    <td>
+                        ${solicitud.id_credencial ? 
+                            `<span class="badge success">${solicitud.id_credencial}</span>` : 
+                            '<span class="badge warning">Sin asignar</span>'
+                        }
+                    </td>
+                    <td>${formatDate(solicitud.created_at)}</td>
+                    <td>
+                        <button class="btn-icon primary view-solicitud" data-id="${solicitud.id}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn-icon edit-solicitud" 
+                                data-id="${solicitud.id}"
+                                data-folio="${solicitud.folio}"
+                                data-nombres="${solicitud.nombres}"
+                                data-apellidos="${solicitud.apellidos}"
+                                data-perfil_academico="${solicitud.perfil_academico}"
+                                data-escuela_procedencia="${solicitud.escuela_procedencia}"
+                                data-lugar_residencia="${solicitud.lugar_residencia}"
+                                data-lugar_origen="${solicitud.lugar_origen}"
+                                data-lugar_viaja_frecuente="${solicitud.lugar_viaja_frecuente}"
+                                data-terminalesid="${solicitud.terminalesId}"
+                                data-veces_semana="${solicitud.veces_semana}"
+                                data-dia_semana_viaja="${solicitud.dia_semana_viaja}"
+                                data-curp="${solicitud.curp}"
+                                data-credencial="${solicitud.credencial}"
+                                data-fotografia="${solicitud.fotografia}"
+                                data-voucher_pago="${solicitud.voucher_pago || ''}"
+                                data-correo="${solicitud.correo}"
+                                data-telefono="${solicitud.telefono}"
+                                data-formapago="${solicitud.formaPago}"
+                                data-solicitudes_estadosid="${solicitud.solicitudes_estadosId}"
+                                data-vigencia="${solicitud.vigencia ? solicitud.vigencia.split('T')[0] : ''}"
+                                data-id_credencial="${solicitud.id_credencial || ''}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon danger delete-solicitud" 
+                                data-id="${solicitud.id}" 
+                                data-folio="${solicitud.folio}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        ${(solicitud.solicitudes_estadosId === 9 || solicitud.solicitudes_estadosId === 7) ? `
+                        <button class="btn-icon success download-credencial" 
+                                data-id="${solicitud.id}"
+                                data-folio="${solicitud.folio}"
+                                title="Descargar Credencial">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `).join('');
+
+            solicitudesTableBody.innerHTML = html;
         }
 
         // ===== CARGAR DATOS DEL FORMULARIO =====
@@ -1423,7 +1645,9 @@
                 success: function(response) {
                     if (response.success) {
                         solicitudes = response.data;
-                        renderSolicitudes(solicitudes);
+                        filteredSolicitudes = [...solicitudes]; // Copia para filtrado
+                        currentPage = 1;
+                        renderPagination();
                     } else {
                         showAlert('error', 'Error al cargar las solicitudes: ' + response.message);
                     }
@@ -2444,7 +2668,7 @@
         function setupSearch() {
             searchInput.addEventListener('input', function(e) {
                 const searchTerm = e.target.value.toLowerCase();
-                const filteredSolicitudes = solicitudes.filter(solicitud => 
+                filteredSolicitudes = solicitudes.filter(solicitud => 
                     solicitud.folio.toLowerCase().includes(searchTerm) ||
                     solicitud.nombres.toLowerCase().includes(searchTerm) ||
                     solicitud.apellidos.toLowerCase().includes(searchTerm) ||
@@ -2452,7 +2676,8 @@
                     solicitud.escuela_procedencia.toLowerCase().includes(searchTerm) ||
                     (solicitud.id_credencial && solicitud.id_credencial.toLowerCase().includes(searchTerm))
                 );
-                renderSolicitudes(filteredSolicitudes);
+                currentPage = 1;
+                renderPagination();
             });
         }
 
@@ -2483,6 +2708,137 @@
 
         function descargarCredencial(id, folio) {
             window.open(`/api/solicitudes/${id}/descargar-credencial`, '_blank');
+        }
+
+
+        // ===== FUNCIONALIDAD DE EXPORTACIÓN EXCEL =====
+        function setupExportFunctionality() {
+            // Event listener para el botón de exportación
+            document.getElementById('exportExcel').addEventListener('click', function() {
+                openExportModal();
+            });
+
+            // Event listener para cambiar tipo de reporte
+            document.getElementById('tipoReporte').addEventListener('change', function() {
+                updateExportInfo();
+            });
+
+            // Event listener para confirmar exportación
+            document.getElementById('confirmExport').addEventListener('click', function() {
+                generateExcelReport();
+            });
+        }
+
+        function openExportModal() {
+            // Llenar selects de filtros
+            fillExportFilters();
+            updateExportInfo();
+            openModal('exportModal');
+        }
+
+        function fillExportFilters() {
+            // Llenar select de estados
+            const estadoSelect = document.getElementById('filtroEstado');
+            estadoSelect.innerHTML = '<option value="">Todos los estados</option>';
+            if (formData.estados) {
+                formData.estados.forEach(estado => {
+                    const option = document.createElement('option');
+                    option.value = estado.id;
+                    option.textContent = estado.nombre;
+                    estadoSelect.appendChild(option);
+                });
+            }
+
+            // Llenar select de terminales
+            const terminalSelect = document.getElementById('filtroTerminal');
+            terminalSelect.innerHTML = '<option value="">Todas las terminales</option>';
+            if (formData.terminales) {
+                formData.terminales.forEach(terminal => {
+                    const option = document.createElement('option');
+                    option.value = terminal.id;
+                    option.textContent = terminal.nombre;
+                    terminalSelect.appendChild(option);
+                });
+            }
+        }
+
+        function updateExportInfo() {
+            const tipoReporte = document.getElementById('tipoReporte').value;
+            const infoElement = document.getElementById('infoExportacion');
+            const filtrosPersonalizados = document.getElementById('filtrosPersonalizados');
+
+            switch(tipoReporte) {
+                case 'general':
+                    infoElement.textContent = 'Se exportará un reporte general con todas las solicitudes.';
+                    filtrosPersonalizados.style.display = 'none';
+                    break;
+                case 'vencimientos':
+                    infoElement.textContent = 'Se exportarán las credenciales que vencen en los próximos 30 días.';
+                    filtrosPersonalizados.style.display = 'none';
+                    break;
+                case 'personalizado':
+                    infoElement.textContent = 'Configure los filtros según sus necesidades.';
+                    filtrosPersonalizados.style.display = 'block';
+                    break;
+            }
+        }
+
+        function generateExcelReport() {
+            const tipoReporte = document.getElementById('tipoReporte').value;
+            let url = '/api/solicitudes/export/excel?';
+            let params = [];
+
+            switch(tipoReporte) {
+                case 'general':
+                    params.push('tipo=general');
+                    break;
+                case 'vencimientos':
+                    params.push('tipo=vencimientos');
+                    break;
+                case 'personalizado':
+                    const estado = document.getElementById('filtroEstado').value;
+                    const terminal = document.getElementById('filtroTerminal').value;
+                    const fechaDesde = document.getElementById('filtroFechaDesde').value;
+                    const fechaHasta = document.getElementById('filtroFechaHasta').value;
+                    
+                    if (estado) params.push(`estado=${estado}`);
+                    if (terminal) params.push(`terminal=${terminal}`);
+                    if (fechaDesde) params.push(`fecha_desde=${fechaDesde}`);
+                    if (fechaHasta) params.push(`fecha_hasta=${fechaHasta}`);
+                    
+                    params.push('tipo=personalizado');
+                    break;
+            }
+
+            url += params.join('&');
+            
+            // Mostrar mensaje de procesamiento
+            showAlert('info', 'Generando archivo Excel... Esto puede tomar unos momentos.');
+            
+            // Abrir en nueva pestaña para descargar
+            window.open(url, '_blank');
+            
+            // Cerrar modal
+            closeModal('exportModal');
+        }
+
+        // En la función initializeSolicitudes, agrega:
+        function initializeSolicitudes() {
+            // Cargar formData primero, luego las solicitudes
+            loadFormData().then(() => {
+                console.log("FormData cargado, estados disponibles:", formData.estados);
+                loadSolicitudes();
+                setupPagination();
+                setupEventListeners();
+                setupExportFunctionality(); // ← Agregar esta línea
+            }).catch(error => {
+                console.error("Error cargando formData:", error);
+                showAlert('warning', 'Algunos datos del formulario no se pudieron cargar. Los campos condicionales podrían no funcionar correctamente.');
+                loadSolicitudes();
+                setupPagination();
+                setupEventListeners();
+                setupExportFunctionality(); // ← Agregar esta línea
+            });
         }
 
 
