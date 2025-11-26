@@ -1249,52 +1249,54 @@
     </div>
 
 
-    <!-- Modal de Procesamiento de Foto para Credencial -->
-    <div class="modal" id="photoModal">
-        <div class="modal-content">
-            <span class="close-modal" id="closePhotoModal">&times;</span>
-            
-            <div class="photo-processing-header">
-                <h1><i class="fas fa-camera"></i> Procesar Fotografía para Credencial</h1>
+<!-- Modal de Procesamiento de Foto para Credencial - CON DETECCIÓN FACIAL -->
+<div class="modal" id="photoModal">
+    <div class="modal-content">
+        <span class="close-modal" id="closePhotoModal">&times;</span>
+        
+        <div class="photo-processing-header">
+            <h1><i class="fas fa-camera"></i> Procesar Fotografía para Credencial</h1>
+        </div>
+
+        <div class="photo-processing-content">
+            <div class="specs">
+                <h3><i class="fas fa-ruler"></i> Especificaciones para credencial</h3>
+                <ul>
+                    <li><strong>Requisitos:</strong> Rostro frontal completo</li>
+                    <li><strong>Fondo:</strong> Preferentemente blanco o claro</li>
+                    <li><strong>Iluminación:</strong> Buena, sin sombras</li>
+                    <li><strong>Expresión:</strong> Neutral, ojos abiertos</li>
+                </ul>
             </div>
 
-            <div class="photo-processing-content">
-                <div class="specs">
-                    <h3><i class="fas fa-ruler"></i> Especificaciones estándar para credencial</h3>
-                    <ul>
-                        <li><strong>Tamaño:</strong> 3x3 cm a 300 DPI</li>
-                        <li><strong>Formato:</strong> Fondo blanco o claro</li>
-                        <li><strong>Orientación:</strong> Frontal, rostro completo</li>
-                        <li><strong>Resolución:</strong> Mínimo 354x472 pixels</li>
-                    </ul>
-                </div>
+            <div class="upload-area" id="uploadArea">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h3>Seleccionar Fotografía</h3>
+                <p>Haga clic aquí para seleccionar una foto de rostro frontal</p>
+                <input type="file" id="photoInput" accept="image/*" style="display: none;">
+            </div>
 
-                <div class="upload-area" id="uploadArea">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <h3>Seleccionar Fotografía</h3>
-                    <p>Haga clic aquí o arrastre una imagen para procesarla</p>
-                    <input type="file" id="photoInput" accept="image/*" style="display: none;">
-                </div>
+            <div id="processingStatus" class="processing-status" style="display: none;">
+                <!-- El contenido se llena dinámicamente -->
+            </div>
 
-                <div id="processingStatus" class="processing-status" style="display: none;">
-                    <i class="fas fa-spinner fa-spin"></i> Procesando imagen...
-                </div>
+            <div id="detectionResults" class="detection-results" style="display: none;">
+                <!-- Resultados de detección facial -->
+            </div>
 
-                <div id="detectionResults" class="detection-results" style="display: none;"></div>
+            <div id="resultsPreview" class="preview-container" style="display: none;"></div>
 
-                <div id="resultsPreview" class="preview-container" style="display: none;"></div>
-
-                <div class="form-actions" id="photoActions" style="display: none; margin-top: 2rem;">
-                    <button type="button" class="btn btn-accent" id="cancelPhotoBtn">
-                        <i class="fas fa-times"></i> Cancelar
-                    </button>
-                    <button type="button" class="btn btn-success" id="usePhotoBtn" disabled>
-                        <i class="fas fa-check"></i> Usar esta Foto
-                    </button>
-                </div>
+            <div class="form-actions" id="photoActions" style="display: none; margin-top: 2rem;">
+                <button type="button" class="btn btn-accent" id="cancelPhotoBtn">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-success" id="usePhotoBtn" disabled>
+                    <i class="fas fa-check"></i> Usar esta Foto
+                </button>
             </div>
         </div>
     </div>
+</div>
 
 @endsection
 
@@ -1303,6 +1305,17 @@
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.0.7/dist/blazeface.min.js"></script>
 <script>
+    // Variables para el procesamiento de foto
+    let faceDetectionModel = null;
+    let processedPhotoCanvas = null;
+
+    // Dimensiones estándar para credencial (3x3 cm a 300 DPI = 354x472 pixels)
+    const CREDENTIAL_SIZE = {
+        width: 354,
+        height: 472,
+        dpi: 300
+    };
+
     // Función mejorada con estado de carga
     async function cargarTerminales() {
         const select = document.getElementById('terminalesId');
@@ -1335,7 +1348,7 @@
         } catch (error) {
             console.error('Error cargando terminales:', error);
             select.innerHTML = '<option value="">Error al cargar terminales</option>';
-            mostrarErrorTerminales('No se pudieron cargar las terminales. Por favor, recargue la página.');
+            mostrarError('No se pudieron cargar las terminales. Por favor, recargue la página.');
         }
     }
 
@@ -1348,28 +1361,68 @@
         terminales.forEach(terminal => {
             const option = document.createElement('option');
             option.value = terminal.id;
-            // Ajusta estos campos según tu modelo Terminal
-            option.textContent = terminal.nombre || terminal.descripcion || `Terminal ${terminal.id}`;
-            option.setAttribute('data-terminal', JSON.stringify(terminal));
+            option.textContent = terminal.nombre || `Terminal ${terminal.id}`;
             select.appendChild(option);
         });
     }
 
-    // Cargar al iniciar
-    document.addEventListener('DOMContentLoaded', cargarTerminales);
+    // Cargar datos del formulario al iniciar
+    async function cargarDatosFormulario() {
+        try {
+            const response = await fetch('/api/solicitudes/form-data', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            });
 
-    // También puedes recargar si hay un error
-    function recargarTerminales() {
-        const select = document.getElementById('terminalesId');
-        const errorDiv = select.parentNode.querySelector('.alert-danger');
-        
-        if (errorDiv) {
-            errorDiv.remove();
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success) {
+                    // Llenar perfiles académicos
+                    const perfilSelect = document.getElementById('perfil_academico');
+                    if (result.data.perfiles_academicos) {
+                        perfilSelect.innerHTML = '<option value="">Seleccione una opción</option>';
+                        result.data.perfiles_academicos.forEach(perfil => {
+                            const option = document.createElement('option');
+                            option.value = perfil.id;
+                            option.textContent = perfil.nombre;
+                            perfilSelect.appendChild(option);
+                        });
+                    }
+
+                    // Llenar días de la semana
+                    const diaSelect = document.getElementById('dia_semana_viaja');
+                    if (result.data.dias_semana) {
+                        diaSelect.innerHTML = '<option value="">Seleccione una opción</option>';
+                        result.data.dias_semana.forEach(dia => {
+                            const option = document.createElement('option');
+                            option.value = dia.id;
+                            option.textContent = dia.nombre;
+                            diaSelect.appendChild(option);
+                        });
+                    }
+
+                    // Llenar formas de pago
+                    const formaPagoSelect = document.getElementById('formaPago');
+                    if (result.data.formas_pago) {
+                        formaPagoSelect.innerHTML = '<option value="">Seleccione una opción</option>';
+                        result.data.formas_pago.forEach(forma => {
+                            const option = document.createElement('option');
+                            option.value = forma.id;
+                            option.textContent = forma.nombre;
+                            formaPagoSelect.appendChild(option);
+                        });
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error cargando datos del formulario:', error);
         }
-        
-        cargarTerminales();
     }
 
+    // Configurar vista previa de archivos
     function setupFilePreview(inputId, previewId) {
         const input = document.getElementById(inputId);
         const preview = document.getElementById(previewId);
@@ -1423,14 +1476,8 @@
         });
     }
 
-    // Configurar vista previa para todos los campos de archivo
-    setupFilePreview('fotoSolicitante', 'fotoPreview');
-    setupFilePreview('licencia', 'licenciaPreview');
-    setupFilePreview('tarjetaCirculacion', 'tarjetaPreview');
-    setupFilePreview('voucher', 'voucherPreview')
-
     // Manejar el envío del formulario
-    document.getElementById('registroForm').addEventListener('submit', function(e) {
+    document.getElementById('registroForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
         // Validar términos y condiciones
@@ -1440,54 +1487,72 @@
             Swal.fire({
                 icon: 'warning',
                 title: 'Atención',
-                text: 'Debe aceptar los términos y condiciones de la política de credenzializaicones.',
+                text: 'Debe aceptar los términos y condiciones del servicio.',
                 confirmButtonText: 'Entendido'
             });
             return;
         }
         
-        // Crear FormData para enviar archivos
-        const formData = new FormData();
-        
-        // Agregar datos del formulario
-        formData.append('nombres', document.getElementById('nombres').value);
-        formData.append('apellidos', document.getElementById('apellidos').value);
-        formData.append('perfil_academico', document.getElementById('perfil_academico').value);
-        formData.append('escuela_procedencia', document.getElementById('escuela_procedencia').value);
-        formData.append('lugar_residencia', document.getElementById('lugar_residencia').value);
-        formData.append('lugar_origen', document.getElementById('lugar_origen').value);
-        formData.append('lugar_viaja_frecuente', document.getElementById('lugar_viaja_frecuente').value);
-        formData.append('terminalesId', document.getElementById('terminalesId').value);
-        formData.append('veces_semana', document.getElementById('veces_semana').value);
-        formData.append('dia_semana_viaja', document.getElementById('dia_semana_viaja').value);
-        formData.append('correo', document.getElementById('correo').value);
-        formData.append('telefono', document.getElementById('telefono').value);
-        formData.append('formaPago', document.getElementById('formaPago').value);
-        
-        // Agregar archivos
-        formData.append('curp', document.getElementById('licencia').files[0]);
-        formData.append('voucher', document.getElementById('voucher'.files[0]));
-        formData.append('credencial', document.getElementById('tarjetaCirculacion').files[0]);
-        formData.append('fotografia', document.getElementById('fotoSolicitante').files[0]);
+        // Mostrar loading
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando solicitud...';
+        submitBtn.disabled = true;
 
-        // Enviar datos via AJAX
-        fetch('/api/solicitudes', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
+        try {
+            // Crear FormData para enviar archivos
+            const formData = new FormData();
+            
+            // Agregar datos del formulario
+            formData.append('nombres', document.getElementById('nombres').value);
+            formData.append('apellidos', document.getElementById('apellidos').value);
+            formData.append('perfil_academico', document.getElementById('perfil_academico').value);
+            formData.append('escuela_procedencia', document.getElementById('escuela_procedencia').value);
+            formData.append('lugar_residencia', document.getElementById('lugar_residencia').value);
+            formData.append('lugar_origen', document.getElementById('lugar_origen').value);
+            formData.append('lugar_viaja_frecuente', document.getElementById('lugar_viaja_frecuente').value);
+            formData.append('terminalesId', document.getElementById('terminalesId').value);
+            formData.append('veces_semana', document.getElementById('veces_semana').value);
+            formData.append('dia_semana_viaja', document.getElementById('dia_semana_viaja').value);
+            formData.append('correo', document.getElementById('correo').value);
+            formData.append('telefono', document.getElementById('telefono').value);
+            formData.append('formaPago', document.getElementById('formaPago').value);
+            
+            // Agregar archivos obligatorios
+            const curpFile = document.getElementById('licencia').files[0];
+            const credencialFile = document.getElementById('tarjetaCirculacion').files[0];
+            const fotografiaFile = document.getElementById('fotoSolicitante').files[0];
+            
+            if (!curpFile || !credencialFile || !fotografiaFile) {
+                throw new Error('Todos los documentos obligatorios deben ser subidos');
             }
-        })
-        .then(response => {
+            
+            formData.append('curp', curpFile);
+            formData.append('credencial', credencialFile);
+            formData.append('fotografia', fotografiaFile);
+            
+            // Agregar voucher si existe (opcional)
+            const voucherFile = document.getElementById('voucher').files[0];
+            if (voucherFile) {
+                formData.append('voucher_pago', voucherFile);
+            }
+
+            // Enviar datos via AJAX
+            const response = await fetch('/api/solicitudes', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
             if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.message || 'Error del servidor');
-                });
+                throw new Error(data.message || 'Error del servidor');
             }
-            return response.json();
-        })
-        .then(data => {
+
             if (data.success) {
                 // Mostrar folio generado
                 Swal.fire({
@@ -1495,18 +1560,16 @@
                     title: '¡Solicitud enviada!',
                     html: `Su solicitud ha sido registrada exitosamente.<br><strong>Folio: ${data.folio}</strong>`,
                     confirmButtonText: 'Aceptar'
+                }).then(() => {
+                    // Redirigir al home o limpiar formulario
+                    window.location.href = "{{ route('client.home') }}";
                 });
                 
-                // Limpiar formulario
-                document.getElementById('registroForm').reset();
-                document.querySelectorAll('.file-preview').forEach(preview => {
-                    preview.innerHTML = '';
-                });
             } else {
                 throw new Error(data.message);
             }
-        })
-        .catch(error => {
+
+        } catch (error) {
             console.error('Error:', error);
             Swal.fire({
                 icon: 'error',
@@ -1514,7 +1577,11 @@
                 text: error.message || 'Error al enviar la solicitud. Por favor, intente nuevamente.',
                 confirmButtonText: 'Aceptar'
             });
-        });
+        } finally {
+            // Restaurar botón
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
     });
 
     // Animación para las secciones del formulario al hacer scroll
@@ -1535,9 +1602,8 @@
         observer.observe(section);
     });
 
-    // Modal de Términos y Condiciones - FUNCIONALIDAD MEJORADA
+    // Modal de Términos y Condiciones
     const termsModal = document.getElementById('termsModal');
-    const selfieModal = document.getElementById('selfieModal');
     const openTermsModal = document.getElementById('openTermsModal');
     const closeTermsModal = document.getElementById('closeTermsModal');
     const acceptTermsModal = document.getElementById('acceptTermsModal');
@@ -1547,8 +1613,7 @@
     // Abrir modal de términos
     openTermsModal.addEventListener('click', function(e) {
         e.preventDefault();
-        termsModal.style.display = 'flex'
-        
+        termsModal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
     });
 
@@ -1592,94 +1657,78 @@
         }
     });
 
-    // Navegación y seguimiento de progreso en el modal de términos - NUEVA FUNCIONALIDAD
+    // Navegación y seguimiento de progreso en el modal de términos
     document.addEventListener('DOMContentLoaded', function() {
-    const termsContent = document.getElementById('termsContent');
-    const navLinks = document.querySelectorAll('.nav-link');
-    const progressFill = document.querySelector('.progress-fill');
-    const progressText = document.querySelector('.progress-text');
-    const sections = document.querySelectorAll('.section');
+        const termsContent = document.getElementById('termsContent');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const progressFill = document.querySelector('.progress-fill');
+        const progressText = document.querySelector('.progress-text');
+        const sections = document.querySelectorAll('.section');
 
-    // Función para actualizar la navegación activa
-    function updateActiveNav() {
-        let currentSection = '';
-        
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop - termsContent.offsetTop;
-            const sectionHeight = section.clientHeight;
+        // Función para actualizar la navegación activa
+        function updateActiveNav() {
+            let currentSection = '';
             
-            // Verificar si la sección está visible en el viewport del contenedor
-            if (termsContent.scrollTop >= sectionTop - 100 && 
-                termsContent.scrollTop <= sectionTop + sectionHeight - 100) {
-                currentSection = section.id;
-            }
-        });
-        
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            const href = link.getAttribute('href');
-            if (href === `#${currentSection}`) {
-                link.classList.add('active');
-            }
-        });
-    }
-
-    // Función para actualizar el progreso de lectura
-    function updateReadingProgress() {
-        const contentHeight = termsContent.scrollHeight - termsContent.clientHeight;
-        const scrollPosition = termsContent.scrollTop;
-        const scrollPercentage = contentHeight > 0 ? (scrollPosition / contentHeight) * 100 : 0;
-        
-        progressFill.style.width = `${Math.min(scrollPercentage, 100)}%`;
-        progressText.textContent = `${Math.min(Math.round(scrollPercentage), 100)}% leído`;
-    }
-
-    // Event listeners para navegación (click en menú)
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            const targetSection = document.querySelector(targetId);
-
-            console.log(targetSection)
-            
-            if (targetSection) {
-                const targetOffset = targetSection.offsetTop - termsContent.offsetTop;
-                termsContent.scrollTo({
-                    top: targetOffset,
-                    behavior: 'smooth'
-                });
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - termsContent.offsetTop;
+                const sectionHeight = section.clientHeight;
                 
-                // Actualizar navegación activa después del scroll
-                setTimeout(updateActiveNav, 300);
-            }
-        });
-    });
+                if (termsContent.scrollTop >= sectionTop - 100 && 
+                    termsContent.scrollTop <= sectionTop + sectionHeight - 100) {
+                    currentSection = section.id;
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                const href = link.getAttribute('href');
+                if (href === `#${currentSection}`) {
+                    link.classList.add('active');
+                }
+            });
+        }
 
-    // Event listener para scroll
-    termsContent.addEventListener('scroll', function() {
+        // Función para actualizar el progreso de lectura
+        function updateReadingProgress() {
+            const contentHeight = termsContent.scrollHeight - termsContent.clientHeight;
+            const scrollPosition = termsContent.scrollTop;
+            const scrollPercentage = contentHeight > 0 ? (scrollPosition / contentHeight) * 100 : 0;
+            
+            progressFill.style.width = `${Math.min(scrollPercentage, 100)}%`;
+            progressText.textContent = `${Math.min(Math.round(scrollPercentage), 100)}% leído`;
+        }
+
+        // Event listeners para navegación
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                
+                if (targetSection) {
+                    const targetOffset = targetSection.offsetTop - termsContent.offsetTop;
+                    termsContent.scrollTo({
+                        top: targetOffset,
+                        behavior: 'smooth'
+                    });
+                    
+                    setTimeout(updateActiveNav, 300);
+                }
+            });
+        });
+
+        // Event listener para scroll
+        termsContent.addEventListener('scroll', function() {
+            updateActiveNav();
+            updateReadingProgress();
+        });
+
+        // Inicializar
         updateActiveNav();
         updateReadingProgress();
     });
 
-    // Inicializar
-    updateActiveNav();
-    updateReadingProgress();
-});
-
-
-// Variables para el procesamiento de foto
-    let faceDetectionModel = null;
-    let processedPhotoCanvas = null;
-
-    // Dimensiones estándar para credencial (3x3 cm a 300 DPI = 354x354 pixels)
-    const CREDENTIAL_SIZE = {
-        width: 354,
-        height: 472,  // Un poco más alto para incluir hombros
-        dpi: 300
-    };
-
-    // Modal de Procesamiento de Foto
+    // Modal de Procesamiento de Foto - CON DETECCIÓN FACIAL MEJORADA
     const photoModal = document.getElementById('photoModal');
     const openPhotoModalBtn = document.getElementById('openPhotoModalBtn');
     const closePhotoModal = document.getElementById('closePhotoModal');
@@ -1733,6 +1782,7 @@
         detectionResults.innerHTML = '';
         processedPhotoCanvas = null;
         usePhotoBtn.disabled = true;
+        if (photoInput) photoInput.value = '';
     }
 
     // Eventos para subir foto
@@ -1742,10 +1792,16 @@
 
     photoInput.addEventListener('change', handlePhotoUpload);
 
-    // Manejar la subida de foto
+    // Manejar la subida de foto CON DETECCIÓN FACIAL
     async function handlePhotoUpload(e) {
         const file = e.target.files[0];
         if (!file) return;
+
+        // Validar tipo de archivo
+        if (!file.type.startsWith('image/')) {
+            showPhotoError('Por favor selecciona un archivo de imagen válido');
+            return;
+        }
 
         // Mostrar estado de procesamiento
         uploadArea.style.display = 'none';
@@ -1754,13 +1810,14 @@
         resultsPreview.style.display = 'none';
         photoActions.style.display = 'none';
 
-        // Cargar modelo si no está cargado
+        // Cargar modelo de detección facial si no está cargado
         if (!faceDetectionModel) {
             try {
+                processingStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando modelo de detección facial...';
                 faceDetectionModel = await blazeface.load();
             } catch (error) {
                 console.error('Error cargando el modelo:', error);
-                showPhotoError('Error al cargar el modelo de detección facial');
+                showPhotoError('Error al cargar el modelo de detección facial. Por favor, recarga la página.');
                 return;
             }
         }
@@ -1769,6 +1826,9 @@
         const img = new Image();
         img.onload = async () => {
             try {
+                processingStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Detectando rostros...';
+                
+                // Detectar rostros
                 const predictions = await faceDetectionModel.estimateFaces(img, false);
                 
                 // Mostrar resultados
@@ -1776,24 +1836,40 @@
                 detectionResults.style.display = 'block';
                 
                 if (predictions.length === 0) {
-                    detectionResults.innerHTML = '<p class="detection-error"><i class="fas fa-times-circle"></i> No se detectaron rostros. Intenta con otra foto.</p>';
+                    detectionResults.innerHTML = `
+                        <div class="detection-error">
+                            <i class="fas fa-times-circle"></i> No se detectó ningún rostro.<br>
+                            <small>Asegúrate de que la foto sea frontal y con buena iluminación.</small>
+                        </div>`;
                     uploadArea.style.display = 'block';
                     return;
                 }
                 
-                detectionResults.innerHTML = `<p class="detection-success"><i class="fas fa-check-circle"></i> Rostros detectados: ${predictions.length}</p>`;
+                if (predictions.length > 1) {
+                    detectionResults.innerHTML = `
+                        <div class="detection-error">
+                            <i class="fas fa-times-circle"></i> Se detectaron múltiples rostros.<br>
+                            <small>Por favor, sube una foto con un solo rostro.</small>
+                        </div>`;
+                    uploadArea.style.display = 'block';
+                    return;
+                }
                 
-                // Procesar cada rostro detectado
-                resultsPreview.style.display = 'flex';
-                predictions.forEach((pred, i) => {
-                    createCredentialPreview(img, pred, i);
-                });
+                // Rostro detectado correctamente
+                detectionResults.innerHTML = `
+                    <div class="detection-success">
+                        <i class="fas fa-check-circle"></i> Rostro detectado correctamente
+                    </div>`;
+                
+                // Procesar el rostro detectado
+                createCredentialPreview(img, predictions[0]);
                 
                 photoActions.style.display = 'flex';
+                usePhotoBtn.disabled = false;
                 
             } catch (error) {
                 console.error('Error procesando la imagen:', error);
-                showPhotoError('Error procesando la imagen');
+                showPhotoError('Error procesando la imagen. Por favor, intenta con otra foto.');
             }
         };
         
@@ -1804,17 +1880,20 @@
         img.src = URL.createObjectURL(file);
     }
 
-    // Crear vista previa de credencial
-    function createCredentialPreview(originalImg, prediction, index) {
+    // Crear vista previa de credencial CON ROSTRO COMPLETO
+    function createCredentialPreview(originalImg, prediction) {
         const [x1, y1] = prediction.topLeft;
         const [x2, y2] = prediction.bottomRight;
         const faceWidth = x2 - x1;
         const faceHeight = y2 - y1;
         
-        // Calcular área expandida para incluir hombros y cabello
-        const expansionFactor = 1.85;
-        const expandedWidth = faceWidth * expansionFactor;
-        const expandedHeight = faceHeight * expansionFactor;
+        // Calcular área expandida para incluir cabeza completa y hombros
+        // Ajustamos los factores para obtener el 100% del rostro
+        const horizontalExpansion = 1.6;  // Incluir orejas y cabello a los lados
+        const verticalExpansion = 2.2;    // Incluir cabello arriba y hombros abajo
+        
+        const expandedWidth = faceWidth * horizontalExpansion;
+        const expandedHeight = faceHeight * verticalExpansion;
         
         // Centro del rostro
         const faceCenterX = x1 + faceWidth / 2;
@@ -1849,20 +1928,19 @@
             0, 0, CREDENTIAL_SIZE.width, CREDENTIAL_SIZE.height // Área de destino
         );
         
+        // Almacenar para selección
+        processedPhotoCanvas = credentialCanvas;
+        
         // Crear contenedor para previsualización
         const previewDiv = document.createElement('div');
         previewDiv.className = 'credential-preview';
         previewDiv.innerHTML = `
-            <h4>Foto ${index + 1}</h4>
+            <h4>Vista previa - Credencial</h4>
             <canvas class="credential-photo" width="${CREDENTIAL_SIZE.width}" height="${CREDENTIAL_SIZE.height}"></canvas>
-            <div class="photo-actions">
-                <button class="photo-btn" onclick="selectPhoto(${index})">
-                    <i class="fas fa-check"></i> Seleccionar
-                </button>
-                <button class="photo-btn accent" onclick="applyPassportStyle(${index}, this)">
-                    <i class="fas fa-palette"></i> Blanco/Negro
-                </button>
-            </div>
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                <i class="fas fa-check-circle" style="color: #27ae60;"></i> 
+                Rostro detectado y procesado correctamente
+            </p>
         `;
         
         // Dibujar en el canvas de previsualización
@@ -1870,124 +1948,8 @@
         const previewCtx = previewCanvas.getContext('2d');
         previewCtx.drawImage(credentialCanvas, 0, 0);
         
-        // Almacenar para selección
-        if (!window.credentialPhotos) window.credentialPhotos = [];
-        window.credentialPhotos[index] = credentialCanvas;
-        
         resultsPreview.appendChild(previewDiv);
-    }
-
-    // Seleccionar foto para usar en el formulario
-    window.selectPhoto = function(index) {
-        const canvas = window.credentialPhotos[index];
-        if (canvas) {
-            processedPhotoCanvas = canvas;
-            usePhotoBtn.disabled = false;
-            
-            // Resaltar la foto seleccionada
-            document.querySelectorAll('.credential-preview').forEach((preview, i) => {
-                if (i === index) {
-                    preview.style.borderColor = '#27ae60';
-                    preview.style.boxShadow = '0 0 0 2px #27ae60';
-                } else {
-                    preview.style.borderColor = '#e9ecef';
-                    preview.style.boxShadow = 'none';
-                }
-            });
-            
-            Swal.fire({
-                icon: 'success',
-                title: 'Foto seleccionada',
-                text: 'La foto ha sido seleccionada. Haga clic en "Usar esta Foto" para confirmar.',
-                timer: 2000,
-                showConfirmButton: false
-            });
-        }
-    };
-
-    // Aplicar estilo blanco y negro
-    window.applyPassportStyle = function(index, button) {
-        const originalCanvas = window.credentialPhotos[index];
-        if (!originalCanvas) return;
-        
-        const bwCanvas = document.createElement('canvas');
-        bwCanvas.width = originalCanvas.width;
-        bwCanvas.height = originalCanvas.height;
-        const bwCtx = bwCanvas.getContext('2d');
-        
-        // Dibujar imagen original
-        bwCtx.drawImage(originalCanvas, 0, 0);
-        
-        // Aplicar filtro blanco y negro
-        const imageData = bwCtx.getImageData(0, 0, bwCanvas.width, bwCanvas.height);
-        const data = imageData.data;
-        
-        for (let i = 0; i < data.length; i += 4) {
-            const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
-            data[i] = brightness;     // rojo
-            data[i + 1] = brightness; // verde
-            data[i + 2] = brightness; // azul
-        }
-        
-        bwCtx.putImageData(imageData, 0, 0);
-        
-        // Reemplazar la foto original con la versión blanco y negro
-        window.credentialPhotos[index] = bwCanvas;
-        
-        // Actualizar la previsualización
-        const previews = document.querySelectorAll('.credential-photo');
-        if (previews[index]) {
-            const previewCtx = previews[index].getContext('2d');
-            previewCtx.drawImage(bwCanvas, 0, 0);
-        }
-        
-        // Cambiar texto del botón
-        button.innerHTML = '<i class="fas fa-palette"></i> Color';
-        button.onclick = function() { revertToColor(index, this); };
-        
-        // Si esta foto estaba seleccionada, actualizar processedPhotoCanvas
-        if (processedPhotoCanvas === originalCanvas) {
-            processedPhotoCanvas = bwCanvas;
-        }
-        
-        Swal.fire({
-            icon: 'info',
-            title: 'Filtro aplicado',
-            text: 'Se ha aplicado el filtro blanco y negro (estilo pasaporte)',
-            timer: 1500,
-            showConfirmButton: false
-        });
-    };
-
-    // Revertir a color
-    function revertToColor(index, button) {
-        // Esta función necesitaría guardar el original, pero por simplicidad
-        // recargaremos la imagen original del input
-        const file = photoInput.files[0];
-        if (!file) return;
-        
-        const img = new Image();
-        img.onload = async () => {
-            try {
-                const predictions = await faceDetectionModel.estimateFaces(img, false);
-                if (predictions.length > index) {
-                    createCredentialPreview(img, predictions[index], index);
-                    
-                    // Actualizar botón
-                    button.innerHTML = '<i class="fas fa-palette"></i> Blanco/Negro';
-                    button.onclick = function() { applyPassportStyle(index, this); };
-                    
-                    // Si esta foto estaba seleccionada, resetear processedPhotoCanvas
-                    if (processedPhotoCanvas) {
-                        processedPhotoCanvas = null;
-                        usePhotoBtn.disabled = true;
-                    }
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        };
-        img.src = URL.createObjectURL(file);
+        resultsPreview.style.display = 'flex';
     }
 
     // Usar la foto seleccionada en el formulario
@@ -2029,6 +1991,7 @@
             removeBtn.addEventListener('click', function() {
                 previewItem.remove();
                 fotoSolicitanteInput.value = '';
+                processedPhotoCanvas = null;
             });
             previewItem.appendChild(removeBtn);
             
@@ -2041,8 +2004,8 @@
             
             Swal.fire({
                 icon: 'success',
-                title: 'Foto procesada',
-                text: 'La fotografía para la credencial ha sido procesada y agregada al formulario.',
+                title: 'Foto procesada correctamente',
+                text: 'La fotografía ha sido optimizada para la credencial.',
                 timer: 2000,
                 showConfirmButton: false
             });
@@ -2053,12 +2016,32 @@
     function showPhotoError(message) {
         processingStatus.style.display = 'none';
         detectionResults.style.display = 'block';
-        detectionResults.innerHTML = `<p class="detection-error"><i class="fas fa-exclamation-triangle"></i> ${message}</p>`;
+        detectionResults.innerHTML = `<div class="detection-error"><i class="fas fa-exclamation-triangle"></i> ${message}</div>`;
         uploadArea.style.display = 'block';
     }
 
+    // Función para mostrar errores generales
+    function mostrarError(mensaje) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: mensaje,
+            confirmButtonText: 'Aceptar'
+        });
+    }
 
-    
-    
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configurar vista previa para todos los campos de archivo
+        setupFilePreview('fotoSolicitante', 'fotoPreview');
+        setupFilePreview('licencia', 'licenciaPreview');
+        setupFilePreview('tarjetaCirculacion', 'tarjetaPreview');
+        setupFilePreview('voucher', 'voucherPreview');
+        
+        // Cargar datos iniciales
+        cargarTerminales();
+        cargarDatosFormulario();
+    });
+
 </script>
 @endpush
