@@ -527,6 +527,57 @@
         content: "🚍";
         font-size: 1.5rem;
     }
+
+    /* Estilos adicionales para el modal de folio */
+.file-upload-area {
+    border: 2px dashed #3498db;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    margin: 1rem 0;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.file-upload-area:hover {
+    background-color: #f8f9fa;
+    border-color: #2980b9;
+}
+
+.voucher-section {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--secondary-color);
+}
+
+.processing-status {
+    text-align: center;
+    padding: 1rem;
+    border-radius: 5px;
+    background: #e8f4fd;
+    color: #3498db;
+}
+
+.detection-success {
+    color: #27ae60;
+    font-weight: 600;
+    text-align: center;
+    padding: 1rem;
+    background: #f0fff4;
+    border-radius: 5px;
+    border: 1px solid #27ae60;
+}
+
+.detection-error {
+    color: #e74c3c;
+    font-weight: 600;
+    text-align: center;
+    padding: 1rem;
+    background: #fff0f0;
+    border-radius: 5px;
+    border: 1px solid #e74c3c;
+}
 </style>
 @endpush
 
@@ -642,388 +693,15 @@
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Datos de ejemplo para simular la consulta de folios
-    // Función para consultar el folio via API
-async function consultarFolio(folio) {
-    try {
-        // Mostrar loading
-        mostrarLoadingFolio(true);
-        
-        const response = await fetch(`/api/solicitudes/${folio}`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            }
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-            throw new Error(result.message || 'Error en la consulta');
-        }
-
-        if (result.success) {
-            mostrarResultadoFolio(result.data);
-        } else {
-            throw new Error(result.message);
-        }
-
-    } catch (error) {
-        console.error('Error consultando folio:', error);
-        mostrarErrorFolio(error.message);
-    } finally {
-        mostrarLoadingFolio(false);
-    }
-}
-
-// Función para mostrar el resultado de la consulta
-function mostrarResultadoFolio(solicitud) {
-    // Crear o actualizar el modal de resultados
-    let modal = document.getElementById('folioResultModal');
-    
-    if (!modal) {
-        crearModalResultados();
-        modal = document.getElementById('folioResultModal');
-    }
-
-    // Llenar el modal con los datos
-    document.getElementById('modalFolio').textContent = solicitud.folio;
-    document.getElementById('modalSolicitante').textContent = `${solicitud.nombres} ${solicitud.apellidos}`;
-    document.getElementById('modalFecha').textContent = new Date(solicitud.created_at).toLocaleDateString('es-MX');
-    document.getElementById('modalEstado').textContent = solicitud.estado?.nombre || 'Pendiente';
-    document.getElementById('modalProximo').textContent = obtenerProximoPaso(solicitud.solicitudes_estadosId);
-    
-    // Aplicar clase de estado
-    const estadoElement = document.getElementById('modalEstado');
-    estadoElement.className = 'status-badge ' + obtenerClaseEstado(solicitud.solicitudes_estadosId);
-
-    // Mostrar información adicional
-    document.getElementById('modalEscuela').textContent = solicitud.escuela_procedencia;
-    document.getElementById('modalCorreo').textContent = solicitud.correo;
-    document.getElementById('modalTelefono').textContent = solicitud.telefono;
-    document.getElementById('modalTerminal').textContent = solicitud.terminal?.nombre || 'No asignada';
-
-    // Mostrar el modal
-    modal.style.display = 'flex';
-}
-
-// Función para crear el modal de resultados (si no existe)
-function crearModalResultados() {
-    const modalHTML = `
-        <div id="folioResultModal" class="modal" style="display: none;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>Estado de tu Solicitud</h3>
-                    <span class="close-modal" onclick="cerrarModalFolio()">&times;</span>
-                </div>
-                <div class="modal-body">
-                    <div class="folio-info-grid">
-                        <div class="info-item">
-                            <label>Folio:</label>
-                            <span id="modalFolio" class="folio-number"></span>
-                        </div>
-                        <div class="info-item">
-                            <label>Solicitante:</label>
-                            <span id="modalSolicitante"></span>
-                        </div>
-                        <div class="info-item">
-                            <label>Fecha de solicitud:</label>
-                            <span id="modalFecha"></span>
-                        </div>
-                        <div class="info-item">
-                            <label>Estado:</label>
-                            <span id="modalEstado" class="status-badge"></span>
-                        </div>
-                        <div class="info-item">
-                            <label>Escuela:</label>
-                            <span id="modalEscuela"></span>
-                        </div>
-                        <div class="info-item">
-                            <label>Correo:</label>
-                            <span id="modalCorreo"></span>
-                        </div>
-                        <div class="info-item">
-                            <label>Teléfono:</label>
-                            <span id="modalTelefono"></span>
-                        </div>
-                        <div class="info-item">
-                            <label>Terminal asignada:</label>
-                            <span id="modalTerminal"></span>
-                        </div>
-                    </div>
-                    <div class="proximo-paso">
-                        <h4>Próximo paso:</h4>
-                        <p id="modalProximo"></p>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="cerrarModalFolio()">Aceptar</button>
-                </div>
-            </div>
-        </div>
-    `;
-
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-    
-    // Agregar CSS para el modal
-    agregarCSSModal();
-}
-
-// Función auxiliar para obtener la clase del estado
-function obtenerClaseEstado(estadoId) {
-    const clases = {
-        1: 'status-pending',     // Pendiente
-        2: 'status-processing',  // En proceso
-        3: 'status-approved',    // Aprobado
-        4: 'status-completed',   // Completado
-        5: 'status-rejected'     // Rechazado
-    };
-    return clases[estadoId] || 'status-pending';
-}
-
-// Función auxiliar para obtener el próximo paso
-function obtenerProximoPaso(estadoId) {
-    const pasos = {
-        1: 'Revisión inicial de documentación (2-3 días hábiles)',
-        2: 'Verificación de requisitos académicos (3-5 días hábiles)',
-        3: 'Generación de credencial (5-7 días hábiles)',
-        4: 'Recolección en terminal asignada',
-        5: 'Proceso finalizado'
-    };
-    return pasos[estadoId] || 'Proceso en revisión';
-}
-
-// Función para mostrar/ocultar loading
-function mostrarLoadingFolio(mostrar) {
-    const button = document.querySelector('#folioForm button[type="submit"]');
-    
-    if (mostrar) {
-        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Consultando...';
-        button.disabled = true;
-    } else {
-        button.innerHTML = 'Consultar Estado';
-        button.disabled = false;
-    }
-}
-
-// Función para mostrar error
-function mostrarErrorFolio(mensaje) {
-    // Puedes usar SweetAlert o un modal de error
-    Swal.fire({
-        icon: 'error',
-        title: 'Folio no encontrado',
-        text: mensaje,
-        confirmButtonText: 'Aceptar'
-    });
-    
-    // O usar alert simple:
-    // alert('Error: ' + mensaje);
-}
-
-// Función para cerrar el modal
-function cerrarModalFolio() {
-    const modal = document.getElementById('folioResultModal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-// Cerrar modal al hacer click fuera
-window.addEventListener('click', function(event) {
-    const modal = document.getElementById('folioResultModal');
-    if (modal && event.target === modal) {
-        cerrarModalFolio();
-    }
-});
-
-// Manejar el envío del formulario de folio
-document.getElementById('folioForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const folio = document.getElementById('folioInput').value.trim().toUpperCase();
-    
-    if (folio) {
-        consultarFolio(folio);
-    } else {
-        mostrarErrorFolio('Por favor, ingresa un folio válido');
-    }
-});
-
-// CSS para el modal de resultados
-function agregarCSSModal() {
-    const css = `
-        <style>
-            .modal {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0,0,0,0.5);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                z-index: 1000;
-            }
-
-            .modal-content {
-                background: white;
-                border-radius: 10px;
-                width: 90%;
-                max-width: 600px;
-                max-height: 90vh;
-                overflow-y: auto;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            }
-
-            .modal-header {
-                padding: 1.5rem;
-                border-bottom: 1px solid #eee;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                background: var(--primary-color);
-                color: white;
-                border-radius: 10px 10px 0 0;
-            }
-
-            .modal-header h3 {
-                margin: 0;
-                font-size: 1.3rem;
-            }
-
-            .close-modal {
-                font-size: 1.5rem;
-                cursor: pointer;
-                background: rgba(255,255,255,0.2);
-                width: 30px;
-                height: 30px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: var(--transition);
-            }
-
-            .close-modal:hover {
-                background: rgba(255,255,255,0.3);
-            }
-
-            .modal-body {
-                padding: 1.5rem;
-            }
-
-            .folio-info-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 1rem;
-                margin-bottom: 1.5rem;
-            }
-
-            .info-item {
-                display: flex;
-                flex-direction: column;
-                gap: 0.3rem;
-            }
-
-            .info-item label {
-                font-weight: 600;
-                color: var(--primary-color);
-                font-size: 0.9rem;
-            }
-
-            .folio-number {
-                font-weight: bold;
-                color: var(--secondary-color);
-                font-size: 1.1rem;
-            }
-
-            .status-badge {
-                padding: 0.3rem 0.8rem;
-                border-radius: 20px;
-                font-size: 0.8rem;
-                font-weight: 600;
-                display: inline-block;
-            }
-
-            .status-pending {
-                background-color: #fff3cd;
-                color: #856404;
-            }
-
-            .status-processing {
-                background-color: #cce7ff;
-                color: #004085;
-            }
-
-            .status-approved {
-                background-color: #d4edda;
-                color: #155724;
-            }
-
-            .status-completed {
-                background-color: #d1ecf1;
-                color: #0c5460;
-            }
-
-            .status-rejected {
-                background-color: #f8d7da;
-                color: #721c24;
-            }
-
-            .proximo-paso {
-                background: #f8f9fa;
-                padding: 1rem;
-                border-radius: 5px;
-                border-left: 4px solid var(--secondary-color);
-            }
-
-            .proximo-paso h4 {
-                margin: 0 0 0.5rem 0;
-                color: var(--primary-color);
-            }
-
-            .proximo-paso p {
-                margin: 0;
-                color: #666;
-            }
-
-            .modal-footer {
-                padding: 1rem 1.5rem;
-                border-top: 1px solid #eee;
-                text-align: right;
-            }
-
-            @media (max-width: 768px) {
-                .folio-info-grid {
-                    grid-template-columns: 1fr;
-                }
-                
-                .modal-content {
-                    width: 95%;
-                    margin: 1rem;
-                }
-            }
-        </style>
-    `;
-
-    document.head.insertAdjacentHTML('beforeend', css);
-}  
-
     // Elementos del DOM
     const folioForm = document.getElementById('folioForm');
     const folioInput = document.getElementById('folioInput');
-    const modalFolio = document.getElementById('modalFolio');
-    const modalSolicitante = document.getElementById('modalSolicitante');
-    const modalFecha = document.getElementById('modalFecha');
-    const modalEstado = document.getElementById('modalEstado');
-    const modalProximo = document.getElementById('modalProximo');
     const monthSelect = document.getElementById('monthSelect');
     const cardsLoader = document.getElementById('cardsLoader');
     const cardsContainer = document.getElementById('cardsContainer');
     const noCards = document.getElementById('noCards');
 
-     const IMAGE_BASE_URL = "{{ route('tools.getimagen', ['path' => '']) }}";
+    const IMAGE_BASE_URL = "{{ route('tools.getimagen', ['path' => '']) }}";
 
     // Slider
     const slides = document.querySelector('.slides');
@@ -1077,76 +755,66 @@ function agregarCSSModal() {
 
     // Función para cargar citas por mes
     async function cargarCitasPorMes(mes) {
-    // Mostrar loader
-    cardsLoader.classList.add('active');
-    cardsContainer.innerHTML = '';
-    noCards.style.display = 'none';
+        // Mostrar loader
+        cardsLoader.classList.add('active');
+        cardsContainer.innerHTML = '';
+        noCards.style.display = 'none';
 
-    try {
-        // Consumir API real en lugar de datos simulados
-        const response = await fetch('/api/horarios-credencializacion');
-        
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
-        
-        const data = await response.json();
-
-        if (data.success) {
-            const citas = data.data || [];
-
-            // Filtrar citas por mes si es necesario
-            // (asumiendo que la fecha está en formato que permite filtrar por mes)
-            const citasFiltradas = filtrarCitasPorMes(citas, mes);
-
-            if (citasFiltradas.length === 0) {
-                // Mostrar estado de no hay citas
-                noCards.style.display = 'block';
-            } else {
-                // Generar cards
-                citasFiltradas.forEach((cita, index) => {
-                    const card = crearCard(cita, index);
-                    cardsContainer.appendChild(card);
-                });
+        try {
+            // Consumir API real en lugar de datos simulados
+            const response = await fetch('/api/horarios-credencializacion');
+            
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
             }
-        } else {
-            throw new Error(data.message || 'Error en la respuesta del servidor');
+            
+            const data = await response.json();
+
+            if (data.success) {
+                const citas = data.data || [];
+                const citasFiltradas = filtrarCitasPorMes(citas, mes);
+
+                if (citasFiltradas.length === 0) {
+                    noCards.style.display = 'block';
+                } else {
+                    citasFiltradas.forEach((cita, index) => {
+                        const card = crearCard(cita, index);
+                        cardsContainer.appendChild(card);
+                    });
+                }
+            } else {
+                throw new Error(data.message || 'Error en la respuesta del servidor');
+            }
+        } catch (error) {
+            console.error('Error al cargar citas:', error);
+            cardsContainer.innerHTML = `
+                <div class="no-cards">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h4>Error al cargar</h4>
+                    <p>${error.message || 'Intenta nuevamente más tarde'}</p>
+                    <button class="btn primary mt-2" onclick="cargarCitasPorMes('${mes}')">
+                        <i class="fas fa-redo"></i> Reintentar
+                    </button>
+                </div>
+            `;
+        } finally {
+            cardsLoader.classList.remove('active');
         }
-    } catch (error) {
-        console.error('Error al cargar citas:', error);
-        cardsContainer.innerHTML = `
-            <div class="no-cards">
-                <i class="fas fa-exclamation-triangle"></i>
-                <h4>Error al cargar</h4>
-                <p>${error.message || 'Intenta nuevamente más tarde'}</p>
-                <button class="btn primary mt-2" onclick="cargarCitasPorMes('${mes}')">
-                    <i class="fas fa-redo"></i> Reintentar
-                </button>
-            </div>
-        `;
-    } finally {
-        // Ocultar loader
-        cardsLoader.classList.remove('active');
-    }
-}
-
-// Función auxiliar para filtrar citas por mes
-function filtrarCitasPorMes(citas, mes) {
-    if (!mes || mes === 'todos') {
-        return citas;
     }
 
-    return citas.filter(cita => {
-        if (!cita.fecha) return false;
-        
-        // Convertir el mes a número (asumiendo que 'mes' es un string como "01", "02", etc.)
-        const mesNumero = parseInt(mes);
-        const fechaCita = new Date(cita.fecha);
-        
-        // +1 porque getMonth() retorna 0-11
-        return fechaCita.getMonth() + 1 === mesNumero;
-    });
-}
+    // Función auxiliar para filtrar citas por mes
+    function filtrarCitasPorMes(citas, mes) {
+        if (!mes || mes === 'todos') {
+            return citas;
+        }
+
+        return citas.filter(cita => {
+            if (!cita.fecha) return false;
+            const mesNumero = parseInt(mes);
+            const fechaCita = new Date(cita.fecha);
+            return fechaCita.getMonth() + 1 === mesNumero;
+        });
+    }
 
     // Función para crear card
     function crearCard(cita, index) {
@@ -1174,26 +842,14 @@ function filtrarCitasPorMes(citas, mes) {
             </div>
         `;
 
-        // Agregar evento al botón
         const btn = card.querySelector('.card-btn');
         if (!btn.disabled) {
             btn.addEventListener('click', () => {
-                solicitarCita(cita);
+                window.location.href = "{{ route('client.solicitud') }}";
             });
         }
 
         return card;
-    }
-
-    // Función para solicitar cita
-    function solicitarCita(cita) {
-        // Aquí puedes redirigir al formulario de solicitud o mostrar un modal
-        alert(`Solicitando cita para: ${cita.titulo}\nFecha: ${cita.fecha}`);
-        
-        // Simular reducción de cupos
-        cita.disponibles--;
-        const mesActual = monthSelect.value;
-        cargarCitasPorMes(mesActual);
     }
 
     // Función para limpiar cards
@@ -1202,16 +858,573 @@ function filtrarCitasPorMes(citas, mes) {
         noCards.style.display = 'none';
     }
 
-    // Manejar el envío del formulario de folio
-    folioForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const folio = folioInput.value.trim().toUpperCase();
+    // Función para consultar el folio via API
+    async function consultarFolio(folio) {
+        try {
+            mostrarLoadingFolio(true);
+            
+            const response = await fetch(`/api/solicitudes/consulta/${folio}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || 'Error en la consulta');
+            }
+
+            if (result.success) {
+                mostrarResultadoFolio(result.data);
+            } else {
+                throw new Error(result.message);
+            }
+
+        } catch (error) {
+            console.error('Error consultando folio:', error);
+            mostrarErrorFolio(error.message);
+        } finally {
+            mostrarLoadingFolio(false);
+        }
+    }
+
+    // Función para mostrar el resultado de la consulta
+    function mostrarResultadoFolio(solicitud) {
+        let modal = document.getElementById('folioResultModal');
         
-        if (folio) {
-            consultarFolio(folio);
+        if (!modal) {
+            crearModalResultados();
+            modal = document.getElementById('folioResultModal');
+        }
+
+        // Llenar el modal con los datos
+        document.getElementById('modalFolio').textContent = solicitud.folio;
+        document.getElementById('modalSolicitante').textContent = `${solicitud.nombres} ${solicitud.apellidos}`;
+        document.getElementById('modalFecha').textContent = new Date(solicitud.created_at).toLocaleDateString('es-MX');
+        document.getElementById('modalEstado').textContent = solicitud.estado?.nombre || 'Pendiente';
+        document.getElementById('modalProximo').textContent = obtenerProximoPaso(solicitud.solicitudes_estadosId);
+        
+        // Aplicar clase de estado
+        const estadoElement = document.getElementById('modalEstado');
+        estadoElement.className = 'status-badge ' + obtenerClaseEstado(solicitud.solicitudes_estadosId);
+
+        // Mostrar información adicional
+        document.getElementById('modalEscuela').textContent = solicitud.escuela_procedencia;
+        document.getElementById('modalCorreo').textContent = solicitud.correo;
+        document.getElementById('modalTelefono').textContent = solicitud.telefono;
+        document.getElementById('modalTerminal').textContent = solicitud.terminal?.nombre || 'No asignada';
+
+        // Mostrar sección de voucher si está pendiente
+        const voucherSection = document.getElementById('voucherSection');
+        const voucherActions = document.getElementById('voucherActions');
+        
+        if (solicitud.solicitudes_estadosId === 1) { // Estado pendiente
+            voucherSection.style.display = 'block';
+            voucherActions.style.display = 'flex';
+            document.getElementById('voucherFolio').value = solicitud.folio;
+        } else {
+            voucherSection.style.display = 'none';
+            voucherActions.style.display = 'none';
+        }
+
+        // Mostrar el modal
+        modal.style.display = 'flex';
+    }
+
+    // Función para crear el modal de resultados
+    function crearModalResultados() {
+        const modalHTML = `
+            <div id="folioResultModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Estado de tu Solicitud</h3>
+                        <span class="close-modal" onclick="cerrarModalFolio()">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="folio-info-grid">
+                            <div class="info-item">
+                                <label>Folio:</label>
+                                <span id="modalFolio" class="folio-number"></span>
+                            </div>
+                            <div class="info-item">
+                                <label>Solicitante:</label>
+                                <span id="modalSolicitante"></span>
+                            </div>
+                            <div class="info-item">
+                                <label>Fecha de solicitud:</label>
+                                <span id="modalFecha"></span>
+                            </div>
+                            <div class="info-item">
+                                <label>Estado:</label>
+                                <span id="modalEstado" class="status-badge"></span>
+                            </div>
+                            <div class="info-item">
+                                <label>Escuela:</label>
+                                <span id="modalEscuela"></span>
+                            </div>
+                            <div class="info-item">
+                                <label>Correo:</label>
+                                <span id="modalCorreo"></span>
+                            </div>
+                            <div class="info-item">
+                                <label>Teléfono:</label>
+                                <span id="modalTelefono"></span>
+                            </div>
+                            <div class="info-item">
+                                <label>Terminal asignada:</label>
+                                <span id="modalTerminal"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Sección para subir voucher (solo para estado pendiente) -->
+                        <div id="voucherSection" class="voucher-section" style="display: none; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #eee;">
+                            <h4 style="color: var(--primary-color); margin-bottom: 1rem;">
+                                <i class="fas fa-file-upload"></i> Subir Comprobante de Pago
+                            </h4>
+                            <p style="margin-bottom: 1rem; color: #666;">
+                                Tu solicitud está en estado <strong>PENDIENTE</strong>. Para continuar con el proceso, 
+                                por favor sube tu comprobante de pago.
+                            </p>
+                            
+                            <form id="voucherForm" enctype="multipart/form-data">
+                                <input type="hidden" id="voucherFolio" name="folio">
+                                
+                                <div class="file-upload-area" style="border: 2px dashed #3498db; border-radius: 8px; padding: 2rem; text-align: center; margin: 1rem 0; cursor: pointer; transition: var(--transition);">
+                                    <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #3498db; margin-bottom: 1rem;"></i>
+                                    <h5 style="margin-bottom: 0.5rem; color: var(--primary-color);">Seleccionar archivo</h5>
+                                    <p style="margin: 0.5rem 0; color: #666; font-size: 0.9rem;">
+                                        Formatos aceptados: PDF, JPG, JPEG, PNG<br>
+                                        Tamaño máximo: 2MB
+                                    </p>
+                                    <input type="file" id="voucherFile" name="voucher_pago" accept=".pdf,.jpg,.jpeg,.png" style="display: none;" required>
+                                    <div id="voucherFileName" style="margin-top: 1rem; font-weight: 600; color: var(--secondary-color);"></div>
+                                </div>
+                                
+                                <div id="voucherActions" class="form-actions" style="display: none; margin-top: 1.5rem;">
+                                    <button type="button" class="btn btn-accent" onclick="cancelarVoucher()">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </button>
+                                    <button type="submit" class="btn btn-success" id="submitVoucherBtn">
+                                        <i class="fas fa-upload"></i> Subir Comprobante
+                                    </button>
+                                </div>
+                            </form>
+                            
+                            <div id="voucherUploadStatus" style="display: none; margin-top: 1rem;"></div>
+                        </div>
+                        
+                        <div class="proximo-paso">
+                            <h4>Próximo paso:</h4>
+                            <p id="modalProximo"></p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="cerrarModalFolio()">Aceptar</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        agregarCSSModal();
+        configurarVoucherUpload();
+    }
+
+    // Configurar funcionalidad de subida de voucher
+    function configurarVoucherUpload() {
+        const uploadArea = document.querySelector('.file-upload-area');
+        const voucherFile = document.getElementById('voucherFile');
+        const voucherFileName = document.getElementById('voucherFileName');
+        const voucherActions = document.getElementById('voucherActions');
+        const voucherForm = document.getElementById('voucherForm');
+
+        if (uploadArea && voucherFile) {
+            uploadArea.addEventListener('click', function() {
+                voucherFile.click();
+            });
+
+            voucherFile.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    voucherFileName.textContent = `Archivo seleccionado: ${file.name}`;
+                    voucherActions.style.display = 'flex';
+                    uploadArea.style.borderColor = '#27ae60';
+                    uploadArea.style.backgroundColor = '#f8fff8';
+                }
+            });
+
+            voucherForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                subirVoucher();
+            });
+        }
+    }
+
+    // Función para subir voucher
+    async function subirVoucher() {
+        const formData = new FormData();
+        const fileInput = document.getElementById('voucherFile');
+        const folio = document.getElementById('voucherFolio').value;
+        const submitBtn = document.getElementById('submitVoucherBtn');
+        const statusDiv = document.getElementById('voucherUploadStatus');
+
+        if (!fileInput.files[0]) {
+            mostrarErrorVoucher('Por favor selecciona un archivo');
+            return;
+        }
+
+        formData.append('voucher_pago', fileInput.files[0]);
+
+        try {
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...';
+            submitBtn.disabled = true;
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = '<div class="processing-status"><i class="fas fa-spinner fa-spin"></i> Subiendo comprobante...</div>';
+
+            const response = await fetch(`/api/solicitudes/${folio}/voucher`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || 'Error al subir el comprobante');
+            }
+
+            if (result.success) {
+                statusDiv.innerHTML = `<div class="detection-success"><i class="fas fa-check-circle"></i> ${result.message}</div>`;
+                
+                // Actualizar la información mostrada en el modal
+                setTimeout(() => {
+                    consultarFolio(folio); // Recargar datos
+                    resetVoucherForm();
+                }, 2000);
+            } else {
+                throw new Error(result.message);
+            }
+
+        } catch (error) {
+            console.error('Error subiendo voucher:', error);
+            mostrarErrorVoucher(error.message);
+        } finally {
+            submitBtn.innerHTML = '<i class="fas fa-upload"></i> Subir Comprobante';
+            submitBtn.disabled = false;
+        }
+    }
+
+    // Función para mostrar error en subida de voucher
+    function mostrarErrorVoucher(mensaje) {
+        const statusDiv = document.getElementById('voucherUploadStatus');
+        statusDiv.style.display = 'block';
+        statusDiv.innerHTML = `<div class="detection-error"><i class="fas fa-exclamation-triangle"></i> ${mensaje}</div>`;
+    }
+
+    // Función para resetear formulario de voucher
+    function resetVoucherForm() {
+        const voucherFile = document.getElementById('voucherFile');
+        const voucherFileName = document.getElementById('voucherFileName');
+        const voucherActions = document.getElementById('voucherActions');
+        const uploadArea = document.querySelector('.file-upload-area');
+        const statusDiv = document.getElementById('voucherUploadStatus');
+
+        if (voucherFile) voucherFile.value = '';
+        if (voucherFileName) voucherFileName.textContent = '';
+        if (voucherActions) voucherActions.style.display = 'none';
+        if (uploadArea) {
+            uploadArea.style.borderColor = '#3498db';
+            uploadArea.style.backgroundColor = '';
+        }
+        if (statusDiv) {
+            statusDiv.style.display = 'none';
+            statusDiv.innerHTML = '';
+        }
+    }
+
+    // Función para cancelar subida de voucher
+    function cancelarVoucher() {
+        resetVoucherForm();
+    }
+
+    // Funciones auxiliares
+    function obtenerClaseEstado(estadoId) {
+        const clases = {
+            1: 'status-pending',
+            2: 'status-processing',
+            3: 'status-approved',
+            4: 'status-completed',
+            5: 'status-rejected'
+        };
+        return clases[estadoId] || 'status-pending';
+    }
+
+    function obtenerProximoPaso(estadoId) {
+        const pasos = {
+            1: 'Subir compprobante de pago para continuar con el proceso',
+            2: 'Verificación de requisitos académicos (3-5 días hábiles)',
+            3: 'Generación de credencial (5-7 días hábiles)',
+            4: 'Recolección en terminal asignada',
+            5: 'Proceso finalizado'
+        };
+        return pasos[estadoId] || 'Proceso en revisión';
+    }
+
+    function mostrarLoadingFolio(mostrar) {
+        const button = document.querySelector('#folioForm button[type="submit"]');
+        if (mostrar) {
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Consultando...';
+            button.disabled = true;
+        } else {
+            button.innerHTML = 'Consultar Estado';
+            button.disabled = false;
+        }
+    }
+
+    function mostrarErrorFolio(mensaje) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Folio no encontrado',
+            text: mensaje,
+            confirmButtonText: 'Aceptar'
+        });
+    }
+
+    function cerrarModalFolio() {
+        const modal = document.getElementById('folioResultModal');
+        if (modal) {
+            modal.style.display = 'none';
+            resetVoucherForm();
+        }
+    }
+
+    // Cerrar modal al hacer click fuera
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('folioResultModal');
+        if (modal && event.target === modal) {
+            cerrarModalFolio();
         }
     });
 
+    // Manejar el envío del formulario de folio
+    document.getElementById('folioForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const folio = document.getElementById('folioInput').value.trim().toUpperCase();
+        
+        if (folio) {
+            consultarFolio(folio);
+        } else {
+            mostrarErrorFolio('Por favor, ingresa un folio válido');
+        }
+    });
+
+    // CSS para el modal de resultados
+    function agregarCSSModal() {
+        const css = `
+            <style>
+                .modal {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(0,0,0,0.5);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 1000;
+                }
+
+                .modal-content {
+                    background: white;
+                    border-radius: 10px;
+                    width: 90%;
+                    max-width: 700px;
+                    max-height: 90vh;
+                    overflow-y: auto;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                }
+
+                .modal-header {
+                    padding: 1.5rem;
+                    border-bottom: 1px solid #eee;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    background: var(--primary-color);
+                    color: white;
+                    border-radius: 10px 10px 0 0;
+                }
+
+                .modal-header h3 {
+                    margin: 0;
+                    font-size: 1.3rem;
+                }
+
+                .close-modal {
+                    font-size: 1.5rem;
+                    cursor: pointer;
+                    background: rgba(255,255,255,0.2);
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: var(--transition);
+                }
+
+                .close-modal:hover {
+                    background: rgba(255,255,255,0.3);
+                }
+
+                .modal-body {
+                    padding: 1.5rem;
+                }
+
+                .folio-info-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 1rem;
+                    margin-bottom: 1.5rem;
+                }
+
+                .info-item {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.3rem;
+                }
+
+                .info-item label {
+                    font-weight: 600;
+                    color: var(--primary-color);
+                    font-size: 0.9rem;
+                }
+
+                .folio-number {
+                    font-weight: bold;
+                    color: var(--secondary-color);
+                    font-size: 1.1rem;
+                }
+
+                .status-badge {
+                    padding: 0.3rem 0.8rem;
+                    border-radius: 20px;
+                    font-size: 0.8rem;
+                    font-weight: 600;
+                    display: inline-block;
+                }
+
+                .status-pending {
+                    background-color: #fff3cd;
+                    color: #856404;
+                }
+
+                .status-processing {
+                    background-color: #cce7ff;
+                    color: #004085;
+                }
+
+                .status-approved {
+                    background-color: #d4edda;
+                    color: #155724;
+                }
+
+                .status-completed {
+                    background-color: #d1ecf1;
+                    color: #0c5460;
+                }
+
+                .status-rejected {
+                    background-color: #f8d7da;
+                    color: #721c24;
+                }
+
+                .voucher-section {
+                    background: #f8f9fa;
+                    padding: 1.5rem;
+                    border-radius: 8px;
+                    border-left: 4px solid var(--secondary-color);
+                }
+
+                .file-upload-area:hover {
+                    background-color: #f8f9fa;
+                    border-color: #2980b9;
+                }
+
+                .processing-status {
+                    text-align: center;
+                    padding: 1rem;
+                    border-radius: 5px;
+                    background: #e8f4fd;
+                    color: #3498db;
+                }
+
+                .detection-success {
+                    color: #27ae60;
+                    font-weight: 600;
+                    text-align: center;
+                    padding: 1rem;
+                    background: #f0fff4;
+                    border-radius: 5px;
+                    border: 1px solid #27ae60;
+                }
+
+                .detection-error {
+                    color: #e74c3c;
+                    font-weight: 600;
+                    text-align: center;
+                    padding: 1rem;
+                    background: #fff0f0;
+                    border-radius: 5px;
+                    border: 1px solid #e74c3c;
+                }
+
+                .proximo-paso {
+                    background: #f8f9fa;
+                    padding: 1rem;
+                    border-radius: 5px;
+                    border-left: 4px solid var(--secondary-color);
+                    margin-top: 1.5rem;
+                }
+
+                .proximo-paso h4 {
+                    margin: 0 0 0.5rem 0;
+                    color: var(--primary-color);
+                }
+
+                .proximo-paso p {
+                    margin: 0;
+                    color: #666;
+                }
+
+                .modal-footer {
+                    padding: 1rem 1.5rem;
+                    border-top: 1px solid #eee;
+                    text-align: right;
+                }
+
+                @media (max-width: 768px) {
+                    .folio-info-grid {
+                        grid-template-columns: 1fr;
+                    }
+                    
+                    .modal-content {
+                        width: 95%;
+                        margin: 1rem;
+                    }
+                }
+            </style>
+        `;
+
+        document.head.insertAdjacentHTML('beforeend', css);
+    }
 
     // Cargar citas del mes actual al iniciar
     document.addEventListener('DOMContentLoaded', function() {

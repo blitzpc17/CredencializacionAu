@@ -131,36 +131,6 @@ class SolicitudController extends Controller
     }
 
 
-    public function consultarPorFolio($folio): JsonResponse
-    {
-        try {
-            // Buscar la solicitud por folio con relaciones
-            $solicitud = Solicitud::with([
-                'estado',
-                'terminal'
-            ])->where('folio', $folio)->first();
-
-            if (!$solicitud) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No se encontró ninguna solicitud con el folio proporcionado'
-                ], 404);
-            }
-
-            return response()->json([
-                'success' => true,
-                'data' => $solicitud,
-                'message' => 'Solicitud encontrada correctamente'
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error al consultar la solicitud: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
 
 
 
@@ -1201,6 +1171,131 @@ public function update(Request $request, string $id)
             ], 500);
         }
     }
+
+
+    // Método específico para cliente (home) - actualizar voucher
+public function actualizarVoucherCliente(Request $request, $folio)
+{
+    try {
+        // Buscar solicitud por folio
+        $solicitud = Solicitud::where('folio', $folio)->first();
+
+        if (!$solicitud) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se encontró la solicitud'
+            ], 404);
+        }
+
+        // Validar que solo se pueda actualizar voucher en estado pendiente
+        if ($solicitud->solicitudes_estadosId != 1) { // 1 = Pendiente
+            return response()->json([
+                'success' => false,
+                'message' => 'Solo se puede subir voucher cuando la solicitud está en estado PENDIENTE'
+            ], 400);
+        }
+
+        // Validar archivo
+        $validator = Validator::make($request->all(), [
+            'voucher_pago' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error en el archivo',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        // Procesar archivo de voucher
+        if ($solicitud->voucher_pago && Storage::disk('public')->exists($solicitud->voucher_pago)) {
+            Storage::disk('public')->delete($solicitud->voucher_pago);
+        }
+
+        $voucherPath = $request->file('voucher_pago')->store('documentos/vouchers', 'public');
+
+        // Buscar estado PAGADO
+        $estadoPagado = SolicitudEstado::where('nombre', 'like', '%PAGAD%')->first();
+        
+        if (!$estadoPagado) {
+            // Si no existe estado PAGADO, usar uno por defecto (por ejemplo, 2 = En proceso)
+            $estadoPagado = 2;
+        } else {
+            $estadoPagado = $estadoPagado->id;
+        }
+
+        // Actualizar solicitud
+        $solicitud->update([
+            'voucher_pago' => $voucherPath,
+            'solicitudes_estadosId' => $estadoPagado,
+            'updated_at' => now()
+        ]);
+
+        DB::commit();
+
+        // Enviar email de confirmación
+        $emailEnviado = false;
+        try {
+            $solicitudActualizada = Solicitud::with(['estado'])->where('folio', $folio)->first();
+            $emailEnviado = $this->emailService->enviarConfirmacionPago($solicitudActualizada);
+        } catch (\Exception $e) {
+            \Log::error('Error enviando email al subir voucher: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Voucher subido correctamente' . ($emailEnviado ? ' y notificación enviada' : ''),
+            'data' => $solicitud->fresh(['estado', 'terminal']),
+            'email_enviado' => $emailEnviado
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        
+        // Eliminar archivo en caso de error
+        if (isset($voucherPath)) {
+            Storage::disk('public')->delete($voucherPath);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al subir el voucher: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+public function consultarPorFolio($folio): JsonResponse
+{
+    try {
+        // Buscar la solicitud por folio con relaciones
+        $solicitud = Solicitud::with([
+            'estado',
+            'terminal'
+        ])->where('folio', $folio)->first();
+
+        if (!$solicitud) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se encontró ninguna solicitud con el folio proporcionado'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $solicitud,
+            'message' => 'Solicitud encontrada correctamente'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al consultar la solicitud: ' . $e->getMessage()
+        ], 500);
+    }
+}
 
 
 

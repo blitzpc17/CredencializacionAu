@@ -64,6 +64,8 @@ Route::prefix('solicitudes')->name('solicitudes.')->group(function () {
     Route::get('/export/excel', [SolicitudController::class, 'exportExcel']);
     Route::get('/dashboard/stats', [SolicitudController::class, 'dashboardStats']);
     Route::get('/recent/stats', [SolicitudController::class, 'recentSolicitudes']);
+    Route::post('/{folio}/voucher', [SolicitudController::class, 'actualizarVoucherCliente']);
+    Route::get('/consulta/{folio}', [SolicitudController::class, 'consultarPorFolio'])->name('consultar-por-folio');
 });
 
 

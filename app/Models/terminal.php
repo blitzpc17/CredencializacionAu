@@ -74,7 +74,7 @@ class Terminal extends Model
         return "{$this->latitud}, {$this->longitud}";
     }
 
-    public function solicitudes()
+    public function Solicitudes()
     {
         return $this->hasMany(Solicitud::class, 'terminalesId');
     }
