@@ -19,6 +19,7 @@ use Intervention\Image\ImageManager;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\EmailTimelineProceso;
+use Illuminate\Support\Facades\Auth;
 
 class SolicitudController extends Controller
 {
@@ -283,9 +284,9 @@ class SolicitudController extends Controller
             
             // Asignar usuario según la acción
             if ($request->accion === 'confirmar') {
-                $updateData['usuarios_confirma_documentacionId'] = auth()->id();
+                $updateData['usuarios_confirma_documentacionId'] = Auth::user()->id;
             } elseif ($request->accion === 'cancelar') {
-                $updateData['usuarios_cancela_solicitudId'] = auth()->id();
+                $updateData['usuarios_cancela_solicitudId'] = Auth::user()->id;
             }
 
             $solicitud->update($updateData);
@@ -347,7 +348,7 @@ class SolicitudController extends Controller
             $solicitud->update([
                 'solicitudes_estadosId' => $estadoId,
                 'baja_at' => now(),
-                'usuarios_cancela_solicitudId' => auth()->id(),
+                'usuarios_cancela_solicitudId' => Auth::user()->id,
                 'motivo_baja' => $motivo_baja
             ]);
 
@@ -612,8 +613,8 @@ public function update(Request $request, string $id)
             'correo' => $request->correo,
             'telefono' => $request->telefono,
             'formaPago' => $request->formaPago,
-            'usuarios_modificoId' => auth()->id(),
-            'updated_at' => now(),
+            'usuarios_modifico_solicitudId' => Auth::user()->id,
+            'updated_at' => now(),          
         ];
 
         // Variables para controlar cambios de estado automáticos
@@ -629,6 +630,7 @@ public function update(Request $request, string $id)
             if ($estadoPagado && $solicitud->solicitudes_estadosId != $estadoPagado->id) {
                 $nuevoEstadoId = $estadoPagado->id;
                 $cambioAutomaticoEstado = true;
+                $updateData['usuarios_confirma_documentacionId'] =  Auth::user()->id;
                 $mensajeEstado = 'Estado cambiado a PAGADO automáticamente por subida de voucher';
             }
         }
@@ -643,7 +645,7 @@ public function update(Request $request, string $id)
             if ($estadoImpreso && $solicitud->solicitudes_estadosId != $estadoImpreso->id) {
                 $nuevoEstadoId = $estadoImpreso->id;
                 $cambioAutomaticoEstado = true;
-                $mensajeEstado = 'Estado cambiado a IMPRESO automáticamente por completar ID credencial y vigencia';
+                $mensajeEstado = 'Estado cambiado a IMPRESO automáticamente por completar ID credencial y vigencia';          
             }
         }
 
@@ -780,6 +782,8 @@ public function update(Request $request, string $id)
         ]);
 
     } catch (\Exception $e) {
+
+          \Log::error('Error al actualizar la solicitud: ' . $e->getMessage());
         DB::rollBack();
 
         // Eliminar archivos subidos en caso de error

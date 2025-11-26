@@ -57,9 +57,9 @@ Route::prefix('solicitudes')->name('solicitudes.')->group(function () {
     Route::get('/form-data', [SolicitudController::class, 'getFormData'])->name('form-data');
     Route::post('/', [SolicitudController::class, 'store'])->name('store');
     Route::get('/{id}', [SolicitudController::class, 'show'])->name('show');
-    Route::put('/{id}', [SolicitudController::class, 'update'])->name('update');
-    Route::put('/{id}/cambiar-estado', [SolicitudController::class, 'cambiarEstado'])->name('cambiar-estado');
-    Route::delete('/{id}', [SolicitudController::class, 'destroy'])->name('destroy');
+    Route::put('/{id}', [SolicitudController::class, 'update'])->name('update')->middleware('web');;
+    Route::put('/{id}/cambiar-estado', [SolicitudController::class, 'cambiarEstado'])->name('cambiar-estado')->middleware('web');
+    Route::delete('/{id}', [SolicitudController::class, 'destroy'])->name('destroy')->middleware('web');
     Route::get('/{id}/descargar-credencial', [SolicitudController::class, 'descargarCredencial']);
 });
 
