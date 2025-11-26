@@ -821,7 +821,7 @@ public function descargarCredencial($id)
             ], 400);
         }
 
-         // Verificar que tenga los datos necesarios
+        // Verificar que tenga los datos necesarios
         if (!$solicitud->id_credencial || !$solicitud->vigencia || !$solicitud->fotografia) {
             return response()->json([
                 'success' => false,
@@ -829,9 +829,10 @@ public function descargarCredencial($id)
             ], 400);
         }
 
-        // Crear imagen usando GD
-        $width = 320;
-        $height = 200;
+        // MEDIDAS OPTIMIZADAS PARA IMPRESIÓN
+        // 8.5 cm de ancho × 5.3 cm de alto (proporción estándar credencial)
+        $width = 321;  // 8.5 cm × 37.8 px/cm = 321.3 px
+        $height = 200; // 5.3 cm × 37.8 px/cm = 200.3 px
         
         $image = imagecreate($width, $height);
         
@@ -846,24 +847,99 @@ public function descargarCredencial($id)
         // Fondo blanco
         imagefill($image, 0, 0, $white);
 
-        // Dividir en 3 partes
-        $parte1Width = 105;
-        $parte2Width = 113;  
-        $parte3Width = 102;
+        // DIVIDIR EN 3 PARTES CON MEDIDAS PRECISAS
+        $parte1Width = 102;  // Vigencia (2.7 cm)
+        $parte2Width = 113;  // Fotografía 3×3 cm (113.4 px)
+        $parte3Width = 106;  // Nombre (2.8 cm) - Total: 321 px
 
-        // Parte 1: Nombre y apellido
+        // ===== PARTE 1: VIGENCIA =====
         imagefilledrectangle($image, 0, 0, $parte1Width, $height, $lightGray);
         imagerectangle($image, 0, 0, $parte1Width, $height, $borderColor);
 
-        $nombreCompleto = trim($solicitud->nombres . ' ' . $solicitud->apellidos);
+        // Formatear vigencia como "NOV/26"
+        $vigenciaFormateada = \Carbon\Carbon::parse($solicitud->vigencia)->format('M/y');
+        $vigenciaFormateada = strtoupper($vigenciaFormateada);
         
         // Usar una fuente TrueType para mejor calidad
         $fontPath = public_path('fonts/arial.ttf');
         
         if (file_exists($fontPath)) {
+            // "VIGENCIA" centrado arriba
+            $bbox = imagettfbbox(10, 0, $fontPath, 'VIGENCIA');
+            $textWidth = $bbox[2] - $bbox[0];
+            $x = ($parte1Width - $textWidth) / 2;
+            $y = 30;
+            imagettftext($image, 10, 0, $x, $y, $black, $fontPath, 'VIGENCIA');
+            
+            // Fecha centrada debajo
+            $bbox = imagettfbbox(12, 0, $fontPath, $vigenciaFormateada);
+            $textWidth = $bbox[2] - $bbox[0];
+            $x = ($parte1Width - $textWidth) / 2;
+            $y = 60;
+            imagettftext($image, 12, 0, $x, $y, $gray, $fontPath, $vigenciaFormateada);
+        } else {
+            // Fallback GD
+            $vigenciaWidth = imagefontwidth(3) * strlen('VIGENCIA');
+            $vigenciaX = ($parte1Width - $vigenciaWidth) / 2;
+            imagestring($image, 3, $vigenciaX, 20, 'VIGENCIA', $black);
+            
+            $fechaWidth = imagefontwidth(2) * strlen($vigenciaFormateada);
+            $fechaX = ($parte1Width - $fechaWidth) / 2;
+            imagestring($image, 2, $fechaX, 40, $vigenciaFormateada, $gray);
+        }
+
+        // ===== PARTE 2: FOTOGRAFÍA 3×3 cm =====
+        imagefilledrectangle($image, $parte1Width, 0, $parte1Width + $parte2Width, $height, $white);
+        imagerectangle($image, $parte1Width, 0, $parte1Width + $parte2Width, $height, $borderColor);
+
+        // Cargar fotografía
+        $fotoPath = storage_path('app/public/' . $solicitud->fotografia);
+        if (file_exists($fotoPath)) {
+            $fotoInfo = getimagesize($fotoPath);
+            if ($fotoInfo) {
+                $fotoType = $fotoInfo[2];
+                
+                switch ($fotoType) {
+                    case IMAGETYPE_JPEG:
+                        $sourceImage = imagecreatefromjpeg($fotoPath);
+                        break;
+                    case IMAGETYPE_PNG:
+                        $sourceImage = imagecreatefrompng($fotoPath);
+                        break;
+                    default:
+                        $sourceImage = null;
+                }
+                
+                if ($sourceImage) {
+                    // Tamaño para 3×3 cm (113×113 px)
+                    $fotoSize = 113;
+                    $srcWidth = imagesx($sourceImage);
+                    $srcHeight = imagesy($sourceImage);
+                    
+                    // Redimensionar manteniendo aspecto para cuadrar en 3×3 cm
+                    $ratio = min($fotoSize / $srcWidth, $fotoSize / $srcHeight);
+                    $newWidth = $srcWidth * $ratio;
+                    $newHeight = $srcHeight * $ratio;
+                    
+                    $x = $parte1Width + ($parte2Width - $newWidth) / 2;
+                    $y = ($height - $newHeight) / 2;
+                    
+                    imagecopyresampled($image, $sourceImage, $x, $y, 0, 0, $newWidth, $newHeight, $srcWidth, $srcHeight);
+                    imagedestroy($sourceImage);
+                }
+            }
+        }
+
+        // ===== PARTE 3: NOMBRE Y APELLIDO =====
+        imagefilledrectangle($image, $parte1Width + $parte2Width, 0, $width, $height, $lightGray);
+        imagerectangle($image, $parte1Width + $parte2Width, 0, $width, $height, $borderColor);
+
+        $nombreCompleto = trim($solicitud->nombres . ' ' . $solicitud->apellidos);
+        
+        if (file_exists($fontPath)) {
             // Calcular tamaño de fuente basado en la longitud del texto
             $fontSize = 12;
-            $maxWidth = $parte1Width - 20; // Margen de 10px cada lado
+            $maxWidth = $parte3Width - 20;
             
             // Ajustar tamaño si el texto es muy largo
             $bbox = imagettfbbox($fontSize, 0, $fontPath, $nombreCompleto);
@@ -878,7 +954,7 @@ public function descargarCredencial($id)
             $textWidth = $bbox[2] - $bbox[0];
             $textHeight = $bbox[1] - $bbox[7];
             
-            $x = ($parte1Width - $textWidth) / 2;
+            $x = $parte1Width + $parte2Width + ($parte3Width - $textWidth) / 2;
             $y = ($height + $textHeight) / 2;
             
             imagettftext($image, $fontSize, 0, $x, $y, $black, $fontPath, $nombreCompleto);
@@ -904,92 +980,11 @@ public function descargarCredencial($id)
             
             foreach ($formattedLines as $index => $line) {
                 $textWidth = imagefontwidth(3) * strlen($line);
-                $x = ($parte1Width - $textWidth) / 2;
+                $x = $parte1Width + $parte2Width + ($parte3Width - $textWidth) / 2;
                 $y = $startY + ($index * $lineHeight);
                 imagestring($image, 3, $x, $y, $line, $black);
             }
-        }
-
-        // Parte 2: Fotografía
-        imagefilledrectangle($image, $parte1Width, 0, $parte1Width + $parte2Width, $height, $white);
-        imagerectangle($image, $parte1Width, 0, $parte1Width + $parte2Width, $height, $borderColor);
-
-        // Cargar fotografía
-        $fotoPath = storage_path('app/public/' . $solicitud->fotografia);
-        if (file_exists($fotoPath)) {
-            $fotoInfo = getimagesize($fotoPath);
-            if ($fotoInfo) {
-                $fotoType = $fotoInfo[2];
-                
-                switch ($fotoType) {
-                    case IMAGETYPE_JPEG:
-                        $sourceImage = imagecreatefromjpeg($fotoPath);
-                        break;
-                    case IMAGETYPE_PNG:
-                        $sourceImage = imagecreatefrompng($fotoPath);
-                        break;
-                    default:
-                        $sourceImage = null;
-                }
-                
-                if ($sourceImage) {
-                    $fotoSize = 85;
-                    $srcWidth = imagesx($sourceImage);
-                    $srcHeight = imagesy($sourceImage);
-                    
-                    // Redimensionar manteniendo aspecto
-                    $ratio = min($fotoSize / $srcWidth, $fotoSize / $srcHeight);
-                    $newWidth = $srcWidth * $ratio;
-                    $newHeight = $srcHeight * $ratio;
-                    
-                    $x = $parte1Width + ($parte2Width - $newWidth) / 2;
-                    $y = ($height - $newHeight) / 2;
-                    
-                    imagecopyresampled($image, $sourceImage, $x, $y, 0, 0, $newWidth, $newHeight, $srcWidth, $srcHeight);
-                    imagedestroy($sourceImage);
-                }
-            }
-        }
-
-        // Parte 3: Vigencia
-        imagefilledrectangle($image, $parte1Width + $parte2Width, 0, $width, $height, $lightGray);
-        imagerectangle($image, $parte1Width + $parte2Width, 0, $width, $height, $borderColor);
-
-        $vigenciaFormateada = \Carbon\Carbon::parse($solicitud->vigencia)->format('d/m/Y');
-        
-        if (file_exists($fontPath)) {
-            // "VIGENCIA"
-            $bbox = imagettfbbox(10, 0, $fontPath, 'VIGENCIA');
-            $textWidth = $bbox[2] - $bbox[0];
-            $x = $parte1Width + $parte2Width + ($parte3Width - $textWidth) / 2;
-            $y = $height / 2 - 5;
-            imagettftext($image, 10, 0, $x, $y, $black, $fontPath, 'VIGENCIA');
-            
-            // Fecha
-            $bbox = imagettfbbox(9, 0, $fontPath, $vigenciaFormateada);
-            $textWidth = $bbox[2] - $bbox[0];
-            $x = $parte1Width + $parte2Width + ($parte3Width - $textWidth) / 2;
-            $y = $height / 2 + 15;
-            imagettftext($image, 9, 0, $x, $y, $gray, $fontPath, $vigenciaFormateada);
-        } else {
-            // Fallback GD
-            $vigenciaWidth = imagefontwidth(3) * strlen('VIGENCIA');
-            $vigenciaX = $parte1Width + $parte2Width + ($parte3Width - $vigenciaWidth) / 2;
-            imagestring($image, 3, $vigenciaX, $height / 2 - 15, 'VIGENCIA', $black);
-            
-            $fechaWidth = imagefontwidth(2) * strlen($vigenciaFormateada);
-            $fechaX = $parte1Width + $parte2Width + ($parte3Width - $fechaWidth) / 2;
-            imagestring($image, 2, $fechaX, $height / 2, $vigenciaFormateada, $gray);
-        }
-
-        // ID credencial
-        $idText = 'ID: ' . $solicitud->id_credencial;
-        if (file_exists($fontPath)) {
-            imagettftext($image, 8, 0, $width - 10, $height - 10, $darkGray, $fontPath, $idText);
-        } else {
-            $idWidth = imagefontwidth(1) * strlen($idText);
-            imagestring($image, 1, $width - $idWidth - 5, $height - 15, $idText, $darkGray);
-        }
+        }  
 
         // Devolver la imagen
         header('Content-Type: image/png');

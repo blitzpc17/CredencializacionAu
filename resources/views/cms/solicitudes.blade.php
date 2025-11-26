@@ -1764,7 +1764,7 @@
             $.ajax({
                 url: '/api/solicitudes',
                 method: 'POST',
-                  headers: {
+                headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                 data: formData,
@@ -1799,9 +1799,9 @@
             $.ajax({
                 url: `/api/solicitudes/${id}`,
                 method: 'POST', // Laravel requiere POST para FormData con _method PUT
-                  headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 data: formData,
                 processData: false,
                 contentType: false,
@@ -1848,7 +1848,7 @@
     $.ajax({
         url: `/api/solicitudes/${id}`,
         method: 'DELETE',
-          headers: {
+        headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
         data: {
