@@ -803,263 +803,404 @@ public function update(Request $request, string $id)
     }
 }
 
-public function descargarCredencial($id)
-{
-    try {
-        $solicitud = Solicitud::with(['terminal'])->find($id);
-        
-        if (!$solicitud) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Solicitud no encontrada'
-            ], 404);
-        }
-
-        // Verificar que tenga los datos necesarios
-        if ($solicitud->solicitudes_estadosId != 9 && $solicitud->solicitudes_estadosId != 7) {
-            return response()->json([
-                'success' => false,
-                'message' => 'La credencial solo puede descargarse cuando la solicitud está en estado IMPRESA'
-            ], 400);
-        }
-
-        // Verificar que tenga los datos necesarios
-        if (!$solicitud->id_credencial || !$solicitud->vigencia || !$solicitud->fotografia) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Faltan datos necesarios para generar la credencial (ID credencial, vigencia o fotografía)'
-            ], 400);
-        }
-
-        // MEDIDAS OPTIMIZADAS PARA IMPRESIÓN
-        // 8.5 cm de ancho × 5.3 cm de alto (proporción estándar credencial)
-        $width = 321;  // 8.5 cm × 37.8 px/cm = 321.3 px
-        $height = 200; // 5.3 cm × 37.8 px/cm = 200.3 px
-        
-        $image = imagecreate($width, $height);
-        
-        // Colores
-        $white = imagecolorallocate($image, 255, 255, 255);
-        $lightGray = imagecolorallocate($image, 248, 249, 250);
-        $borderColor = imagecolorallocate($image, 222, 226, 230);
-        $black = imagecolorallocate($image, 0, 0, 0);
-        $gray = imagecolorallocate($image, 102, 102, 102);
-        $darkGray = imagecolorallocate($image, 153, 153, 153);
-
-        // Fondo blanco
-        imagefill($image, 0, 0, $white);
-
-        // DIVIDIR EN 3 PARTES CON MEDIDAS PRECISAS
-        $parte1Width = 102;  // Vigencia (2.7 cm)
-        $parte2Width = 113;  // Fotografía 3×3 cm (113.4 px)
-        $parte3Width = 106;  // Nombre (2.8 cm) - Total: 321 px
-
-        // ===== PARTE 1: VIGENCIA =====
-        imagefilledrectangle($image, 0, 0, $parte1Width, $height, $lightGray);
-        imagerectangle($image, 0, 0, $parte1Width, $height, $borderColor);
-
-        // Formatear vigencia como "NOV/26"
-        $vigenciaFormateada = \Carbon\Carbon::parse($solicitud->vigencia)->format('M/y');
-        $vigenciaFormateada = strtoupper($vigenciaFormateada);
-        
-        // Usar una fuente TrueType para mejor calidad
-        $fontPath = public_path('fonts/arial.ttf');
-        
-        if (file_exists($fontPath)) {
-            // "VIGENCIA" centrado arriba
-            $bbox = imagettfbbox(10, 0, $fontPath, 'VIGENCIA');
-            $textWidth = $bbox[2] - $bbox[0];
-            $x = ($parte1Width - $textWidth) / 2;
-            $y = 30;
-            imagettftext($image, 10, 0, $x, $y, $black, $fontPath, 'VIGENCIA');
+    public function descargarCredencial($id)
+    {
+        try {
+            $solicitud = Solicitud::with(['terminal'])->find($id);
             
-            // Fecha centrada debajo
-            $bbox = imagettfbbox(12, 0, $fontPath, $vigenciaFormateada);
-            $textWidth = $bbox[2] - $bbox[0];
-            $x = ($parte1Width - $textWidth) / 2;
-            $y = 60;
-            imagettftext($image, 12, 0, $x, $y, $gray, $fontPath, $vigenciaFormateada);
-        } else {
-            // Fallback GD
-            $vigenciaWidth = imagefontwidth(3) * strlen('VIGENCIA');
-            $vigenciaX = ($parte1Width - $vigenciaWidth) / 2;
-            imagestring($image, 3, $vigenciaX, 20, 'VIGENCIA', $black);
+            if (!$solicitud) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Solicitud no encontrada'
+                ], 404);
+            }
+
+            // Verificar que tenga los datos necesarios
+            if ($solicitud->solicitudes_estadosId != 9 && $solicitud->solicitudes_estadosId != 7) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'La credencial solo puede descargarse cuando la solicitud está en estado IMPRESA'
+                ], 400);
+            }
+
+            // Verificar que tenga los datos necesarios
+            if (!$solicitud->id_credencial || !$solicitud->vigencia || !$solicitud->fotografia) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Faltan datos necesarios para generar la credencial (ID credencial, vigencia o fotografía)'
+                ], 400);
+            }
+
+            // MEDIDAS OPTIMIZADAS PARA IMPRESIÓN
+            // 8.5 cm de ancho × 5.3 cm de alto (proporción estándar credencial)
+            $width = 321;  // 8.5 cm × 37.8 px/cm = 321.3 px
+            $height = 200; // 5.3 cm × 37.8 px/cm = 200.3 px
             
-            $fechaWidth = imagefontwidth(2) * strlen($vigenciaFormateada);
-            $fechaX = ($parte1Width - $fechaWidth) / 2;
-            imagestring($image, 2, $fechaX, 40, $vigenciaFormateada, $gray);
-        }
+            $image = imagecreate($width, $height);
+            
+            // Colores
+            $white = imagecolorallocate($image, 255, 255, 255);
+            $lightGray = imagecolorallocate($image, 248, 249, 250);
+            $borderColor = imagecolorallocate($image, 222, 226, 230);
+            $black = imagecolorallocate($image, 0, 0, 0);
+            $gray = imagecolorallocate($image, 102, 102, 102);
+            $darkGray = imagecolorallocate($image, 153, 153, 153);
 
-        // ===== PARTE 2: FOTOGRAFÍA 3×3 cm =====
-        imagefilledrectangle($image, $parte1Width, 0, $parte1Width + $parte2Width, $height, $white);
-        imagerectangle($image, $parte1Width, 0, $parte1Width + $parte2Width, $height, $borderColor);
+            // Fondo blanco
+            imagefill($image, 0, 0, $white);
 
-        // Cargar fotografía
-        $fotoPath = storage_path('app/public/' . $solicitud->fotografia);
-        if (file_exists($fotoPath)) {
-            $fotoInfo = getimagesize($fotoPath);
-            if ($fotoInfo) {
-                $fotoType = $fotoInfo[2];
+            // DIVIDIR EN 3 PARTES CON MEDIDAS PRECISAS
+            $parte1Width = 102;  // Vigencia (2.7 cm)
+            $parte2Width = 113;  // Fotografía 3×3 cm (113.4 px)
+            $parte3Width = 106;  // Nombre (2.8 cm) - Total: 321 px
+
+            // ===== PARTE 1: VIGENCIA =====
+            imagefilledrectangle($image, 0, 0, $parte1Width, $height, $lightGray);
+            imagerectangle($image, 0, 0, $parte1Width, $height, $borderColor);
+
+            // Formatear vigencia como "NOV/26"
+            $vigenciaFormateada = \Carbon\Carbon::parse($solicitud->vigencia)->format('M/y');
+            $vigenciaFormateada = strtoupper($vigenciaFormateada);
+            
+            // Usar una fuente TrueType para mejor calidad
+            $fontPath = public_path('fonts/arial.ttf');
+            
+            if (file_exists($fontPath)) {
+                // "VIGENCIA" centrado arriba
+                $bbox = imagettfbbox(10, 0, $fontPath, 'VIGENCIA');
+                $textWidth = $bbox[2] - $bbox[0];
+                $x = ($parte1Width - $textWidth) / 2;
+                $y = 30;
+                imagettftext($image, 10, 0, $x, $y, $black, $fontPath, 'VIGENCIA');
                 
-                switch ($fotoType) {
-                    case IMAGETYPE_JPEG:
-                        $sourceImage = imagecreatefromjpeg($fotoPath);
-                        break;
-                    case IMAGETYPE_PNG:
-                        $sourceImage = imagecreatefrompng($fotoPath);
-                        break;
-                    default:
-                        $sourceImage = null;
+                // Fecha centrada debajo
+                $bbox = imagettfbbox(12, 0, $fontPath, $vigenciaFormateada);
+                $textWidth = $bbox[2] - $bbox[0];
+                $x = ($parte1Width - $textWidth) / 2;
+                $y = 60;
+                imagettftext($image, 12, 0, $x, $y, $gray, $fontPath, $vigenciaFormateada);
+            } else {
+                // Fallback GD
+                $vigenciaWidth = imagefontwidth(3) * strlen('VIGENCIA');
+                $vigenciaX = ($parte1Width - $vigenciaWidth) / 2;
+                imagestring($image, 3, $vigenciaX, 20, 'VIGENCIA', $black);
+                
+                $fechaWidth = imagefontwidth(2) * strlen($vigenciaFormateada);
+                $fechaX = ($parte1Width - $fechaWidth) / 2;
+                imagestring($image, 2, $fechaX, 40, $vigenciaFormateada, $gray);
+            }
+
+            // ===== PARTE 2: FOTOGRAFÍA 3×3 cm =====
+            imagefilledrectangle($image, $parte1Width, 0, $parte1Width + $parte2Width, $height, $white);
+            imagerectangle($image, $parte1Width, 0, $parte1Width + $parte2Width, $height, $borderColor);
+
+            // Cargar fotografía
+            $fotoPath = storage_path('app/public/' . $solicitud->fotografia);
+            if (file_exists($fotoPath)) {
+                $fotoInfo = getimagesize($fotoPath);
+                if ($fotoInfo) {
+                    $fotoType = $fotoInfo[2];
+                    
+                    switch ($fotoType) {
+                        case IMAGETYPE_JPEG:
+                            $sourceImage = imagecreatefromjpeg($fotoPath);
+                            break;
+                        case IMAGETYPE_PNG:
+                            $sourceImage = imagecreatefrompng($fotoPath);
+                            break;
+                        default:
+                            $sourceImage = null;
+                    }
+                    
+                    if ($sourceImage) {
+                        // Tamaño para 3×3 cm (113×113 px)
+                        $fotoSize = 113;
+                        $srcWidth = imagesx($sourceImage);
+                        $srcHeight = imagesy($sourceImage);
+                        
+                        // Redimensionar manteniendo aspecto para cuadrar en 3×3 cm
+                        $ratio = min($fotoSize / $srcWidth, $fotoSize / $srcHeight);
+                        $newWidth = $srcWidth * $ratio;
+                        $newHeight = $srcHeight * $ratio;
+                        
+                        $x = $parte1Width + ($parte2Width - $newWidth) / 2;
+                        $y = ($height - $newHeight) / 2;
+                        
+                        imagecopyresampled($image, $sourceImage, $x, $y, 0, 0, $newWidth, $newHeight, $srcWidth, $srcHeight);
+                        imagedestroy($sourceImage);
+                    }
+                }
+            }
+
+            // ===== PARTE 3: NOMBRE Y APELLIDO =====
+            imagefilledrectangle($image, $parte1Width + $parte2Width, 0, $width, $height, $lightGray);
+            imagerectangle($image, $parte1Width + $parte2Width, 0, $width, $height, $borderColor);
+
+            $nombreCompleto = trim($solicitud->nombres . ' ' . $solicitud->apellidos);
+            
+            if (file_exists($fontPath)) {
+                // Calcular tamaño de fuente basado en la longitud del texto
+                $fontSize = 12;
+                $maxWidth = $parte3Width - 20;
+                
+                // Ajustar tamaño si el texto es muy largo
+                $bbox = imagettfbbox($fontSize, 0, $fontPath, $nombreCompleto);
+                $textWidth = $bbox[2] - $bbox[0];
+                
+                if ($textWidth > $maxWidth) {
+                    $fontSize = max(8, $fontSize * ($maxWidth / $textWidth));
                 }
                 
-                if ($sourceImage) {
-                    // Tamaño para 3×3 cm (113×113 px)
-                    $fotoSize = 113;
-                    $srcWidth = imagesx($sourceImage);
-                    $srcHeight = imagesy($sourceImage);
-                    
-                    // Redimensionar manteniendo aspecto para cuadrar en 3×3 cm
-                    $ratio = min($fotoSize / $srcWidth, $fotoSize / $srcHeight);
-                    $newWidth = $srcWidth * $ratio;
-                    $newHeight = $srcHeight * $ratio;
-                    
-                    $x = $parte1Width + ($parte2Width - $newWidth) / 2;
-                    $y = ($height - $newHeight) / 2;
-                    
-                    imagecopyresampled($image, $sourceImage, $x, $y, 0, 0, $newWidth, $newHeight, $srcWidth, $srcHeight);
-                    imagedestroy($sourceImage);
-                }
-            }
-        }
-
-        // ===== PARTE 3: NOMBRE Y APELLIDO =====
-        imagefilledrectangle($image, $parte1Width + $parte2Width, 0, $width, $height, $lightGray);
-        imagerectangle($image, $parte1Width + $parte2Width, 0, $width, $height, $borderColor);
-
-        $nombreCompleto = trim($solicitud->nombres . ' ' . $solicitud->apellidos);
-        
-        if (file_exists($fontPath)) {
-            // Calcular tamaño de fuente basado en la longitud del texto
-            $fontSize = 12;
-            $maxWidth = $parte3Width - 20;
-            
-            // Ajustar tamaño si el texto es muy largo
-            $bbox = imagettfbbox($fontSize, 0, $fontPath, $nombreCompleto);
-            $textWidth = $bbox[2] - $bbox[0];
-            
-            if ($textWidth > $maxWidth) {
-                $fontSize = max(8, $fontSize * ($maxWidth / $textWidth));
-            }
-            
-            // Centrar texto vertical y horizontalmente
-            $bbox = imagettfbbox($fontSize, 0, $fontPath, $nombreCompleto);
-            $textWidth = $bbox[2] - $bbox[0];
-            $textHeight = $bbox[1] - $bbox[7];
-            
-            $x = $parte1Width + $parte2Width + ($parte3Width - $textWidth) / 2;
-            $y = ($height + $textHeight) / 2;
-            
-            imagettftext($image, $fontSize, 0, $x, $y, $black, $fontPath, $nombreCompleto);
-        } else {
-            // Fallback a fuente GD básica
-            $lines = explode(' ', $nombreCompleto);
-            $currentLine = '';
-            $formattedLines = [];
-            
-            foreach ($lines as $word) {
-                $testLine = $currentLine . ($currentLine ? ' ' : '') . $word;
-                if (strlen($testLine) <= 15) {
-                    $currentLine = $testLine;
-                } else {
-                    if ($currentLine) $formattedLines[] = $currentLine;
-                    $currentLine = $word;
-                }
-            }
-            if ($currentLine) $formattedLines[] = $currentLine;
-            
-            $lineHeight = 15;
-            $startY = ($height - (count($formattedLines) * $lineHeight)) / 2;
-            
-            foreach ($formattedLines as $index => $line) {
-                $textWidth = imagefontwidth(3) * strlen($line);
+                // Centrar texto vertical y horizontalmente
+                $bbox = imagettfbbox($fontSize, 0, $fontPath, $nombreCompleto);
+                $textWidth = $bbox[2] - $bbox[0];
+                $textHeight = $bbox[1] - $bbox[7];
+                
                 $x = $parte1Width + $parte2Width + ($parte3Width - $textWidth) / 2;
-                $y = $startY + ($index * $lineHeight);
-                imagestring($image, 3, $x, $y, $line, $black);
-            }
-        }  
-
-        // Devolver la imagen
-        header('Content-Type: image/png');
-        imagepng($image);
-        imagedestroy($image);
-        
-        exit;
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Error al generar la credencial: ' . $e->getMessage()
-        ], 500);
-    }
-}
-
-
-public function exportExcel(Request $request)
-{
-    try {
-        $tipo = $request->get('tipo', 'general');
-        
-        $query = Solicitud::with(['estado', 'terminal']);
-        
-        switch ($tipo) {
-            case 'vencimientos':
-                // Credenciales que vencen en los próximos 30 días
-                $fechaLimite = now()->addDays(30);
-                $query->whereNotNull('vigencia')
-                      ->where('vigencia', '<=', $fechaLimite)
-                      ->where('vigencia', '>=', now());
-                break;
-                    
-            case 'personalizado':
-                // Aplicar filtros personalizados
-                if ($request->has('estado') && $request->estado) {
-                    $query->where('solicitudes_estadosId', $request->estado);
-                }
+                $y = ($height + $textHeight) / 2;
                 
-                if ($request->has('terminal') && $request->terminal) {
-                    $query->where('terminalesId', $request->terminal);
-                }
+                imagettftext($image, $fontSize, 0, $x, $y, $black, $fontPath, $nombreCompleto);
+            } else {
+                // Fallback a fuente GD básica
+                $lines = explode(' ', $nombreCompleto);
+                $currentLine = '';
+                $formattedLines = [];
                 
-                if ($request->has('fecha_desde') && $request->fecha_desde) {
-                    $query->where('created_at', '>=', $request->fecha_desde);
+                foreach ($lines as $word) {
+                    $testLine = $currentLine . ($currentLine ? ' ' : '') . $word;
+                    if (strlen($testLine) <= 15) {
+                        $currentLine = $testLine;
+                    } else {
+                        if ($currentLine) $formattedLines[] = $currentLine;
+                        $currentLine = $word;
+                    }
                 }
+                if ($currentLine) $formattedLines[] = $currentLine;
                 
-                if ($request->has('fecha_hasta') && $request->fecha_hasta) {
-                    $query->where('created_at', '<=', $request->fecha_hasta . ' 23:59:59');
+                $lineHeight = 15;
+                $startY = ($height - (count($formattedLines) * $lineHeight)) / 2;
+                
+                foreach ($formattedLines as $index => $line) {
+                    $textWidth = imagefontwidth(3) * strlen($line);
+                    $x = $parte1Width + $parte2Width + ($parte3Width - $textWidth) / 2;
+                    $y = $startY + ($index * $lineHeight);
+                    imagestring($image, 3, $x, $y, $line, $black);
                 }
-                break;
-                
-            case 'general':
-            default:
-                // Sin filtros adicionales para reporte general
-                break;
+            }  
+
+            // Devolver la imagen
+            header('Content-Type: image/png');
+            imagepng($image);
+            imagedestroy($image);
+            
+            exit;
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al generar la credencial: ' . $e->getMessage()
+            ], 500);
         }
-        
-        $solicitudes = $query->orderBy('created_at', 'desc')->get();
-        
-        // Generar nombre del archivo
-        $fileName = 'solicitudes_' . $tipo . '_' . now()->format('Y-m-d_H-i') . '.xlsx';
-        
-        return Excel::download(new SolicitudesExport($solicitudes), $fileName);
-        
-    } catch (\Exception $e) {
-        \Log::error('Error al exportar Excel: ' . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => 'Error al generar el archivo Excel: ' . $e->getMessage()
-        ], 500);
     }
-}
+
+
+    public function exportExcel(Request $request)
+    {
+        try {
+            $tipo = $request->get('tipo', 'general');
+            
+            $query = Solicitud::with(['estado', 'terminal']);
+            
+            switch ($tipo) {
+                case 'vencimientos':
+                    // Credenciales que vencen en los próximos 30 días
+                    $fechaLimite = now()->addDays(30);
+                    $query->whereNotNull('vigencia')
+                        ->where('vigencia', '<=', $fechaLimite)
+                        ->where('vigencia', '>=', now());
+                    break;
+                        
+                case 'personalizado':
+                    // Aplicar filtros personalizados
+                    if ($request->has('estado') && $request->estado) {
+                        $query->where('solicitudes_estadosId', $request->estado);
+                    }
+                    
+                    if ($request->has('terminal') && $request->terminal) {
+                        $query->where('terminalesId', $request->terminal);
+                    }
+                    
+                    if ($request->has('fecha_desde') && $request->fecha_desde) {
+                        $query->where('created_at', '>=', $request->fecha_desde);
+                    }
+                    
+                    if ($request->has('fecha_hasta') && $request->fecha_hasta) {
+                        $query->where('created_at', '<=', $request->fecha_hasta . ' 23:59:59');
+                    }
+                    break;
+                    
+                case 'general':
+                default:
+                    // Sin filtros adicionales para reporte general
+                    break;
+            }
+            
+            $solicitudes = $query->orderBy('created_at', 'desc')->get();
+            
+            // Generar nombre del archivo
+            $fileName = 'solicitudes_' . $tipo . '_' . now()->format('Y-m-d_H-i') . '.xlsx';
+            
+            return Excel::download(new SolicitudesExport($solicitudes), $fileName);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error al exportar Excel: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al generar el archivo Excel: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function dashboardStats()
+    {
+        try {
+            // Totales
+            $totalSolicitudes = Solicitud::count();
+
+            $totalTerminales = Terminal::where('baja', 0)->count();
+            
+            // Solicitudes activas (excluyendo canceladas/rechazadas)
+            $solicitudesActivas = Solicitud::whereNotIn('solicitudes_estadosId', [5, 6])->count();
+            
+            // Credenciales por vencer (próximos 30 días)
+            $porVencer = Solicitud::whereNotNull('vigencia')
+                ->where('vigencia', '>=', now())
+                ->where('vigencia', '<=', now()->addDays(30))
+                ->count();
+
+            // Solicitudes por estado
+            $estadosData = DB::table('solicitudes')
+                ->join('solicitudes_estados', 'solicitudes.solicitudes_estadosId', '=', 'solicitudes_estados.id')
+                ->select('solicitudes_estados.nombre', DB::raw('COUNT(*) as total'))
+                ->groupBy('solicitudes_estados.nombre', 'solicitudes_estados.id')
+                ->orderBy('total', 'desc')
+                ->get();
+
+            $estadosLabels = $estadosData->pluck('nombre')->toArray();
+            $estadosValues = $estadosData->pluck('total')->toArray();
+
+            // Solicitudes por terminal
+            $terminalesData = DB::table('solicitudes')
+                ->join('terminales', 'solicitudes.terminalesId', '=', 'terminales.id')
+                ->select('terminales.nombre', DB::raw('COUNT(*) as total'))
+                ->where('terminales.baja', 0)
+                ->groupBy('terminales.nombre', 'terminales.id')
+                ->orderBy('total', 'desc')
+                ->get();
+
+            $terminalesLabels = $terminalesData->pluck('nombre')->toArray();
+            $terminalesValues = $terminalesData->pluck('total')->toArray();
+
+            // Evolución mensual (últimos 6 meses)
+            $mensualData = Solicitud::select(
+                DB::raw('YEAR(created_at) as year'),
+                DB::raw('MONTH(created_at) as month'),
+                DB::raw('COUNT(*) as total')
+            )
+            ->where('created_at', '>=', now()->subMonths(6))
+            ->groupBy('year', 'month')
+            ->orderBy('year', 'asc')
+            ->orderBy('month', 'asc')
+            ->get();
+
+            $mensualLabels = [];
+            $mensualValues = [];
+
+            foreach ($mensualData as $data) {
+                $fecha = \Carbon\Carbon::create($data->year, $data->month, 1);
+                $mensualLabels[] = $fecha->format('M Y');
+                $mensualValues[] = $data->total;
+            }
+
+            // Datos para el mapa de calor
+            $heatmapData = Terminal::where('baja', 0)
+                ->whereNotNull('latitud')
+                ->whereNotNull('longitud')
+                ->withCount(['solicitudes' => function($query) {
+                    $query->where('created_at', '>=', now()->subMonth());
+                }])
+                ->get()
+                ->map(function($terminal) {
+                    return [
+                        'latitud' => $terminal->latitud,
+                        'longitud' => $terminal->longitud,
+                        'intensidad' => min($terminal->solicitudes_count / 10, 5) // Normalizar intensidad
+                    ];
+                });
+
+            // Estadísticas por estado específico
+            $estadosEspecificos = [
+                'pendiente' => Solicitud::where('solicitudes_estadosId', 1)->count(),
+                'pagado' => Solicitud::where('solicitudes_estadosId', 5)->count(),
+                'impreso' => Solicitud::where('solicitudes_estadosId', 9)->count(),
+                'finalizado' => Solicitud::where('solicitudes_estadosId', 7)->count(),
+            ];
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'total_solicitudes' => $totalSolicitudes,
+                    'solicitudes_activas' => $solicitudesActivas,
+                    'total_terminales' => $totalTerminales,
+                    'por_vencer' => $porVencer,
+                    
+                    'estados_labels' => $estadosLabels,
+                    'estados_data' => $estadosValues,
+                    
+                    'terminales_labels' => $terminalesLabels,
+                    'terminales_data' => $terminalesValues,
+                    
+                    'mensual_labels' => $mensualLabels,
+                    'mensual_data' => $mensualValues,
+                    
+                    'heatmap_data' => $heatmapData,
+                    
+                    'estados' => $estadosEspecificos
+                ],
+                'message' => 'Datos del dashboard obtenidos correctamente'
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error al obtener estadísticas del dashboard: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener datos del dashboard'
+            ], 500);
+        }
+    }
+
+    public function recentSolicitudes()
+    {
+        try {
+            $solicitudes = Solicitud::with(['estado', 'terminal'])
+                ->orderBy('created_at', 'desc')
+                ->limit(100) // Límite razonable para evitar sobrecarga
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $solicitudes,
+                'message' => 'Solicitudes recientes obtenidas correctamente'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener solicitudes recientes'
+            ], 500);
+        }
+    }
 
 
 

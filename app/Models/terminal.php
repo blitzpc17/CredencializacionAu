@@ -74,5 +74,10 @@ class Terminal extends Model
         return "{$this->latitud}, {$this->longitud}";
     }
 
+    public function solicitudes()
+    {
+        return $this->hasMany(Solicitud::class, 'terminalesId');
+    }
+
 
 }

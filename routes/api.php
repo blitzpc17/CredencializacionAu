@@ -62,6 +62,8 @@ Route::prefix('solicitudes')->name('solicitudes.')->group(function () {
     Route::delete('/{id}', [SolicitudController::class, 'destroy'])->name('destroy')->middleware('web');
     Route::get('/{id}/descargar-credencial', [SolicitudController::class, 'descargarCredencial']);
     Route::get('/export/excel', [SolicitudController::class, 'exportExcel']);
+    Route::get('/dashboard/stats', [SolicitudController::class, 'dashboardStats']);
+    Route::get('/recent/stats', [SolicitudController::class, 'recentSolicitudes']);
 });
 
 

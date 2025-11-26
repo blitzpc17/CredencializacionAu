@@ -700,7 +700,6 @@
 @endsection
 
 @push('js')
-<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 <!-- Google Maps API -->
 <script src="https://maps.googleapis.com/maps/api/js?key={{$apimapas}}&libraries=places"></script>
 <script>

@@ -41,7 +41,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function(){
     });
 
     Route::get('/', function(){
-        return view('cms.dashboard');
+        $data = VariableGlobal::where('nombre', 'APIKEY_MAPA')->first();
+        $apimapas = $data->valor;
+        return view('cms.dashboard', compact('apimapas'));
     })->name('cms.dash');
 
     Route::get('controles', function(){
