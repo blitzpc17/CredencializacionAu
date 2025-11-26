@@ -1523,7 +1523,7 @@
                                 data-folio="${solicitud.folio}">
                             <i class="fas fa-trash"></i>
                         </button>
-                           ${solicitud.solicitudes_estadosId === 9 ? `
+                           ${(solicitud.solicitudes_estadosId === 9 || solicitud.solicitudes_estadosId === 7) ? `
                         <button class="btn-icon success download-credencial" 
                                 data-id="${solicitud.id}"
                                 data-folio="${solicitud.folio}"
@@ -1545,13 +1545,13 @@
             
             if (estado.includes('pendiente') || estado.includes('espera')) {
                 return 'warning';
-            } else if (estado.includes('pagado') || estado.includes('aprobado') || estado.includes('aprobada') || estado.includes('completado') || estado.includes('completada')) {
+            } else if (estado.includes('fin') || estado.includes('term') || estado.includes('comp')){
                 return 'success';
-            } else if (estado.includes('rechazado') || estado.includes('rechazada') || estado.includes('cancelado') || estado.includes('cancelada')) {
+            } else if (estado.includes('rech') || estado.includes('canc') ) {
                 return 'danger';
-            } else if (estado.includes('proceso') || estado.includes('procesando')) {
+            } else if  (estado.includes('pag') || estado.includes('aprob') ) {
                 return 'info';
-            } else if (estado.includes('impresa') || estado.includes('impreso')) {
+            } else if (estado.includes('impres') ) {
                 return 'primary'; // Color diferente para estado IMPRESA
             } else {
                 return 'primary';
@@ -1575,15 +1575,21 @@
                 return;
             }
 
-            // Buscar estados que contengan "PAGADO" o "PAGADA" (case insensitive)
-            const estadoPagado = formData.estados.find(e => {
+            // Array con los estados que se consideran "pagado"
+            const estadosPagados = ['pag','impres', 'fin'];
+
+            // Encontrar todos los estados que coincidan con el array
+            const estadosPagadosEncontrados = formData.estados.filter(e => {
                 const nombre = e.nombre.toLowerCase();
-                return nombre.includes('pagado') || nombre.includes('pagada');
+                return estadosPagados.some(estado => nombre.includes(estado));
             });
 
-            console.log("Estado pagado encontrado:", estadoPagado);
-            
-            if (estadoPagado && estadoId == estadoPagado.id) {
+            console.log("Estados pagados encontrados:", estadosPagadosEncontrados);
+
+            // Verificar si el estadoId coincide con alguno de los estados encontrados
+            const esEstadoPagado = estadosPagadosEncontrados.some(estado => estado.id == estadoId);
+
+            if (esEstadoPagado) {
                 console.log("Mostrando campos condicionales para estado pagado");
                 vigenciaField.classList.add('show');
                 idCredencialField.classList.add('show');
@@ -1914,6 +1920,7 @@
         }
 
         function openEditModal(solicitud) {
+            console.log(solicitud)
             document.getElementById('modalTitle').textContent = 'Editar Solicitud';
             document.getElementById('solicitudId').value = solicitud.id;
             document.getElementById('folio').value = solicitud.folio;
@@ -1928,7 +1935,18 @@
                     if (element.type === 'checkbox') {
                         element.checked = solicitud[key];
                     } else {
-                        element.value = solicitud[key] || '';
+                        // Para inputs de tipo date, formatear correctamente
+                        if (element.type === 'date' && solicitud[key]) {
+                            // Asegurar que la fecha esté en formato YYYY-MM-DD
+                            const fecha = new Date(solicitud[key]);
+                            if (!isNaN(fecha.getTime())) {
+                                element.value = fecha.toISOString().split('T')[0];
+                            } else {
+                                element.value = solicitud[key] || '';
+                            }
+                        } else {
+                            element.value = solicitud[key] || '';
+                        }
                     }
                 }
             });

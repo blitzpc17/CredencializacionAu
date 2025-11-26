@@ -814,7 +814,7 @@ public function descargarCredencial($id)
         }
 
         // Verificar que tenga los datos necesarios
-        if ($solicitud->solicitudes_estadosId != 9) {
+        if ($solicitud->solicitudes_estadosId != 9 && $solicitud->solicitudes_estadosId != 7) {
             return response()->json([
                 'success' => false,
                 'message' => 'La credencial solo puede descargarse cuando la solicitud está en estado IMPRESA'
