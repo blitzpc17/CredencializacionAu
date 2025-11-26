@@ -2,7 +2,62 @@
 
 @push('css')
 <style>
-    /* Slider Principal */
+    /* ===== VARIABLES Y ESTILOS BASE ===== */
+    :root {
+        --card-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        --card-hover-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        --primary-gradient: linear-gradient(135deg, var(--primary-color) 0%, #1a2530 100%);
+        --secondary-gradient: linear-gradient(135deg, var(--secondary-color) 0%, #2980b9 100%);
+        --success-gradient: linear-gradient(135deg, var(--success-color) 0%, #219653 100%);
+    }
+
+    /* ===== COMPONENTES REUTILIZABLES ===== */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: var(--secondary-gradient);
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+        text-align: center;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+    }
+
+    .btn-success { background: var(--success-gradient); }
+    .btn-success:hover { box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4); }
+    .btn-primary { background: var(--primary-gradient); }
+    .btn-primary:hover { box-shadow: 0 6px 20px rgba(44, 62, 80, 0.4); }
+    .btn-block { display: flex; width: 100%; }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-block;
+        text-align: center;
+        min-width: 120px;
+        border: 1px solid;
+    }
+    .status-pending { background-color: #fff3cd; color: #856404; border-color: #ffeaa7; }
+    .status-processing { background-color: #cce7ff; color: #004085; border-color: #b3d7ff; }
+    .status-approved { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+    .status-completed { background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb; }
+    .status-rejected { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+
+    /* ===== SLIDER PRINCIPAL ===== */
     .slider {
         position: relative;
         height: 500px;
@@ -69,12 +124,71 @@
         cursor: pointer;
         transition: var(--transition);
     }
+    .slider-dot.active { background-color: white; }
 
-    .slider-dot.active {
-        background-color: white;
+    /* ===== SECCIÓN CALL-TO-ACTION ===== */
+    .cta-section {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 4rem 0;
+        margin: 3rem 0;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
     }
 
-    /* Sección Principal: Calendario y Cards */
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80') center/cover;
+        opacity: 0.1;
+    }
+
+    .cta-content {
+        position: relative;
+        z-index: 2;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .cta-section h2 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+
+    .cta-section p {
+        font-size: 1.3rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+    }
+
+    .cta-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--secondary-gradient);
+        color: white;
+        padding: 1.2rem 2.5rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px rgba(52, 152, 219, 0.3);
+    }
+
+    .cta-btn:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(52, 152, 219, 0.5);
+        color: white;
+    }
+
+    /* ===== SECCIÓN PRINCIPAL ===== */
     .main-section {
         display: grid;
         grid-template-columns: 1fr 1.2fr;
@@ -89,133 +203,234 @@
         gap: 2rem;
     }
 
-    .calendar-section {
-        background-color: white;
-        border-radius: 10px;
-        padding: 1.5rem;
-        box-shadow: var(--shadow);
-    }
-
-    .calendar-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-    }
-
-    .calendar-header h2 {
-        color: var(--primary-color);
-    }
-
-    .calendar-container {
-        position: relative;
-    }
-
-    .month-select {
-        width: 100%;
-        padding: 0.8rem;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        font-size: 1rem;
-        background-color: white;
-        cursor: pointer;
-        transition: var(--transition);
-    }
-
-    .month-select:focus {
-        outline: none;
-        border-color: var(--secondary-color);
-        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-    }
-
-    /* Sección flotante de folio - ahora en columna izquierda */
-    .folio-section {
-        background-color: white;
-        padding: 1.5rem;
-        border-radius: 8px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        max-width: 100%;
-        animation: slideInRight 0.5s ease;
-        transition: var(--transition);
-    }
-
-    .folio-section h3 {
-        color: var(--primary-color);
-        margin-bottom: 1rem;
-        font-size: 1.2rem;
-    }
-
-    .folio-form {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .folio-form input {
-        padding: 0.8rem;
-        margin-bottom: 1rem;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        font-size: 1rem;
-    }
-
-    .folio-form button {
-        background-color: var(--secondary-color);
-        color: white;
-        border: none;
-        padding: 0.8rem;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: var(--transition);
-    }
-
-    .folio-form button:hover {
-        background-color: #2980b9;
-    }
-
-    /* Cards Section - ahora en columna derecha */
+    /* ===== COMPONENTES DE SECCIÓN ===== */
+    .calendar-section,
+    .folio-section,
     .cards-section {
         background-color: white;
         border-radius: 10px;
         padding: 1.5rem;
         box-shadow: var(--shadow);
+        border: 1px solid #e9ecef;
+    }
+
+    .calendar-header,
+    .cards-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .calendar-header h2,
+    .cards-header h3 {
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 700;
+    }
+
+    .calendar-header h2::before { content: "📅"; font-size: 1.5rem; }
+    .cards-header h3::before { content: "🚍"; font-size: 1.5rem; }
+
+    /* ===== CARDS SECTION ===== */
+    .cards-section {
         height: 600px;
         display: flex;
         flex-direction: column;
         position: relative;
     }
 
-    .cards-header {
-        display: flex;
-        justify-content: between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #f0f0f0;
-    }
-
-    .cards-header h3 {
-        color: var(--primary-color);
-        margin: 0;
-        font-size: 1.3rem;
-    }
-
     .cards-content {
         flex: 1;
         overflow-y: auto;
         position: relative;
+        padding: 0.5rem;
     }
 
     .cards-content::-webkit-scrollbar {
-        width: 6px;
+        width: 8px;
     }
 
     .cards-content::-webkit-scrollbar-thumb {
-        background-color: #ccc;
+        background: var(--secondary-gradient);
         border-radius: 10px;
     }
 
-    /* Loader para cards */
+    .cards-content::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    /* ===== CARDS INDIVIDUALES ===== */
+    .card {
+        display: flex;
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        /*border-left: 6px solid var(--secondary-color);*/
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.5s ease forwards;
+    }
+
+    .card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--card-hover-shadow);
+    }
+
+    .card-img {
+        width: 200px;
+        height: 180px;
+        overflow: hidden;
+        flex-shrink: 0;
+        position: relative;
+    }
+
+    .card-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+    }
+
+    .card:hover .card-img img {
+        transform: scale(1.1);
+    }
+
+    .card-content {
+        padding: 0.5rem;
+        box-sizing:boder-box;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .card h3 {
+        color: var(--primary-color);
+        margin-bottom: 0.8rem;
+        font-size: 1.3rem;
+        font-weight: 700;
+        line-height: 1.3;
+    }
+
+    .card p {
+        color: #666;
+        margin-bottom: 1.2rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        flex-grow: 1;
+    }
+
+    .card-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+        font-size: 0.9rem;
+        color: #888;
+    }
+
+    .card-date {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+
+    .card-btn {
+        align-self: flex-start;
+        background: var(--secondary-gradient);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+
+    .card-btn:hover {
+        background: linear-gradient(135deg, #2980b9 0%, #1f618d 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+    }
+
+    .card-btn:disabled {
+        background: #95a5a6;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* ===== FORMULARIOS ===== */
+    .folio-form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .folio-form input,
+    .month-select {
+        width: 100%;
+        padding: 0.8rem;
+        margin-bottom: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+        background-color: white;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .folio-form input:focus,
+    .month-select:focus {
+        outline: none;
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+
+    .month-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23333' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 0.7rem top 50%;
+        background-size: 0.65rem auto;
+        padding-right: 2.5rem;
+    }
+
+    /* ===== ESTADOS Y LOADERS ===== */
+    .no-cards {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+    }
+
+    .no-cards i {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        color: #bdc3c7;
+    }
+
+    .no-cards h4 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+
+    .no-cards p {
+        font-size: 1.1rem;
+        margin-bottom: 0;
+    }
+
     .cards-loader {
         display: none;
         position: absolute;
@@ -226,9 +441,7 @@
         z-index: 10;
     }
 
-    .cards-loader.active {
-        display: block;
-    }
+    .cards-loader.active { display: block; }
 
     .cards-spinner {
         width: 40px;
@@ -240,344 +453,256 @@
         margin: 0 auto 1rem;
     }
 
-    .cards-loader p {
-        color: #666;
-        font-size: 0.9rem;
-    }
-
     @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
 
-    /* Cards estilo Flutter */
-    .card {
-        display: flex;
-        background-color: white;
-        border-radius: 15px;
-        overflow: hidden;
-        margin-bottom: 1.5rem;
-        box-shadow: var(--shadow);
-        transition: var(--transition);
-        border-left: 5px solid var(--secondary-color);
-        opacity: 0;
-        transform: translateY(20px);
-        animation: fadeInUp 0.5s ease forwards;
-    }
-
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .card-img {
-        width: 120px;
-        height: 120px;
-        overflow: hidden;
-        flex-shrink: 0;
-    }
-
-    .card-img img {
+    /* ===== MODAL ===== */
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        background-color: rgba(0,0,0,0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        animation: slideInUp 0.3s ease;
+    }
+
+    .modal-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--primary-gradient);
+        color: white;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: 600;
+    }
+
+    .close-modal {
+        font-size: 1.5rem;
+        cursor: pointer;
+        background: rgba(255,255,255,0.2);
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         transition: var(--transition);
     }
 
-    .card:hover .card-img img {
-        transform: scale(1.05);
+    .close-modal:hover {
+        background: rgba(255,255,255,0.3);
+        transform: rotate(90deg);
     }
 
-    .card-content {
-        padding: 1rem;
-        flex: 1;
+    .modal-body { padding: 2rem; }
+    .modal-footer {
+        padding: 1.5rem 2rem;
+        border-top: 1px solid #eee;
+        text-align: right;
+        background: #f8f9fa;
+        border-radius: 0 0 15px 15px;
+    }
+
+    /* ===== SECCIÓN DE VOUCHER ===== */
+    .voucher-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 2rem;
+        border-radius: 12px;
+        border: 2px dashed #dee2e6;
+        margin: 2rem 0;
+        text-align: center;
+    }
+
+    .voucher-section h4 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .voucher-section p {
+        color: #666;
+        margin-bottom: 1.5rem;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    .file-upload-area {
+        border: 3px dashed #3498db;
+        border-radius: 12px;
+        padding: 2.5rem;
+        text-align: center;
+        margin: 1.5rem 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .file-upload-area:hover {
+        background-color: #f8f9fa;
+        border-color: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+    }
+
+    .file-upload-area i {
+        font-size: 3.5rem;
+        color: #3498db;
+        margin-bottom: 1rem;
+    }
+
+    /* ===== ESTADOS DE CARGA ===== */
+    .processing-status {
+        text-align: center;
+        padding: 1.5rem;
+        border-radius: 8px;
+        background: #e8f4fd;
+        color: #3498db;
+        border: 1px solid #3498db;
+        font-weight: 600;
+    }
+
+    .detection-success {
+        color: #27ae60;
+        font-weight: 600;
+        text-align: center;
+        padding: 1.5rem;
+        background: #f0fff4;
+        border-radius: 8px;
+        border: 1px solid #27ae60;
+        font-size: 1rem;
+    }
+
+    .detection-error {
+        color: #e74c3c;
+        font-weight: 600;
+        text-align: center;
+        padding: 1.5rem;
+        background: #fff0f0;
+        border-radius: 8px;
+        border: 1px solid #e74c3c;
+        font-size: 1rem;
+    }
+
+    /* ===== GRID DE INFORMACIÓN ===== */
+    .folio-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-item {
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        gap: 0.5rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid var(--secondary-color);
     }
 
-    .card h3 {
+    .info-item label {
+        font-weight: 700;
         color: var(--primary-color);
-        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .folio-number {
+        font-weight: bold;
+        color: var(--secondary-color);
+        font-size: 1.3rem;
+    }
+
+    .proximo-paso {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 1.5rem;
+        border-radius: 8px;
+        border-left: 4px solid var(--secondary-color);
+        margin-top: 2rem;
+    }
+
+    .proximo-paso h4 {
+        margin: 0 0 1rem 0;
+        color: var(--primary-color);
         font-size: 1.1rem;
     }
 
-    .card p {
+    .proximo-paso p {
+        margin: 0;
         color: #666;
-        margin-bottom: 1rem;
-        font-size: 0.9rem;
-        line-height: 1.4;
+        font-size: 1rem;
+        line-height: 1.5;
     }
 
-    .card-meta {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: auto;
-        font-size: 0.8rem;
-        color: #888;
-    }
-
-    .card-date {
-        display: flex;
-        align-items: center;
-        gap: 0.3rem;
-    }
-
-    .card-btn {
-        align-self: flex-start;
-        background-color: var(--secondary-color);
-        color: white;
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: var(--transition);
-    }
-
-    .card-btn:hover {
-        background-color: #2980b9;
-    }
-
-    .card-btn:disabled {
-        background-color: #ccc;
-        cursor: not-allowed;
-    }
-
-    .no-cards {
-        text-align: center;
-        padding: 2rem;
-        color: #666;
-    }
-
-    .no-cards i {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        color: #ddd;
-    }
-
-    /* Contenedor de cards para móviles */
-    .cards-container-mobile {
-        display: none;
-        width: 100%;
-    }
-
-    /* Responsive */
+    /* ===== RESPONSIVE ===== */
     @media (max-width: 992px) {
-        .slider {
-            height: 400px;
-            margin-top: 70px;
-        }
-
-        .slide-content h2 {
-            font-size: 1.8rem;
-        }
-
-        .main-section {
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-        }
-
-        .left-column {
-            gap: 1.5rem;
-        }
-
-        .cards-section {
-            height: 500px;
-        }
+        .slider { height: 400px; margin-top: 70px; }
+        .slide-content h2 { font-size: 1.8rem; }
+        .main-section { grid-template-columns: 1fr; gap: 1.5rem; }
+        .left-column { gap: 1.5rem; }
+        .cards-section { height: 500px; }
     }
 
     @media (max-width: 768px) {
-        .slider {
-            height: 300px;
-        }
-
-        .slide-content {
-            padding: 1rem;
-        }
-
-        .slide-content h2 {
-            font-size: 1.5rem;
-        }
-
-        .slide-content p {
-            font-size: 1rem;
-        }
-
-        .card {
-            flex-direction: column;
-        }
-
-        .card-img {
-            width: 100%;
-            height: 200px;
-        }
-
-        .cards-section {
-            display: flex;
-            height: 500px;
-        }
-
-        .cards-container-mobile {
-            display: none;
-        }
-
-        .card-mobile {
-            background-color: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            border-left: 5px solid var(--secondary-color);
-        }
-
-        .card-mobile:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-mobile h3 {
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-            font-size: 1.2rem;
-        }
-
-        .card-mobile p {
-            color: #666;
-            margin-bottom: 1rem;
-        }
-
-        .card-mobile-img {
-            width: 100%;
-            height: 200px;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 1rem;
-        }
-
-        .card-mobile-img img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: var(--transition);
-        }
-
-        .card-mobile:hover .card-mobile-img img {
-            transform: scale(1.05);
-        }
+        .slider { height: 300px; }
+        .slide-content { padding: 1rem; }
+        .slide-content h2 { font-size: 1.5rem; }
+        .slide-content p { font-size: 1rem; }
+        .card { flex-direction: column; }
+        .card-img { width: 100%; height: 200px; }
+        .modal-content { width: 95%; margin: 1rem; }
+        .folio-info-grid { grid-template-columns: 1fr; }
+        .cta-section h2 { font-size: 2rem; }
+        .cta-section p { font-size: 1.1rem; }
+        .cta-btn { padding: 1rem 2rem; font-size: 1.1rem; }
     }
 
     @media (max-width: 480px) {
-        .slider {
-            height: 250px;
-        }
-
-        .slide-content h2 {
-            font-size: 1.3rem;
-        }
-
-        .slide-content p {
-            font-size: 0.9rem;
-        }
-
-        .calendar-section,
-        .folio-section,
-        .cards-section {
-            padding: 1rem;
-        }
-
-        .cards-section {
-            height: 450px;
-        }
+        .slider { height: 250px; }
+        .slide-content h2 { font-size: 1.3rem; }
+        .slide-content p { font-size: 0.9rem; }
+        .calendar-section, .folio-section, .cards-section { padding: 1rem; }
+        .cards-section { height: 450px; }
+        .modal-body { padding: 1.5rem; }
+        .voucher-section { padding: 1.5rem; }
+        .file-upload-area { padding: 1.5rem; }
+        .cta-section { padding: 3rem 0; }
+        .cta-section h2 { font-size: 1.8rem; }
     }
 
-    /* Espaciado mejorado */
-    .section-spacing {
-        margin: 2rem 0;
-    }
-
-    /* Mejoras visuales */
-    .calendar-section,
-    .folio-section,
-    .cards-section {
-        border: 1px solid #e9ecef;
-    }
-
-    .calendar-header h2,
-    .folio-section h3,
-    .cards-header h3 {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .calendar-header h2::before {
-        content: "📅";
-        font-size: 1.5rem;
-    }
-
-    .folio-section h3::before {
-        content: "📋";
-        font-size: 1.5rem;
-    }
-
-    .cards-header h3::before {
-        content: "🚍";
-        font-size: 1.5rem;
-    }
-
-    /* Estilos adicionales para el modal de folio */
-.file-upload-area {
-    border: 2px dashed #3498db;
-    border-radius: 8px;
-    padding: 2rem;
-    text-align: center;
-    margin: 1rem 0;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.file-upload-area:hover {
-    background-color: #f8f9fa;
-    border-color: #2980b9;
-}
-
-.voucher-section {
-    background: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 8px;
-    border-left: 4px solid var(--secondary-color);
-}
-
-.processing-status {
-    text-align: center;
-    padding: 1rem;
-    border-radius: 5px;
-    background: #e8f4fd;
-    color: #3498db;
-}
-
-.detection-success {
-    color: #27ae60;
-    font-weight: 600;
-    text-align: center;
-    padding: 1rem;
-    background: #f0fff4;
-    border-radius: 5px;
-    border: 1px solid #27ae60;
-}
-
-.detection-error {
-    color: #e74c3c;
-    font-weight: 600;
-    text-align: center;
-    padding: 1rem;
-    background: #fff0f0;
-    border-radius: 5px;
-    border: 1px solid #e74c3c;
-}
+    /* ===== ESPACIADO Y UTILIDADES ===== */
+    .section-spacing { margin: 2rem 0; }
 </style>
 @endpush
 
@@ -613,6 +738,20 @@
             <div class="slider-dot" data-slide="2"></div>
         </div>
     </section>
+
+    <!-- Sección Call-to-Action -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2>¡Realiza tu trámite de credencialización ahora!</h2>
+            <p>Obtén tu credencial de forma rápida y sencilla. Completa el formulario y comienza a disfrutar de los beneficios.</p>
+            <a href="{{ route('client.solicitud') }}" class="cta-btn">
+                <i class="fas fa-id-card"></i>
+                Iniciar Trámite
+            </a>
+        </div>
+    </div>
+</section>
 
     <!-- Espaciado después del slider -->
     <div class="section-spacing"></div>
@@ -651,7 +790,7 @@
                 <p>Si ya cuentas con un folio de solicitud, ingrésalo para ver el estado de tu trámite.</p>
                 <form class="folio-form" id="folioForm">
                     <input type="text" placeholder="Ingresa tu folio" id="folioInput" required>
-                    <button type="submit">Consultar Estado</button>
+                    <button class="card-btn" type="submit">Consultar Estado</button>
                 </form>
             </div>
         </div>
@@ -816,7 +955,7 @@
         });
     }
 
-    // Función para crear card
+    // Función para crear card 
     function crearCard(cita, index) {
         const card = document.createElement('div');
         card.className = 'card';
@@ -824,20 +963,24 @@
 
         card.innerHTML = `
             <div class="card-img">
-                <img src="${IMAGE_BASE_URL}/${cita.imagen}" alt="${cita.lugar}">
+                <img src="${IMAGE_BASE_URL}/${cita.imagen}" alt="${cita.lugar}" onerror="this.src='https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'">
             </div>
             <div class="card-content">
-                <h3>${cita.lugar}</h3>
-                <p>${cita.descripcion??""}</p>
+                <div>
+                    <h3>${cita.lugar}</h3>
+                    <p>${cita.descripcion || 'Disponible para proceso de credencialización'}</p>
+                </div>
                 <div class="card-meta">
                     <div class="card-date">
-                        <i class="fas fa-calendar"></i>
+                        <i class="fas fa-calendar-alt"></i>
                         ${cita.fecha}
                     </div>
-                    <span>Horario: ${cita.horario}</span>
+                    <span><i class="fas fa-clock"></i> ${cita.horario}</span>
                 </div>
                 <button class="card-btn" ${cita.disponibles === 0 ? 'disabled' : ''}>
-                    ${cita.disponibles === 0 ? 'Agotado' : 'Realizar Solicitud'}
+                    ${cita.disponibles === 0 ? 
+                        '<i class="fas fa-times-circle"></i> Agotado' : 
+                        '<i class="fas fa-check-circle"></i> Realizar Solicitud'}
                 </button>
             </div>
         `;
@@ -940,7 +1083,7 @@
             <div id="folioResultModal" class="modal" style="display: none;">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h3>Estado de tu Solicitud</h3>
+                        <h3><i class="fas fa-file-alt"></i> Estado de tu Solicitud</h3>
                         <span class="close-modal" onclick="cerrarModalFolio()">&times;</span>
                     </div>
                     <div class="modal-body">
@@ -980,27 +1123,22 @@
                         </div>
                         
                         <!-- Sección para subir voucher (solo para estado pendiente) -->
-                        <div id="voucherSection" class="voucher-section" style="display: none; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #eee;">
-                            <h4 style="color: var(--primary-color); margin-bottom: 1rem;">
-                                <i class="fas fa-file-upload"></i> Subir Comprobante de Pago
-                            </h4>
-                            <p style="margin-bottom: 1rem; color: #666;">
+                        <div id="voucherSection" class="voucher-section" style="display: none;">
+                            <h4><i class="fas fa-file-upload"></i> Subir Comprobante de Pago</h4>
+                            <p>
                                 Tu solicitud está en estado <strong>PENDIENTE</strong>. Para continuar con el proceso, 
-                                por favor sube tu comprobante de pago.
+                                por favor sube tu comprobante de pago. Formatos aceptados: PDF, JPG, JPEG, PNG (Máx. 2MB)
                             </p>
                             
                             <form id="voucherForm" enctype="multipart/form-data">
                                 <input type="hidden" id="voucherFolio" name="folio">
                                 
-                                <div class="file-upload-area" style="border: 2px dashed #3498db; border-radius: 8px; padding: 2rem; text-align: center; margin: 1rem 0; cursor: pointer; transition: var(--transition);">
-                                    <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #3498db; margin-bottom: 1rem;"></i>
-                                    <h5 style="margin-bottom: 0.5rem; color: var(--primary-color);">Seleccionar archivo</h5>
-                                    <p style="margin: 0.5rem 0; color: #666; font-size: 0.9rem;">
-                                        Formatos aceptados: PDF, JPG, JPEG, PNG<br>
-                                        Tamaño máximo: 2MB
-                                    </p>
+                                <div class="file-upload-area" id="voucherUploadArea">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <h5>Seleccionar archivo</h5>
+                                    <p>Haz clic aquí o arrastra tu comprobante</p>
                                     <input type="file" id="voucherFile" name="voucher_pago" accept=".pdf,.jpg,.jpeg,.png" style="display: none;" required>
-                                    <div id="voucherFileName" style="margin-top: 1rem; font-weight: 600; color: var(--secondary-color);"></div>
+                                    <div id="voucherFileName"></div>
                                 </div>
                                 
                                 <div id="voucherActions" class="form-actions" style="display: none; margin-top: 1.5rem;">
@@ -1022,14 +1160,15 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" onclick="cerrarModalFolio()">Aceptar</button>
+                        <button type="button" class="btn btn-primary" onclick="cerrarModalFolio()">
+                            <i class="fas fa-check"></i> Aceptar
+                        </button>
                     </div>
                 </div>
             </div>
         `;
 
         document.body.insertAdjacentHTML('beforeend', modalHTML);
-        agregarCSSModal();
         configurarVoucherUpload();
     }
 
@@ -1168,10 +1307,9 @@
     function obtenerProximoPaso(estadoId) {
         const pasos = {
             1: 'Subir compprobante de pago para continuar con el proceso',
-            2: 'Verificación de requisitos académicos (3-5 días hábiles)',
-            3: 'Generación de credencial (5-7 días hábiles)',
-            4: 'Recolección en terminal asignada',
-            5: 'Proceso finalizado'
+            5: 'Generación de credencial (1-3 días hábiles)',
+            9: 'Recolección en terminal asignada',
+            7: 'Proceso finalizado'
         };
         return pasos[estadoId] || 'Proceso en revisión';
     }
@@ -1223,208 +1361,6 @@
             mostrarErrorFolio('Por favor, ingresa un folio válido');
         }
     });
-
-    // CSS para el modal de resultados
-    function agregarCSSModal() {
-        const css = `
-            <style>
-                .modal {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background-color: rgba(0,0,0,0.5);
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    z-index: 1000;
-                }
-
-                .modal-content {
-                    background: white;
-                    border-radius: 10px;
-                    width: 90%;
-                    max-width: 700px;
-                    max-height: 90vh;
-                    overflow-y: auto;
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-                }
-
-                .modal-header {
-                    padding: 1.5rem;
-                    border-bottom: 1px solid #eee;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    background: var(--primary-color);
-                    color: white;
-                    border-radius: 10px 10px 0 0;
-                }
-
-                .modal-header h3 {
-                    margin: 0;
-                    font-size: 1.3rem;
-                }
-
-                .close-modal {
-                    font-size: 1.5rem;
-                    cursor: pointer;
-                    background: rgba(255,255,255,0.2);
-                    width: 30px;
-                    height: 30px;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    transition: var(--transition);
-                }
-
-                .close-modal:hover {
-                    background: rgba(255,255,255,0.3);
-                }
-
-                .modal-body {
-                    padding: 1.5rem;
-                }
-
-                .folio-info-grid {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 1rem;
-                    margin-bottom: 1.5rem;
-                }
-
-                .info-item {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 0.3rem;
-                }
-
-                .info-item label {
-                    font-weight: 600;
-                    color: var(--primary-color);
-                    font-size: 0.9rem;
-                }
-
-                .folio-number {
-                    font-weight: bold;
-                    color: var(--secondary-color);
-                    font-size: 1.1rem;
-                }
-
-                .status-badge {
-                    padding: 0.3rem 0.8rem;
-                    border-radius: 20px;
-                    font-size: 0.8rem;
-                    font-weight: 600;
-                    display: inline-block;
-                }
-
-                .status-pending {
-                    background-color: #fff3cd;
-                    color: #856404;
-                }
-
-                .status-processing {
-                    background-color: #cce7ff;
-                    color: #004085;
-                }
-
-                .status-approved {
-                    background-color: #d4edda;
-                    color: #155724;
-                }
-
-                .status-completed {
-                    background-color: #d1ecf1;
-                    color: #0c5460;
-                }
-
-                .status-rejected {
-                    background-color: #f8d7da;
-                    color: #721c24;
-                }
-
-                .voucher-section {
-                    background: #f8f9fa;
-                    padding: 1.5rem;
-                    border-radius: 8px;
-                    border-left: 4px solid var(--secondary-color);
-                }
-
-                .file-upload-area:hover {
-                    background-color: #f8f9fa;
-                    border-color: #2980b9;
-                }
-
-                .processing-status {
-                    text-align: center;
-                    padding: 1rem;
-                    border-radius: 5px;
-                    background: #e8f4fd;
-                    color: #3498db;
-                }
-
-                .detection-success {
-                    color: #27ae60;
-                    font-weight: 600;
-                    text-align: center;
-                    padding: 1rem;
-                    background: #f0fff4;
-                    border-radius: 5px;
-                    border: 1px solid #27ae60;
-                }
-
-                .detection-error {
-                    color: #e74c3c;
-                    font-weight: 600;
-                    text-align: center;
-                    padding: 1rem;
-                    background: #fff0f0;
-                    border-radius: 5px;
-                    border: 1px solid #e74c3c;
-                }
-
-                .proximo-paso {
-                    background: #f8f9fa;
-                    padding: 1rem;
-                    border-radius: 5px;
-                    border-left: 4px solid var(--secondary-color);
-                    margin-top: 1.5rem;
-                }
-
-                .proximo-paso h4 {
-                    margin: 0 0 0.5rem 0;
-                    color: var(--primary-color);
-                }
-
-                .proximo-paso p {
-                    margin: 0;
-                    color: #666;
-                }
-
-                .modal-footer {
-                    padding: 1rem 1.5rem;
-                    border-top: 1px solid #eee;
-                    text-align: right;
-                }
-
-                @media (max-width: 768px) {
-                    .folio-info-grid {
-                        grid-template-columns: 1fr;
-                    }
-                    
-                    .modal-content {
-                        width: 95%;
-                        margin: 1rem;
-                    }
-                }
-            </style>
-        `;
-
-        document.head.insertAdjacentHTML('beforeend', css);
-    }
 
     // Cargar citas del mes actual al iniciar
     document.addEventListener('DOMContentLoaded', function() {
